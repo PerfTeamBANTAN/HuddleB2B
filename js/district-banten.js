@@ -178,7 +178,7 @@ function openTiketHIModal(API_URL, sto) {
   head.innerHTML = '';
   body.innerHTML = `<tr><td>Loading...</td></tr>`;
 
-  const cols = ['A','C','D','H','I','J','AU','CG','CO','CP'];
+  const cols = ['Incident','Summary','Report Date','Service Type','WITEL','WORKZONE','LABOR TEKNISI','TTR (Report Date s/d Resolved Date)','Flag GAUL','Old Tiket'];
 
   const cb = 'jsonp_tiket_' + Date.now();
 
