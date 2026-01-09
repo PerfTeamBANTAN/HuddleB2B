@@ -25,6 +25,17 @@ function initAsgarHSI(API_URL) {
   }
 
   /* =====================================================
+     HELPER CEK THRESHOLD WARNA
+  ===================================================== */
+  function isBelowThreshold(header, value) {
+    if (typeof value !== 'number') return false;
+    return (
+      (header === 'Asgar s/d HI' || header === 'Pragnosa Asgar') &&
+      value < 92
+    );
+  }
+
+  /* =====================================================
      KPI CARD
   ===================================================== */
   const cbKpi = 'jsonp_asgar_kpi_' + Date.now();
@@ -139,11 +150,20 @@ function initAsgarHSI(API_URL) {
 
     data.forEach(row => {
       const tr = document.createElement('tr');
+
       tableHeaders.forEach(h => {
         const td = document.createElement('td');
-        td.textContent = formatNumber(row[h]);
+        const rawValue = row[h];
+
+        td.textContent = formatNumber(rawValue);
+
+        if (isBelowThreshold(h, rawValue)) {
+          td.classList.add('text-danger', 'fw-semibold');
+        }
+
         tr.appendChild(td);
       });
+
       tableBody.appendChild(tr);
     });
   }
