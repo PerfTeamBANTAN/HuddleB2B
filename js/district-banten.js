@@ -1,10 +1,22 @@
-// CSS khusus kartu bisa diletakkan di file CSS global,
-// tapi kalau mau cepat, tambahkan <style> di index / file css terpisah:
-//
-// .badge-card { ... }  (sama seperti sebelumnya)
-// .badge-card-header { ... }
-// .cards-scroll { display:flex; flex-wrap:nowrap; overflow-x:auto; padding-bottom:6px; }
-// dst.
+// js/district-banten.js
+// Dipanggil dari index.html: initDistrictBanten(B2B_API_URL);
+
+function formatAch(value) {
+  if (!value && value !== 0) return '-';
+
+  const str = String(value).trim();
+
+  // Kalau sudah ada tanda persen atau koma, tampilkan apa adanya
+  if (str.includes('%') || str.includes(',')) {
+    return str;
+  }
+
+  // Coba parse sebagai number dan tampilkan 2 desimal
+  const num = Number(str);
+  if (isNaN(num)) return str;
+
+  return num.toFixed(2); // 2 desimal
+}
 
 function initDistrictBanten(apiUrl) {
   const row = document.getElementById('district-banten-row');
@@ -28,7 +40,8 @@ function initDistrictBanten(apiUrl) {
         const ind = String(r.indikator || '').trim();
         const witel = String(r.witel || '').trim().toUpperCase();
         const target = String(r.target || '').trim();
-        const ach = String(r.ach || '').trim();
+        const achRaw = String(r.ach || '').trim();
+
         if (!ind || !witel) return;
 
         if (!indikatorMap[ind]) {
@@ -39,12 +52,14 @@ function initDistrictBanten(apiUrl) {
           };
         }
 
+        const achFormatted = formatAch(achRaw);
+
         if (witel === 'BANTEN') {
-          indikatorMap[ind].banten = ach;
+          indikatorMap[ind].banten = achFormatted;
           if (!indikatorMap[ind].target) indikatorMap[ind].target = target;
         }
         if (witel === 'TANGERANG') {
-          indikatorMap[ind].tangerang = ach;
+          indikatorMap[ind].tangerang = achFormatted;
           if (!indikatorMap[ind].target) indikatorMap[ind].target = target;
         }
       });
@@ -63,7 +78,7 @@ function initDistrictBanten(apiUrl) {
               ${indikator}
             </div>
             <div><span class="label">Target :</span>
-              <span class="value-target">${d.target}</span></div>
+              <span class="value-target">${d.target || '-'}</span></div>
             <div><span class="label">Banten :</span>
               <span class="value-banten">${d.banten ?? '-'}</span></div>
             <div><span class="label">Tangerang :</span>
@@ -73,6 +88,10 @@ function initDistrictBanten(apiUrl) {
 
         row.appendChild(cardContainer);
       });
+
+      if (!row.hasChildNodes()) {
+        row.innerHTML = '<div class="text-danger">Data District BANTEN kosong.</div>';
+      }
     })
     .catch(err => {
       console.error(err);
