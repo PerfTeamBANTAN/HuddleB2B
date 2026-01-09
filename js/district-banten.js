@@ -10,23 +10,28 @@ function initDistrictBanten(API_URL) {
     .then(data => {
       container.innerHTML = '';
 
-      data.forEach(item => {
-        const indikator = item.INDIKATOR || item.indikator || '';
-        const target = Number(item.TARGET ?? item.target ?? 0);
-        const banten = Number(item.BANTEN ?? item.banten ?? 0);
-        const tangerang = Number(item.TANGERANG ?? item.tangerang ?? 0);
+      // GROUP DATA PER INDIKATOR
+      const grouped = {};
+      data.forEach(row => {
+        if (!grouped[row.indikator]) grouped[row.indikator] = {};
+        grouped[row.indikator][row.witel] = row;
+      });
+
+      Object.keys(grouped).forEach(indikator => {
+        const rows = grouped[indikator];
+
+        const target = Number(rows['Target']?.target || 0);
+        const banten = Number(rows['Banten']?.ach || 0);
+        const tangerang = Number(rows['Tangerang']?.ach || 0);
 
         // RULE KPI
-        let goodIfGreater = true;
-        if (indikator.toLowerCase().includes('gangguan')) {
-          goodIfGreater = false;
-        }
+        const isLowerBetter = indikator.toLowerCase().includes('gangguan');
 
-        const isGood = value =>
-          goodIfGreater ? value >= target : value <= target;
+        const isGood = val =>
+          isLowerBetter ? val <= target : val >= target;
 
-        const valueClass = value =>
-          isGood(value) ? 'value-good' : 'value-bad';
+        const valueClass = val =>
+          isGood(val) ? 'value-good' : 'value-bad';
 
         const cardClass =
           isGood(banten) ? 'card-good' : 'card-bad';
