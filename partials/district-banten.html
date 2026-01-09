@@ -1,14 +1,24 @@
 <div id="district-banten-wrapper" class="district-wrapper px-3">
 
-  <!-- LAST UPDATE (pojok kiri atas) -->
-  <div id="last-update" class="last-update"></div>
+  <!-- HEADER BAR -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div id="last-update" class="last-update">
+      <i class="fa fa-clock me-1"></i> Last update: -
+    </div>
+  </div>
 
   <h4 class="text-center text-light mb-3">
     Huddle Performance CX B2B District BANTEN
   </h4>
 
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner-border text-light mb-2"></div>
+    <div class="loading-text">Mengambil data...</div>
+  </div>
+
   <div id="district-banten-row" class="cards-scroll">
-    <!-- kartu akan diisi oleh js/district-banten.js -->
+    <!-- kartu diisi JS -->
   </div>
 
 </div>
