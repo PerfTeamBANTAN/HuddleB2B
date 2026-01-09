@@ -18,6 +18,7 @@ function initAsgarHSI(API_URL) {
     try {
       const { data, lastUpdate } = res;
 
+      /* ===== LAST UPDATE ===== */
       const d = new Date(lastUpdate);
       lastUpdateEl.innerHTML =
         `<i class="fa fa-clock me-1"></i> Last update: ` +
@@ -30,7 +31,9 @@ function initAsgarHSI(API_URL) {
           hour12: false
         });
 
+      /* ===== KPI CARD ===== */
       const map = {};
+
       data.forEach(r => {
         if (!map[r.indikator]) {
           map[r.indikator] = {
@@ -62,13 +65,13 @@ function initAsgarHSI(API_URL) {
             <div class="row-item">
               <span>Banten</span>
               <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-                ${v.BANTEN?.toFixed(2) ?? '-'}
+                ${typeof v.BANTEN === 'number' ? v.BANTEN.toFixed(2) : '-'}
               </span>
             </div>
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-                ${v.TANGERANG?.toFixed(2) ?? '-'}
+                ${typeof v.TANGERANG === 'number' ? v.TANGERANG.toFixed(2) : '-'}
               </span>
             </div>
           </div>
@@ -109,6 +112,7 @@ function loadAsgarHSITable(API_URL) {
     headers = res.headers;
     rawData = res.data;
 
+    /* ===== TABLE HEAD ===== */
     thead.innerHTML = '';
     headers.forEach(h => {
       const th = document.createElement('th');
@@ -116,6 +120,7 @@ function loadAsgarHSITable(API_URL) {
       thead.appendChild(th);
     });
 
+    /* ===== FILTER ===== */
     const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
 
@@ -140,6 +145,9 @@ function loadAsgarHSITable(API_URL) {
     renderTable(data);
   }
 
+  /* =====================================================
+     RENDER TABLE (DESIMAL DIPERBAIKI)
+  ===================================================== */
   function renderTable(data) {
     tbody.innerHTML = '';
 
@@ -160,7 +168,8 @@ function loadAsgarHSITable(API_URL) {
         const td = document.createElement('td');
         const val = row[h];
 
-        if (h === 'Tiket HI' && Number(val) > 0) {
+        /* ===== CLICKABLE Tiket HI ===== */
+        if ((h === 'Tiket HI' || h === 'Asgar HI') && Number(val) > 0) {
           td.innerHTML = `
             <a href="#" class="text-info fw-bold text-decoration-none">
               ${val}
@@ -169,9 +178,19 @@ function loadAsgarHSITable(API_URL) {
             e.preventDefault();
             openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
           };
-        } else {
-          td.textContent = val ?? '-';
 
+        } else {
+
+          /* ===== FORMAT DESIMAL ===== */
+          if (typeof val === 'number') {
+            td.textContent = Number.isInteger(val)
+              ? val
+              : val.toFixed(2);
+          } else {
+            td.textContent = val ?? '-';
+          }
+
+          /* ===== CONDITIONAL COLOR ===== */
           if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
             td.classList.add('text-danger', 'fw-bold');
 
