@@ -1,21 +1,6 @@
-function parseNumber(val) {
-  if (!val) return null;
-  const n = Number(String(val).replace('%', '').replace(',', '.'));
-  return isNaN(n) ? null : n;
-}
-
-function getCardStatus(target, banten, tangerang) {
-  const t = parseNumber(target);
-  const b = parseNumber(banten);
-  const tg = parseNumber(tangerang);
-
-  if (t === null || (b === null && tg === null)) return 'card-warning';
-
-  if ((b !== null && b < t) || (tg !== null && tg < t)) {
-    return 'card-danger';
-  }
-
-  return 'card-success';
+function f2(val) {
+  const n = Number(val);
+  return isNaN(n) ? '-' : n.toFixed(2);
 }
 
 function initDistrictBanten(apiUrl) {
@@ -23,7 +8,7 @@ function initDistrictBanten(apiUrl) {
   if (!row) return;
 
   row.innerHTML = `
-    <div class="text-center text-light w-100">
+    <div class="text-light text-center w-100">
       <div class="spinner-border mb-2"></div>
       <div>Loading data District BANTEN...</div>
     </div>
@@ -32,57 +17,45 @@ function initDistrictBanten(apiUrl) {
   fetch(apiUrl)
     .then(r => r.json())
     .then(rows => {
-      const indikatorMap = {};
+      const map = {};
 
       rows.forEach(r => {
         const ind = String(r.indikator || '').trim();
         const witel = String(r.witel || '').trim().toUpperCase();
         if (!ind || !witel) return;
 
-        if (!indikatorMap[ind]) {
-          indikatorMap[ind] = { target: r.target, banten: null, tangerang: null };
+        if (!map[ind]) {
+          map[ind] = { target: r.target, banten: '-', tangerang: '-' };
         }
 
-        if (witel === 'BANTEN') indikatorMap[ind].banten = r.ach;
-        if (witel === 'TANGERANG') indikatorMap[ind].tangerang = r.ach;
+        if (witel === 'BANTEN') map[ind].banten = f2(r.ach);
+        if (witel === 'TANGERANG') map[ind].tangerang = f2(r.ach);
       });
 
       row.innerHTML = '';
 
-      Object.entries(indikatorMap).forEach(([indikator, d]) => {
-        const statusClass = getCardStatus(d.target, d.banten, d.tangerang);
+      Object.keys(map).forEach(ind => {
+        const d = map[ind];
 
-        const card = document.createElement('div');
-        card.innerHTML = `
-          <div class="badge-card ${statusClass}">
-            <div class="badge-card-header">${indikator}</div>
+        row.innerHTML += `
+          <div class="badge-card">
+            <div class="badge-card-header">${ind}</div>
             <div class="badge-card-body">
               <div class="row-item target">
-                <span>Target</span><span>${d.target ?? '-'}</span>
+                <span>Target</span><span>${f2(d.target)}</span>
               </div>
               <div class="row-item banten">
-                <span>Banten</span><span>${d.banten ?? '-'}</span>
+                <span>Banten</span><span>${d.banten}</span>
               </div>
               <div class="row-item tangerang">
-                <span>Tangerang</span><span>${d.tangerang ?? '-'}</span>
+                <span>Tangerang</span><span>${d.tangerang}</span>
               </div>
             </div>
           </div>
         `;
-
-        row.appendChild(card);
       });
     })
     .catch(() => {
-      row.innerHTML = `<div class="text-danger">Gagal load data.</div>`;
+      row.inner means `Data gagal dimuat`;
     });
-}
-
-function formatNumber2(val) {
-  if (val === null || val === undefined || val === '') return '-';
-
-  const num = Number(String(val).replace('%',''));
-  if (isNaN(num)) return val;
-
-  return num.toFixed(2);
 }
