@@ -9,13 +9,13 @@ function initDistrictBanten(API_URL) {
   container.innerHTML = '';
   loading.style.display = 'flex';
 
-  const callbackName = 'jsonp_cb_' + Date.now();
+  const callbackName = 'jsonp_kpi_' + Date.now();
 
   window[callbackName] = function (res) {
     try {
       const { data, lastUpdate } = res;
 
-      // === FORMAT WAKTU ===
+      // ================= LAST UPDATE =================
       const d = new Date(lastUpdate);
       lastUpdateEl.innerHTML =
         `<i class="fa fa-clock me-1"></i> Last update: ` +
@@ -28,6 +28,7 @@ function initDistrictBanten(API_URL) {
           hour12: false
         });
 
+      // ================= KPI PROCESS =================
       const map = {};
 
       data.forEach(r => {
@@ -47,7 +48,8 @@ function initDistrictBanten(API_URL) {
           lowerBetter ? val <= v.target : val >= v.target;
 
         const card = document.createElement('div');
-        card.className = `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+        card.className =
+          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -73,9 +75,12 @@ function initDistrictBanten(API_URL) {
         container.appendChild(card);
       });
 
+      // ================= LOAD TABLE =================
+      loadDistrictBantenTable(API_URL);
+
     } catch (e) {
       container.innerHTML =
-        '<div class="text-danger">Gagal memuat data</div>';
+        '<div class="text-danger">Gagal memuat data KPI</div>';
     } finally {
       loading.style.display = 'none';
       delete window[callbackName];
@@ -85,5 +90,70 @@ function initDistrictBanten(API_URL) {
 
   const script = document.createElement('script');
   script.src = `${API_URL}?callback=${callbackName}`;
+  document.body.appendChild(script);
+}
+
+/* =========================================================
+   ================= TABLE ALERT ===========================
+   ========================================================= */
+
+function loadDistrictBantenTable(API_URL) {
+  const thead = document.getElementById('district-banten-table-head');
+  const tbody = document.getElementById('district-banten-table-body');
+
+  if (!thead || !tbody) return;
+
+  thead.innerHTML = '';
+  tbody.innerHTML =
+    `<tr><td colspan="10" class="text-center text-muted">Memuat data...</td></tr>`;
+
+  const cb = 'jsonp_table_' + Date.now();
+
+  window[cb] = function (res) {
+    try {
+      // ================= HEADER =================
+      res.headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        thead.appendChild(th);
+      });
+
+      // ================= BODY =================
+      tbody.innerHTML = '';
+      res.data.forEach(row => {
+        const tr = document.createElement('tr');
+
+        res.headers.forEach(h => {
+          const td = document.createElement('td');
+          const val = row[h];
+
+          td.textContent = val ?? '-';
+
+          // Highlight STATUS
+          if (h.toUpperCase().includes('STATUS')) {
+            td.classList.add(
+              val === 'PENDING' ? 'text-warning' : 'text-success'
+            );
+          }
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+    } catch (e) {
+      tbody.innerHTML =
+        `<tr><td colspan="10" class="text-danger text-center">
+          Gagal memuat data tabel
+        </td></tr>`;
+    } finally {
+      delete window[cb];
+      script.remove();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?type=table&callback=${cb}`;
   document.body.appendChild(script);
 }
