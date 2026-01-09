@@ -123,7 +123,6 @@ html, body {
   font-weight: 700;
   text-align: center;
   padding: 8px;
-  letter-spacing: 0.3px;
 }
 
 /* ================= CARD BODY ================= */
@@ -135,101 +134,17 @@ html, body {
 .row-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   font-weight: 600;
   margin-bottom: 6px;
 }
 
-/* LABEL */
-.row-item span:first-child {
-  color: #000;
-}
-
-/* TARGET VALUE */
-.row-item:first-child span:last-child {
-  color: #000;
-  font-weight: 700;
-}
-
-/* TARGET SEPARATOR */
-.row-item:first-child {
-  border-bottom: 1px dashed rgba(0,0,0,0.3);
-  padding-bottom: 4px;
-  margin-bottom: 6px;
-}
-
 /* ================= KPI VALUE ================= */
-.value-good {
-  color: #0f5132;
-  font-weight: 700;
-}
+.value-good { color: #0f5132; font-weight: 700; }
+.value-bad { color: #842029; font-weight: 700; }
 
-.value-bad {
-  color: #842029;
-  font-weight: 700;
-}
-
-/* ================= CARD STATUS ================= */
-.card-good {
-  background: #d1e7dd !important;
-}
-
-.card-bad {
-  background: #f8d7da !important;
-}
-
-/* ================= DISTRICT WRAPPER ================= */
-.district-wrapper {
-  position: relative;
-}
-
-/* ================= LAST UPDATE ================= */
-.last-update {
-  font-size: 12px;
-  color: #bbb;
-  font-style: italic;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ================= LOADING OVERLAY ================= */
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(2px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-}
-
-.loading-text {
-  margin-top: 8px;
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-/* ================= SKELETON (OPTIONAL) ================= */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #e0e0e0 25%,
-    #f2f2f2 37%,
-    #e0e0e0 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
+.card-good { background: #d1e7dd !important; }
+.card-bad { background: #f8d7da !important; }
 </style>
-
 </head>
 
 <body>
@@ -274,9 +189,6 @@ Dashboard B2B District BANTEN
 <li><a class="dropdown-item menu-link" data-menu="TTR-HSI">Performance TTR HSI dan Datin</a></li>
 </ul>
 </li>
-
-<li><hr class="dropdown-divider"></li>
-<li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
 </ul>
 </li>
 
@@ -296,65 +208,63 @@ const B2B_API_URL =
 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
 function showUnderConstruction() {
-const home = document.getElementById('home-fullscreen');
-const content = document.getElementById('content-area');
+  const home = document.getElementById('home-fullscreen');
+  const content = document.getElementById('content-area');
 
-content.classList.remove('show-grid');
-content.style.display = 'flex';
-home.classList.add('no-bg');
+  content.classList.remove('show-grid');
+  content.style.display = 'flex';
+  home.classList.add('no-bg');
 
-content.innerHTML = `
-<div class="d-flex flex-column align-items-center justify-content-center">
-<div class="spinner-border text-light mb-3"></div>
-<div>Loading dashboard...</div>
-</div>
-`;
-
-setTimeout(() => {
-content.innerHTML = '';
-const img = document.createElement('img');
-img.src = 'under contruction.png';
-content.appendChild(img);
-}, 800);
+  content.innerHTML = `
+    <div class="text-center">
+      <div class="spinner-border text-light mb-3"></div>
+      <div>Loading dashboard...</div>
+    </div>`;
 }
 
 async function loadPartialIntoContent(url, onLoaded) {
-const home = document.getElementById('home-fullscreen');
-const content = document.getElementById('content-area');
+  const home = document.getElementById('home-fullscreen');
+  const content = document.getElementById('content-area');
 
-home.classList.add('no-bg');
-content.innerHTML = `
-<div class="d-flex flex-column align-items-center justify-content-center">
-<div class="spinner-border text-light mb-3"></div>
-<div>Loading...</div>
-</div>
-`;
+  home.classList.add('no-bg');
+  content.innerHTML = `
+    <div class="text-center">
+      <div class="spinner-border text-light mb-3"></div>
+      <div>Loading...</div>
+    </div>`;
 
-const res = await fetch(url);
-content.innerHTML = await res.text();
-if (onLoaded) onLoaded();
+  const res = await fetch(url);
+  content.innerHTML = await res.text();
+  if (onLoaded) onLoaded();
 }
 
 document.querySelectorAll('.menu-link').forEach(el => {
-el.addEventListener('click', e => {
-e.preventDefault();
-const menu = el.dataset.menu;
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    const menu = el.dataset.menu;
 
-if (menu === 'District-Banten') {
-loadPartialIntoContent('partials/district-banten.html', () => {
-const content = document.getElementById('content-area');
-content.classList.add('show-grid');
-content.style.display = 'block';
+    if (menu === 'District-Banten') {
 
-const s = document.createElement('script');
-s.src = 'js/district-banten.js?v=' + Date.now();
-s.onload = () => initDistrictBanten(B2B_API_URL);
-document.body.appendChild(s);
-});
-} else {
-showUnderConstruction();
-}
-});
+      loadPartialIntoContent('partials/district-banten.html', () => {
+        const s = document.createElement('script');
+        s.src = 'js/district-banten.js?v=' + Date.now();
+        s.onload = () => initDistrictBanten(B2B_API_URL);
+        document.body.appendChild(s);
+      });
+
+    } else if (menu === 'Asgar-HSI') {
+
+      loadPartialIntoContent('partials/asgar-hsi.html', () => {
+        const s = document.createElement('script');
+        s.src = 'js/asgar-hsi.js?v=' + Date.now();
+        s.onload = () => initAsgarHSI(B2B_API_URL);
+        document.body.appendChild(s);
+      });
+
+    } else {
+      showUnderConstruction();
+    }
+  });
 });
 </script>
 
