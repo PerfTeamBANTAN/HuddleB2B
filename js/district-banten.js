@@ -36,7 +36,6 @@ function initDistrictBanten(apiUrl) {
 
       Object.keys(map).forEach(ind => {
         const d = map[ind];
-
         row.innerHTML += `
           <div class="badge-card">
             <div class="badge-card-header">${ind}</div>
@@ -56,6 +55,6 @@ function initDistrictBanten(apiUrl) {
       });
     })
     .catch(() => {
-      row.inner means `Data gagal dimuat`;
+      row.innerHTML = '<div class="text-danger">Gagal load data</div>';
     });
 }
