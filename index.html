@@ -2,14 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
 
   <!-- Bootstrap & Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    :root {
+      --primary-blue: #6f72ff;
+      --accent-blue: #8f94fb;
+    }
+
     html, body {
       height: 100%;
       margin: 0;
@@ -20,73 +26,85 @@
 
     /* ================= NAVBAR ================= */
     .navbar {
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.6) !important;
     }
 
     .navbar-brand {
-      font-weight: 700;
+      font-weight: bold;
       font-size: 22px;
       color: #fff;
     }
 
-    .nav-link {
+    .navbar-nav .nav-link {
       color: #fff !important;
+      transition: 0.3s;
+      padding: 8px 15px;
       border-radius: 6px;
-      padding: 8px 14px;
     }
 
-    .nav-link:hover {
-      background: rgba(255,255,255,0.15);
+    .navbar-nav .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
     }
 
     .dropdown-menu {
-      background: rgba(0,0,0,0.9);
+      background-color: rgba(0, 0, 0, 0.85);
       border: none;
     }
 
     .dropdown-item {
       color: #fff;
+      cursor: pointer;
     }
 
     .dropdown-item:hover {
-      background: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
     }
 
     /* ================= HOME ================= */
     .home-fullscreen {
+      width: 100%;
       height: 100vh;
-      margin-top: 56px;
-      background: url('huddle_performance.png') center / cover no-repeat;
+      background: url('huddle_performance.png') center center / cover no-repeat;
+      background-color: #000;
       display: flex;
+      align-items: center;
       justify-content: center;
-      align-items: flex-start;
-      padding-top: 30px;
-      transition: 0.3s;
+      margin-top: 56px;
+      transition: background 0.3s ease;
     }
 
-    .home-fullscreen.no-bg {
-      background: #000;
+    .no-bg {
+      background: none !important;
+      background-color: #000 !important;
     }
 
     #content-area {
       width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #fff;
     }
 
-    /* ================= DISTRICT ================= */
-    .district-wrapper {
-      max-width: 1400px;
-      margin: auto;
+    #content-area img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
     }
 
-    /* ================= KPI CARDS ================= */
+    /* ================= KPI CARD (ENHANCEMENT ONLY) ================= */
     .cards-scroll {
-      display: grid;
+      display: grid !important;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 14px;
-      padding: 10px;
+      padding: 12px;
     }
 
     .badge-card {
@@ -98,7 +116,7 @@
     }
 
     .badge-card-header {
-      background: linear-gradient(135deg, #6f72ff, #8f94fb);
+      background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
       color: #fff;
       font-weight: 700;
       text-align: center;
@@ -110,17 +128,9 @@
       padding: 10px 12px;
     }
 
-    .card-danger {
-      background: #f8d7da;
-    }
-
-    .card-success {
-      background: #d4edda;
-    }
-
-    .card-warning {
-      background: #fff3cd;
-    }
+    .card-danger { background: #f8d7da; }
+    .card-success { background: #d4edda; }
+    .card-warning { background: #fff3cd; }
 
     .row-item {
       display: flex;
@@ -133,30 +143,21 @@
     .banten { color: #0047ab; }
     .tangerang { color: #b30000; }
 
-    /* ================= SCROLL ================= */
-    ::-webkit-scrollbar {
-      height: 8px;
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #666;
-      border-radius: 4px;
-    }
   </style>
 </head>
 
 <body>
 
 <!-- ================= NAVBAR ================= -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#" onclick="location.reload()">
-      <img src="PERFORMANCE TEAM.png" height="36" class="me-2">
+    <a class="navbar-brand" href="javascript:void(0)" onclick="location.reload()">
+      <img src="PERFORMANCE TEAM.png" style="height: 40px; margin-right: 10px;">
       PERFORMANCE BAN-TAN
     </a>
 
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -164,7 +165,9 @@
       <ul class="navbar-nav">
 
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Huddle Performance</a>
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+            Huddle Performance
+          </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item menu-link" data-menu="q-hsi">Q HSI</a></li>
             <li><a class="dropdown-item menu-link" data-menu="q-datin">Q DATIN</a></li>
@@ -176,9 +179,9 @@
             Huddle Performance Khusus B2B
           </a>
           <ul class="dropdown-menu">
+
             <li class="dropdown dropend">
-              <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">
-                Dashboard B2B District BANTEN
+              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside"> Dashboard B2B District BANTEN
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item menu-link" data-menu="District-Banten">District BANTEN</a></li>
@@ -186,8 +189,10 @@
                 <li><a class="dropdown-item menu-link" data-menu="b2b-tangerang">B2B TANGERANG</a></li>
               </ul>
             </li>
+
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
+
           </ul>
         </li>
 
@@ -197,7 +202,7 @@
 </nav>
 
 <!-- ================= CONTENT ================= -->
-<div id="home-fullscreen" class="home-fullscreen">
+<div class="home-fullscreen" id="home-fullscreen">
   <div id="content-area"></div>
 </div>
 
@@ -209,38 +214,51 @@
 
   function showUnderConstruction() {
     const home = document.getElementById('home-fullscreen');
-    const content = document.getElementById('content-area');
+    const contentArea = document.getElementById('content-area');
+
     home.classList.add('no-bg');
 
-    content.innerHTML = `
-      <div class="text-center mt-5">
+    contentArea.innerHTML = `
+      <div class="d-flex flex-column align-items-center justify-content-center">
         <div class="spinner-border text-light mb-3"></div>
-        <div>Under Construction</div>
+        <div>Loading dashboard...</div>
       </div>
     `;
+
+    setTimeout(() => {
+      contentArea.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = 'under contruction.png';
+      img.alt = 'Under Construction';
+      contentArea.appendChild(img);
+    }, 800);
   }
 
   async function loadPartialIntoContent(url, onLoaded) {
     const home = document.getElementById('home-fullscreen');
-    const content = document.getElementById('content-area');
-    home.classList.add('no-bg');
+    const contentArea = document.getElementById('content-area');
 
-    content.innerHTML = `
-      <div class="text-center mt-5">
+    home.classList.add('no-bg');
+    contentArea.innerHTML = `
+      <div class="d-flex flex-column align-items-center justify-content-center">
         <div class="spinner-border text-light mb-3"></div>
         <div>Loading...</div>
       </div>
     `;
 
-    const res = await fetch(url);
-    content.innerHTML = await res.text();
-    if (onLoaded) onLoaded();
+    try {
+      const res = await fetch(url);
+      contentArea.innerHTML = await res.text();
+      if (onLoaded) onLoaded();
+    } catch {
+      contentArea.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
+    }
   }
 
   document.querySelectorAll('.menu-link').forEach(el => {
-    el.onclick = e => {
+    el.addEventListener('click', function (e) {
       e.preventDefault();
-      const menu = el.dataset.menu;
+      const menu = this.dataset.menu;
 
       if (menu === 'District-Banten') {
         loadPartialIntoContent('partials/district-banten.html', () => {
@@ -252,7 +270,7 @@
       } else {
         showUnderConstruction();
       }
-    };
+    });
   });
 </script>
 
