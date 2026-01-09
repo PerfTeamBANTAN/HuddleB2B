@@ -25,14 +25,33 @@ function initAsgarHSI(API_URL) {
   }
 
   /* =====================================================
-     HELPER CEK THRESHOLD WARNA
+     HELPER RULE WARNA MERAH
   ===================================================== */
-  function isBelowThreshold(header, value) {
-    if (typeof value !== 'number') return false;
-    return (
+  function isRedCell(header, row) {
+    const val = row[header];
+
+    if (typeof val !== 'number') return false;
+
+    // Rule 1 & 2
+    if (
       (header === 'Asgar s/d HI' || header === 'Pragnosa Asgar') &&
-      value < 92
-    );
+      val < 92
+    ) return true;
+
+    // Rule 3
+    if (header === 'Budg Asgar BI' && val <= 0) return true;
+
+    // Rule 4
+    if (
+      header === 'Total Tiket Asgar' &&
+      typeof row['Budg Asgar 30D'] === 'number' &&
+      val > row['Budg Asgar 30D']
+    ) return true;
+
+    // Rule 5
+    if (header === 'Asgar HI' && val > 0) return true;
+
+    return false;
   }
 
   /* =====================================================
@@ -153,11 +172,10 @@ function initAsgarHSI(API_URL) {
 
       tableHeaders.forEach(h => {
         const td = document.createElement('td');
-        const rawValue = row[h];
 
-        td.textContent = formatNumber(rawValue);
+        td.textContent = formatNumber(row[h]);
 
-        if (isBelowThreshold(h, rawValue)) {
+        if (isRedCell(h, row)) {
           td.classList.add('text-danger', 'fw-semibold');
         }
 
