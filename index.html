@@ -341,18 +341,33 @@ e.preventDefault();
 const menu = el.dataset.menu;
 
 if (menu === 'District-Banten') {
-loadPartialIntoContent('partials/district-banten.html', () => {
-const content = document.getElementById('content-area');
-content.classList.add('show-grid');
-content.style.display = 'block';
 
-const s = document.createElement('script');
-s.src = 'js/district-banten.js?v=' + Date.now();
-s.onload = () => initDistrictBanten(B2B_API_URL);
-document.body.appendChild(s);
-});
+  loadPartialIntoContent('partials/district-banten.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/district-banten.js?v=' + Date.now();
+    s.onload = () => initDistrictBanten(B2B_API_URL);
+    document.body.appendChild(s);
+  });
+
+} else if (menu === 'Asgar-HSI') {
+
+  loadPartialIntoContent('partials/asgar-hsi.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/asgar-hsi.js?v=' + Date.now();
+    s.onload = () => initAsgarHSI(B2B_API_URL);
+    document.body.appendChild(s);
+  });
+
 } else {
-showUnderConstruction();
+  showUnderConstruction();
 }
 });
 });
