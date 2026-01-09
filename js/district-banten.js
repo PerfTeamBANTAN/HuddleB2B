@@ -5,61 +5,64 @@ function initDistrictBanten(API_URL) {
 
   contentArea.classList.add('show-grid');
 
-  // helper convert angka Indonesia → JS number
-  const toNumber = val =>
-    Number(String(val).replace(',', '.')) || 0;
-
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
-      const grouped = {};
+      // GROUP DATA PER INDIKATOR
+      const map = {};
 
       data.forEach(row => {
         const indikator = row.indikator.trim();
-        const witel = row.witel.trim().toLowerCase();
 
-        if (!grouped[indikator]) grouped[indikator] = {};
-        grouped[indikator][witel] = row;
+        if (!map[indikator]) {
+          map[indikator] = {
+            target: Number(row.target),
+            banten: null,
+            tangerang: null
+          };
+        }
+
+        if (row.witel === 'BANTEN') {
+          map[indikator].banten = Number(row.ach);
+        }
+
+        if (row.witel === 'TANGERANG') {
+          map[indikator].tangerang = Number(row.ach);
+        }
       });
 
-      Object.keys(grouped).forEach(indikator => {
-        const rows = grouped[indikator];
-
-        const target    = toNumber(rows['banten']?.target);
-        const banten    = toNumber(rows['banten']?.ach);
-        const tangerang = toNumber(rows['tangerang']?.ach);
+      Object.keys(map).forEach(indikator => {
+        const d = map[indikator];
 
         // RULE KPI
-        const isLowerBetter = indikator.toLowerCase().includes('gangguan');
+        const lowerBetter = indikator === 'Q Gangguan HSI';
 
         const isGood = val =>
-          isLowerBetter ? val <= target : val >= target;
-
-        const valueClass = val =>
-          isGood(val) ? 'value-good' : 'value-bad';
-
-        const cardClass =
-          isGood(banten) ? 'card-good' : 'card-bad';
+          lowerBetter ? val <= d.target : val >= d.target;
 
         const card = document.createElement('div');
-        card.className = `badge-card ${cardClass}`;
+        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
             <div class="row-item">
-              <span class="target">Target</span>
-              <span>${target.toFixed(2)}</span>
+              <span>Target</span>
+              <span>${d.target.toFixed(2)}</span>
             </div>
             <div class="row-item">
               <span class="banten">Banten</span>
-              <span class="${valueClass(banten)}">${banten.toFixed(2)}</span>
+              <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
+                ${d.banten.toFixed(2)}
+              </span>
             </div>
             <div class="row-item">
               <span class="tangerang">Tangerang</span>
-              <span class="${valueClass(tangerang)}">${tangerang.toFixed(2)}</span>
+              <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
+                ${d.tangerang.toFixed(2)}
+              </span>
             </div>
           </div>
         `;
