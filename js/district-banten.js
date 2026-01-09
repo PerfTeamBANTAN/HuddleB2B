@@ -2,22 +2,28 @@ function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
   const wrapper = document.getElementById('district-banten-wrapper');
 
-  if (!container) return;
+  if (!container || !wrapper) return;
 
   container.innerHTML = '';
 
-  // elemen last update
-  const lastUpdateEl = document.createElement('div');
-  lastUpdateEl.className = 'last-update';
-  lastUpdateEl.textContent = 'Last update: -';
-  wrapper.prepend(lastUpdateEl);
+  // === LAST UPDATE ELEMENT ===
+  let lastUpdateEl = document.querySelector('.last-update');
+  if (!lastUpdateEl) {
+    lastUpdateEl = document.createElement('div');
+    lastUpdateEl.className = 'last-update';
+    lastUpdateEl.textContent = 'Last update: -';
+    wrapper.prepend(lastUpdateEl);
+  }
 
-  const callbackName = 'jsonp_callback_' + Date.now();
+  const callbackName = 'jsonp_cb_' + Date.now();
 
   window[callbackName] = function (res) {
     try {
+      console.log('DATA API:', res);
+
       const { data, lastUpdate } = res;
 
+      // ===== FORMAT WAKTU INDONESIA =====
       const d = new Date(lastUpdate);
       lastUpdateEl.textContent =
         'Last update: ' +
@@ -26,52 +32,50 @@ function initDistrictBanten(API_URL) {
           month: '2-digit',
           year: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          hour12: false
         });
 
-      // ===== MAP DATA =====
+      // ===== GROUP DATA =====
       const map = {};
 
-      data.forEach(row => {
-        const indikator = row.indikator.trim();
-
-        if (!map[indikator]) {
-          map[indikator] = {
-            target: Number(row.target),
-            banten: null,
-            tangerang: null
+      data.forEach(r => {
+        if (!map[r.indikator]) {
+          map[r.indikator] = {
+            target: r.target,
+            BANTEN: null,
+            TANGERANG: null
           };
         }
-
-        if (row.witel === 'BANTEN') map[indikator].banten = row.ach;
-        if (row.witel === 'TANGERANG') map[indikator].tangerang = row.ach;
+        map[r.indikator][r.witel] = r.ach;
       });
 
-      Object.keys(map).forEach(indikator => {
-        const d = map[indikator];
+      // ===== RENDER CARD =====
+      Object.entries(map).forEach(([indikator, v]) => {
         const lowerBetter = indikator === 'Q Gangguan HSI';
-        const isGood = v => lowerBetter ? v <= d.target : v >= d.target;
+        const isGood = val =>
+          lowerBetter ? val <= v.target : val >= v.target;
 
         const card = document.createElement('div');
-        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
+        card.className = `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${d.target.toFixed(2)}</span>
+              <span>${v.target.toFixed(2)}</span>
             </div>
             <div class="row-item">
               <span>Banten</span>
-              <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
-                ${d.banten.toFixed(2)}
+              <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
+                ${v.BANTEN.toFixed(2)}
               </span>
             </div>
             <div class="row-item">
               <span>Tangerang</span>
-              <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
-                ${d.tangerang.toFixed(2)}
+              <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
+                ${v.TANGERANG.toFixed(2)}
               </span>
             </div>
           </div>
@@ -79,6 +83,10 @@ function initDistrictBanten(API_URL) {
 
         container.appendChild(card);
       });
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = '<div class="text-danger">Gagal memuat data</div>';
     } finally {
       delete window[callbackName];
       script.remove();
