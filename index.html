@@ -94,6 +94,7 @@ html, body {
   padding: 16px;
 }
 
+/* ================= CARD ================= */
 .badge-card {
   border-radius: 10px;
   overflow: hidden;
@@ -123,6 +124,7 @@ html, body {
   padding: 10px 12px;
 }
 
+/* ================= ROW ITEM ================= */
 .row-item {
   display: flex;
   justify-content: space-between;
@@ -131,19 +133,26 @@ html, body {
   margin-bottom: 6px;
 }
 
-/* ================= LABEL (HITAM) ================= */
+/* LABEL (TARGET / BANTEN / TANGERANG) → HITAM */
 .row-item span:first-child {
   color: #000;
   font-weight: 600;
 }
 
-/* ================= TARGET VALUE (HITAM) ================= */
-.row-item.target span:last-child {
+/* TARGET (BARIS PERTAMA) → ANGKA HITAM */
+.row-item:first-child span:last-child {
   color: #000 !important;
   font-weight: 700;
 }
 
-/* ================= VALUE COLOR ================= */
+/* PEMISAH TARGET */
+.row-item:first-child {
+  border-bottom: 1px dashed rgba(0,0,0,0.3);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+/* ================= VALUE KPI ================= */
 .value-good {
   color: #0f5132;
   font-weight: 700;
@@ -162,8 +171,23 @@ html, body {
 .card-bad {
   background: #f8d7da !important;
 }
-</style>
 
+/* ================= LOADING STATE ================= */
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  height: 100%;
+}
+
+.loading-text {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+</style>
 
 </head>
 
