@@ -16,6 +16,15 @@ function initAsgarHSI(API_URL) {
   tableBody.innerHTML = '';
 
   /* =====================================================
+     HELPER FORMAT ANGKA
+  ===================================================== */
+  function formatNumber(val) {
+    if (val === null || val === undefined || val === '') return '-';
+    if (typeof val !== 'number') return val;
+    return Number.isInteger(val) ? val : val.toFixed(2);
+  }
+
+  /* =====================================================
      KPI CARD
   ===================================================== */
   const cbKpi = 'jsonp_asgar_kpi_' + Date.now();
@@ -49,18 +58,18 @@ function initAsgarHSI(API_URL) {
         <div class="badge-card-body">
           <div class="row-item">
             <span>Target</span>
-            <span>${v.target}</span>
+            <span>${formatNumber(v.target)}</span>
           </div>
           <div class="row-item">
             <span>Banten</span>
             <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-              ${v.BANTEN ?? '-'}
+              ${formatNumber(v.BANTEN)}
             </span>
           </div>
           <div class="row-item">
             <span>Tangerang</span>
             <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-              ${v.TANGERANG ?? '-'}
+              ${formatNumber(v.TANGERANG)}
             </span>
           </div>
         </div>
@@ -117,11 +126,14 @@ function initAsgarHSI(API_URL) {
     });
 
     tableBody.innerHTML = '';
+
     if (!data.length) {
-      tableBody.innerHTML =
-        `<tr><td colspan="${tableHeaders.length}" class="text-center text-muted">
-          Tidak ada data
-        </td></tr>`;
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="${tableHeaders.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
       return;
     }
 
@@ -129,7 +141,7 @@ function initAsgarHSI(API_URL) {
       const tr = document.createElement('tr');
       tableHeaders.forEach(h => {
         const td = document.createElement('td');
-        td.textContent = row[h] ?? '-';
+        td.textContent = formatNumber(row[h]);
         tr.appendChild(td);
       });
       tableBody.appendChild(tr);
@@ -137,11 +149,12 @@ function initAsgarHSI(API_URL) {
   }
 
   /* =====================================================
-     FILTER STO OPTIONS
+     INIT FILTER STO
   ===================================================== */
   function initFilterSTO(data) {
-    const stoSet = new Set(data.map(r => r.STO));
+    const stoSet = new Set(data.map(r => r.STO).filter(Boolean));
     filterSTO.innerHTML = '<option value="">All STO</option>';
+
     [...stoSet].sort().forEach(sto => {
       const opt = document.createElement('option');
       opt.value = sto;
