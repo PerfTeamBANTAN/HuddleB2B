@@ -1,17 +1,16 @@
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
-  const wrapper = document.getElementById('district-banten-wrapper');
   const loading = document.getElementById('loading-overlay');
   const lastUpdateEl = document.getElementById('last-update');
 
-  if (!container || !wrapper) return;
+  if (!container) return;
 
   container.innerHTML = '';
   loading.style.display = 'flex';
 
-  const callbackName = 'jsonp_kpi_' + Date.now();
+  const cbKpi = 'jsonp_kpi_' + Date.now();
 
-  window[callbackName] = function (res) {
+  window[cbKpi] = function (res) {
     try {
       const { data, lastUpdate } = res;
 
@@ -83,64 +82,62 @@ function initDistrictBanten(API_URL) {
         '<div class="text-danger">Gagal memuat data KPI</div>';
     } finally {
       loading.style.display = 'none';
-      delete window[callbackName];
+      delete window[cbKpi];
       script.remove();
     }
   };
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?callback=${callbackName}`;
+  script.src = `${API_URL}?callback=${cbKpi}`;
   document.body.appendChild(script);
 }
 
 /* =========================================================
-   ================= TABLE ALERT ===========================
+   ================= TABLE + FILTER ========================
    ========================================================= */
 
 function loadDistrictBantenTable(API_URL) {
   const thead = document.getElementById('district-banten-table-head');
   const tbody = document.getElementById('district-banten-table-body');
+  const filterWitel = document.getElementById('filter-witel');
+  const filterSto = document.getElementById('filter-sto');
 
   if (!thead || !tbody) return;
+
+  let rawData = [];
+  let headers = [];
 
   thead.innerHTML = '';
   tbody.innerHTML =
     `<tr><td colspan="10" class="text-center text-muted">Memuat data...</td></tr>`;
 
-  const cb = 'jsonp_table_' + Date.now();
+  const cbTable = 'jsonp_table_' + Date.now();
 
-  window[cb] = function (res) {
+  window[cbTable] = function (res) {
     try {
+      headers = res.headers;
+      rawData = res.data;
+
       // ================= HEADER =================
-      res.headers.forEach(h => {
+      headers.forEach(h => {
         const th = document.createElement('th');
         th.textContent = h;
         thead.appendChild(th);
       });
 
-      // ================= BODY =================
-      tbody.innerHTML = '';
-      res.data.forEach(row => {
-        const tr = document.createElement('tr');
-
-        res.headers.forEach(h => {
-          const td = document.createElement('td');
-          const val = row[h];
-
-          td.textContent = val ?? '-';
-
-          // Highlight STATUS
-          if (h.toUpperCase().includes('STATUS')) {
-            td.classList.add(
-              val === 'PENDING' ? 'text-warning' : 'text-success'
-            );
-          }
-
-          tr.appendChild(td);
-        });
-
-        tbody.appendChild(tr);
+      // ================= INIT STO FILTER =================
+      const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+      filterSto.innerHTML = '<option value="">All STO</option>';
+      [...stoSet].sort().forEach(sto => {
+        const opt = document.createElement('option');
+        opt.value = sto;
+        opt.textContent = sto;
+        filterSto.appendChild(opt);
       });
+
+      filterWitel.onchange = filterSto.onchange = applyFilter;
+
+      renderTable(rawData);
 
     } catch (e) {
       tbody.innerHTML =
@@ -148,12 +145,50 @@ function loadDistrictBantenTable(API_URL) {
           Gagal memuat data tabel
         </td></tr>`;
     } finally {
-      delete window[cb];
+      delete window[cbTable];
       script.remove();
     }
   };
 
+  function applyFilter() {
+    let data = [...rawData];
+
+    if (filterWitel.value) {
+      data = data.filter(r => r.WITEL === filterWitel.value);
+    }
+
+    if (filterSto.value) {
+      data = data.filter(r => r.STO === filterSto.value);
+    }
+
+    renderTable(data);
+  }
+
+  function renderTable(data) {
+    tbody.innerHTML = '';
+
+    if (!data.length) {
+      tbody.innerHTML =
+        `<tr><td colspan="${headers.length}" class="text-center text-muted">
+          Tidak ada data
+        </td></tr>`;
+      return;
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+
+      headers.forEach(h => {
+        const td = document.createElement('td');
+        td.textContent = row[h] ?? '-';
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+  }
+
   const script = document.createElement('script');
-  script.src = `${API_URL}?type=table&callback=${cb}`;
+  script.src = `${API_URL}?type=table&callback=${cbTable}`;
   document.body.appendChild(script);
 }
