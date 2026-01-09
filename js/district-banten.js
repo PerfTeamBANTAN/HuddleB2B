@@ -77,3 +77,12 @@ function initDistrictBanten(apiUrl) {
       row.innerHTML = `<div class="text-danger">Gagal load data.</div>`;
     });
 }
+
+function formatNumber2(val) {
+  if (val === null || val === undefined || val === '') return '-';
+
+  const num = Number(String(val).replace('%',''));
+  if (isNaN(num)) return val;
+
+  return num.toFixed(2);
+}
