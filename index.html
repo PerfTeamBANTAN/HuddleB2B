@@ -1,280 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
 
-  <!-- Bootstrap & Font Awesome -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #000;
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-    }
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #000;
+  font-family: 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
-    /* NAVBAR */
-    .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      background: rgba(0, 0, 0, 0.7);
-    }
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(0,0,0,0.7);
+}
 
-    .navbar-brand {
-      font-weight: bold;
-      font-size: 22px;
-      color: #fff;
-    }
+.navbar-brand {
+  font-weight: bold;
+  font-size: 22px;
+  color: #fff;
+}
 
-    .navbar-nav .nav-link {
-      color: #fff !important;
-      padding: 8px 14px;
-      border-radius: 6px;
-    }
+.navbar-nav .nav-link {
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
 
-    .navbar-nav .nav-link:hover {
-      background: rgba(255,255,255,0.15);
-    }
+.navbar-nav .nav-link:hover {
+  background: rgba(255,255,255,0.15);
+}
 
-    .dropdown-menu {
-      background: rgba(0,0,0,0.9);
-      border: none;
-    }
+.dropdown-menu {
+  background: rgba(0,0,0,0.9);
+  border: none;
+}
 
-    .dropdown-item {
-      color: #fff;
-      cursor: pointer;
-    }
+.dropdown-item {
+  color: #fff;
+  cursor: pointer;
+}
 
-    .dropdown-item:hover {
-      background: rgba(255,255,255,0.1);
-    }
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.1);
+}
 
-    /* HOME */
-    .home-fullscreen {
-      width: 100%;
-      height: 100vh;
-      margin-top: 56px;
-      background: url('huddle_performance.png') center / cover no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.3s;
-    }
+/* HOME */
+.home-fullscreen {
+  width: 100%;
+  min-height: 100vh;
+  margin-top: 56px;
+  background: url('huddle_performance.png') center / cover no-repeat;
+}
 
-    .no-bg {
-      background: #000 !important;
-    }
+.no-bg {
+  background: #000 !important;
+}
 
-    #content-area {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
+/* CONTENT */
+#content-area {
+  width: 100%;
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
 
-    /* AKTIF SAAT GRID KPI */
-    #content-area.show-grid {
-      display: block !important;
-      align-items: unset !important;
-      justify-content: unset !important;
-      height: auto !important;
-    }
+#content-area.show-grid {
+  display: block !important;
+  align-items: unset !important;
+  justify-content: unset !important;
+}
 
-    #content-area img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
-    }
+/* GRID CARD */
+.cards-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
 
-    /* GRID CARD */
-    .cards-scroll {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 14px;
-      padding: 16px;
-    }
+.badge-card {
+  border-radius: 8px;
+  overflow: hidden;
+  height: 140px;
+  background: #d4edda;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+  font-size: 13px;
+}
 
-    .badge-card {
-      border-radius: 8px;
-      overflow: hidden;
-      height: 140px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
-      font-size: 13px;
-      background: #d4edda;
-    }
+.badge-card-header {
+  background: linear-gradient(135deg,#6f72ff,#8f94fb);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 6px;
+}
 
-    .badge-card-header {
-      background: linear-gradient(135deg, #6f72ff, #8f94fb);
-      color: #fff;
-      font-weight: 700;
-      text-align: center;
-      padding: 6px;
-      font-size: 13px;
-    }
+.badge-card-body {
+  padding: 10px 12px;
+}
 
-    .badge-card-body {
-      padding: 10px 12px;
-    }
+.row-item {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
 
-    .row-item {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .target { color: #000; }
-    .banten { color: #0047ab; }
-    .tangerang { color: #b30000; }
-  </style>
+.target { color:#000; }
+.banten { color:#0047ab; }
+.tangerang { color:#b30000; }
+</style>
 </head>
 
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="javascript:void(0)" onclick="location.reload()">
-      <img src="PERFORMANCE TEAM.png" style="height:40px;margin-right:10px;">
-      PERFORMANCE BAN-TAN
-    </a>
+<div class="container-fluid">
+<a class="navbar-brand" href="javascript:void(0)" onclick="location.reload()">
+<img src="PERFORMANCE TEAM.png" style="height:40px;margin-right:10px;">
+PERFORMANCE BAN-TAN
+</a>
 
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<span class="navbar-toggler-icon"></span>
+</button>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+<div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav">
 
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            Huddle Performance
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item menu-link" data-menu="q-hsi">Q HSI</a></li>
-            <li><a class="dropdown-item menu-link" data-menu="q-datin">Q DATIN</a></li>
-          </ul>
-        </li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+Huddle Performance
+</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item menu-link" data-menu="q-hsi">Q HSI</a></li>
+<li><a class="dropdown-item menu-link" data-menu="q-datin">Q DATIN</a></li>
+</ul>
+</li>
 
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-            Huddle Performance Khusus B2B
-          </a>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+Huddle Performance Khusus B2B
+</a>
 
-          <ul class="dropdown-menu">
-            <li class="dropdown dropend">
-              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                Dashboard B2B District BANTEN
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item menu-link" data-menu="District-Banten">District BANTEN</a></li>
-                <li><a class="dropdown-item menu-link" data-menu="b2b-banten">B2B BANTEN</a></li>
-                <li><a class="dropdown-item menu-link" data-menu="b2b-tangerang">B2B TANGERANG</a></li>
-              </ul>
-            </li>
+<ul class="dropdown-menu">
+<li class="dropdown dropend">
+<a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+Dashboard B2B District BANTEN
+</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item menu-link" data-menu="District-Banten">District BANTEN</a></li>
+<li><a class="dropdown-item menu-link" data-menu="b2b-banten">B2B BANTEN</a></li>
+<li><a class="dropdown-item menu-link" data-menu="b2b-tangerang">B2B TANGERANG</a></li>
+</ul>
+</li>
 
-            <li><hr class="dropdown-divider"></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
+</ul>
+</li>
 
-            <li>
-              <a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a>
-            </li>
-          </ul>
-        </li>
-
-      </ul>
-    </div>
-  </div>
+</ul>
+</div>
+</div>
 </nav>
 
 <div class="home-fullscreen" id="home-fullscreen">
-  <div id="content-area"></div>
+<div id="content-area"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const B2B_API_URL =
-    'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
+const B2B_API_URL =
+'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
-  function showUnderConstruction() {
-    const home = document.getElementById('home-fullscreen');
-    const content = document.getElementById('content-area');
+function showUnderConstruction() {
+const home = document.getElementById('home-fullscreen');
+const content = document.getElementById('content-area');
 
-    content.classList.remove('show-grid');
-    home.classList.add('no-bg');
+content.classList.remove('show-grid');
+content.style.display = 'flex';
+home.classList.add('no-bg');
 
-    content.innerHTML = `
-      <div class="d-flex flex-column align-items-center justify-content-center">
-        <div class="spinner-border text-light mb-3"></div>
-        <div>Loading dashboard...</div>
-      </div>
-    `;
+content.innerHTML = `
+<div class="d-flex flex-column align-items-center justify-content-center">
+<div class="spinner-border text-light mb-3"></div>
+<div>Loading dashboard...</div>
+</div>
+`;
 
-    setTimeout(() => {
-      content.innerHTML = '';
-      const img = document.createElement('img');
-      img.src = 'under contruction.png';
-      img.alt = 'Under Construction';
-      content.appendChild(img);
-    }, 800);
-  }
+setTimeout(() => {
+content.innerHTML = '';
+const img = document.createElement('img');
+img.src = 'under contruction.png';
+content.appendChild(img);
+}, 800);
+}
 
-  async function loadPartialIntoContent(url, onLoaded) {
-    const home = document.getElementById('home-fullscreen');
-    const content = document.getElementById('content-area');
+async function loadPartialIntoContent(url, onLoaded) {
+const home = document.getElementById('home-fullscreen');
+const content = document.getElementById('content-area');
 
-    home.classList.add('no-bg');
-    content.innerHTML = `
-      <div class="d-flex flex-column align-items-center justify-content-center">
-        <div class="spinner-border text-light mb-3"></div>
-        <div>Loading...</div>
-      </div>
-    `;
+home.classList.add('no-bg');
+content.innerHTML = `
+<div class="d-flex flex-column align-items-center justify-content-center">
+<div class="spinner-border text-light mb-3"></div>
+<div>Loading...</div>
+</div>
+`;
 
-    try {
-      const res = await fetch(url);
-      content.innerHTML = await res.text();
-      if (onLoaded) onLoaded();
-    } catch {
-      content.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
-    }
-  }
+const res = await fetch(url);
+content.innerHTML = await res.text();
+if (onLoaded) onLoaded();
+}
 
-  document.querySelectorAll('.menu-link').forEach(el => {
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      const menu = this.dataset.menu;
+document.querySelectorAll('.menu-link').forEach(el => {
+el.addEventListener('click', e => {
+e.preventDefault();
+const menu = el.dataset.menu;
 
-      if (menu === 'District-Banten') {
-        loadPartialIntoContent('partials/district-banten.html', () => {
+if (menu === 'District-Banten') {
+loadPartialIntoContent('partials/district-banten.html', () => {
+const content = document.getElementById('content-area');
+content.classList.add('show-grid');
+content.style.display = 'block';
 
-          const content = document.getElementById('content-area');
-          content.classList.add('show-grid');
-
-  // PENTING: pastikan content-area TIDAK flex
-          content.style.display = 'block';
-
-          const s = document.createElement('script');
-          s.src = 'js/district-banten.js';
-          s.onload = () => initDistrictBanten(B2B_API_URL);
-          document.body.appendChild(s);
-      });
-      } else {
-        showUnderConstruction();
-      }
-    });
-  });
+const s = document.createElement('script');
+s.src = 'js/district-banten.js';
+s.onload = () => initDistrictBanten(B2B_API_URL);
+document.body.appendChild(s);
+});
+} else {
+showUnderConstruction();
+}
+});
+});
 </script>
 
 </body>
