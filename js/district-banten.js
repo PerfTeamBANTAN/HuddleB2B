@@ -191,7 +191,7 @@ function openTiketHIModal(API_URL, sto, witel) {
   const body = document.getElementById('tiket-hi-body');
 
   /* ===== JUDUL MODAL ===== */
-  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
+  title.textContent = `Detail Tiket HSI HI – ${witel} / ${sto}`;
 
   head.innerHTML = '';
   body.innerHTML = `<tr><td colspan="9">Loading...</td></tr>`;
