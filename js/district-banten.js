@@ -1,3 +1,7 @@
+/* =====================================================
+   INIT KPI
+===================================================== */
+
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
   const loading = document.getElementById('loading-overlay');
@@ -14,7 +18,7 @@ function initDistrictBanten(API_URL) {
     try {
       const { data, lastUpdate } = res;
 
-      // ================= LAST UPDATE =================
+      /* ===== LAST UPDATE ===== */
       const d = new Date(lastUpdate);
       lastUpdateEl.innerHTML =
         `<i class="fa fa-clock me-1"></i> Last update: ` +
@@ -27,7 +31,7 @@ function initDistrictBanten(API_URL) {
           hour12: false
         });
 
-      // ================= KPI =================
+      /* ===== KPI ===== */
       const map = {};
 
       data.forEach(r => {
@@ -107,6 +111,7 @@ function loadDistrictBantenTable(API_URL) {
     headers = res.headers;
     rawData = res.data;
 
+    /* ===== TABLE HEAD ===== */
     thead.innerHTML = '';
     headers.forEach(h => {
       const th = document.createElement('th');
@@ -114,7 +119,7 @@ function loadDistrictBantenTable(API_URL) {
       thead.appendChild(th);
     });
 
-    // STO filter
+    /* ===== FILTER STO ===== */
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
     filterSto.innerHTML = '<option value="">All STO</option>';
     [...stoSet].sort().forEach(sto => {
@@ -141,7 +146,7 @@ function loadDistrictBantenTable(API_URL) {
       headers.forEach(h => {
         const td = document.createElement('td');
 
-        // ===== CLICK Tiket HI =====
+        /* ===== CLICK Tiket HI ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
           td.innerHTML = `
             <a href="#" class="text-warning fw-bold text-decoration-none">
@@ -168,7 +173,7 @@ function loadDistrictBantenTable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL Tiket HI (QUERY REAL)
+   MODAL DETAIL Tiket HI
 ===================================================== */
 
 function openTiketHIModal(API_URL, sto) {
@@ -176,9 +181,20 @@ function openTiketHIModal(API_URL, sto) {
   const body = document.getElementById('tiket-hi-body');
 
   head.innerHTML = '';
-  body.innerHTML = `<tr><td>Loading...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="9">Loading...</td></tr>`;
 
-  const cols = ['Incident','Summary','Report Date','Service Type','WITEL','WORKZONE','LABOR TEKNISI','TTR (Report Date s/d Resolved Date)','Flag GAUL','Old Tiket'];
+  /* === KEY HARUS SAMA DENGAN BACKEND === */
+  const cols = [
+    'Incident',
+    'Summary',
+    'Report Date',
+    'Service Type',
+    'WITEL',
+    'LABOR TEKNISI',
+    'TTR (Report Date s/d Resolved Date)',
+    'Flag GAUL',
+    'Old Tiket'
+  ];
 
   const cb = 'jsonp_tiket_' + Date.now();
 
@@ -192,15 +208,22 @@ function openTiketHIModal(API_URL, sto) {
       head.appendChild(th);
     });
 
-    res.data.forEach(r => {
-      const tr = document.createElement('tr');
-      cols.forEach(c => {
-        const td = document.createElement('td');
-        td.textContent = r[c] ?? '-';
-        tr.appendChild(td);
+    if (!res.data || res.data.length === 0) {
+      body.innerHTML =
+        `<tr><td colspan="${cols.length}" class="text-center">
+          Tidak ada data
+        </td></tr>`;
+    } else {
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          td.textContent = r[c] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
       });
-      body.appendChild(tr);
-    });
+    }
 
     delete window[cb];
     script.remove();
