@@ -11,13 +11,13 @@ function initDistrictBanten(API_URL) {
     </div>
   `;
 
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(res => {
+  const callbackName = 'cbDistrictBanten_' + Date.now();
+
+  window[callbackName] = function (res) {
+    try {
       const data = res.data;
       const lastUpdate = new Date(res.lastUpdate);
 
-      // === FORMAT WAKTU INDONESIA ===
       const formatted =
         lastUpdate.toLocaleDateString('id-ID') +
         ' ' +
@@ -26,31 +26,31 @@ function initDistrictBanten(API_URL) {
           minute: '2-digit'
         });
 
-      // === LAST UPDATE ELEMENT ===
-      const lastUpdateEl = document.createElement('div');
-      lastUpdateEl.className = 'text-light mb-2';
-      lastUpdateEl.style.fontSize = '13px';
-      lastUpdateEl.innerHTML = `<i class="fa fa-clock"></i> Last update: ${formatted}`;
-
-      wrapper.insertBefore(lastUpdateEl, wrapper.children[1]);
+      // LAST UPDATE
+      let lastEl = document.getElementById('last-update');
+      if (!lastEl) {
+        lastEl = document.createElement('div');
+        lastEl.id = 'last-update';
+        lastEl.className = 'text-light mb-2';
+        lastEl.style.fontSize = '13px';
+        wrapper.insertBefore(lastEl, wrapper.children[1]);
+      }
+      lastEl.innerHTML = `<i class="fa fa-clock"></i> Last update: ${formatted}`;
 
       container.innerHTML = '';
 
       const map = {};
 
-      data.forEach(row => {
-        const indikator = row.indikator.trim();
-
-        if (!map[indikator]) {
-          map[indikator] = {
-            target: row.target,
+      data.forEach(r => {
+        if (!map[r.indikator]) {
+          map[r.indikator] = {
+            target: r.target,
             banten: null,
             tangerang: null
           };
         }
-
-        if (row.witel === 'BANTEN') map[indikator].banten = row.ach;
-        if (row.witel === 'TANGERANG') map[indikator].tangerang = row.ach;
+        if (r.witel === 'BANTEN') map[r.indikator].banten = r.ach;
+        if (r.witel === 'TANGERANG') map[r.indikator].tangerang = r.ach;
       });
 
       Object.keys(map).forEach(indikator => {
@@ -61,9 +61,7 @@ function initDistrictBanten(API_URL) {
         const isGood = v => (lowerBetter ? v <= d.target : v >= d.target);
 
         const card = document.createElement('div');
-        card.className = `badge-card ${
-          isGood(d.banten) ? 'card-good' : 'card-bad'
-        }`;
+        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -89,9 +87,16 @@ function initDistrictBanten(API_URL) {
 
         container.appendChild(card);
       });
-    })
-    .catch(() => {
+
+    } catch (e) {
       container.innerHTML =
-        '<div class="text-danger text-center">Gagal memuat data</div>';
-    });
+        '<div class="text-danger text-center">Data tidak tersedia</div>';
+    } finally {
+      delete window[callbackName];
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?callback=${callbackName}`;
+  document.body.appendChild(script);
 }
