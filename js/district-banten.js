@@ -7,112 +7,90 @@ function initDistrictBanten(API_URL) {
 
   contentArea.classList.add('show-grid');
 
-  // loading info
   container.innerHTML = `
-    <div class="text-center text-light w-100">
-      <div class="spinner-border mb-2"></div>
-      <div>Loading data District BANTEN...</div>
+    <div class="loading-wrapper">
+      <div class="spinner-border text-light"></div>
+      <div class="loading-text">Memuat data...</div>
     </div>
   `;
 
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(result => {
-      const data = result.data || [];
-      const lastUpdate = result.lastUpdate;
+  const callbackName = 'handleDistrictBanten_' + Date.now();
 
-      /* ================= LAST UPDATE ================= */
-      if (lastUpdateEl && lastUpdate) {
-        const dt = new Date(lastUpdate);
-        const pad = n => n.toString().padStart(2, '0');
+  window[callbackName] = function (data) {
+    delete window[callbackName];
+    document.body.removeChild(script);
 
-        const formatted =
-          pad(dt.getDate()) + '/' +
-          pad(dt.getMonth() + 1) + '/' +
-          dt.getFullYear() + ' ' +
-          pad(dt.getHours()) + ':' +
-          pad(dt.getMinutes());
+    container.innerHTML = '';
 
-        lastUpdateEl.textContent = 'Last Update: ' + formatted;
-      }
-
-      container.innerHTML = '';
-
-      /* ================= GROUP DATA ================= */
-      const map = {};
-
-      data.forEach(row => {
-        const indikator = String(row.indikator).trim();
-        const witel = String(row.witel).trim().toUpperCase();
-
-        if (!indikator || !witel) return;
-
-        if (!map[indikator]) {
-          map[indikator] = {
-            target: Number(row.target),
-            banten: null,
-            tangerang: null
-          };
-        }
-
-        if (witel === 'BANTEN') {
-          map[indikator].banten = Number(row.ach);
-        }
-
-        if (witel === 'TANGERANG') {
-          map[indikator].tangerang = Number(row.ach);
-        }
-      });
-
-      /* ================= BUILD CARD ================= */
-      Object.keys(map).forEach(indikator => {
-        const d = map[indikator];
-
-        // KPI RULE
-        const lowerBetter = indikator === 'Q Gangguan HSI';
-        const isGood = val =>
-          typeof val === 'number'
-            ? (lowerBetter ? val <= d.target : val >= d.target)
-            : false;
-
-        const card = document.createElement('div');
-        card.className = `badge-card ${
-          isGood(d.banten) ? 'card-good' : 'card-bad'
-        }`;
-
-        card.innerHTML = `
-          <div class="badge-card-header">${indikator}</div>
-          <div class="badge-card-body">
-            <div class="row-item target">
-              <span>Target</span>
-              <span>${d.target.toFixed(2)}</span>
-            </div>
-            <div class="row-item">
-              <span>Banten</span>
-              <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
-                ${d.banten !== null ? d.banten.toFixed(2) : '-'}
-              </span>
-            </div>
-            <div class="row-item">
-              <span>Tangerang</span>
-              <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
-                ${d.tangerang !== null ? d.tangerang.toFixed(2) : '-'}
-              </span>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(card);
-      });
-
-      if (!container.hasChildNodes()) {
-        container.innerHTML =
-          '<div class="text-warning text-center">Data tidak tersedia</div>';
-      }
-    })
-    .catch(err => {
-      console.error(err);
+    if (!data || !data.length) {
       container.innerHTML =
-        '<div class="text-danger text-center">Gagal memuat data</div>';
+        '<div class="text-danger text-center">Data kosong</div>';
+      return;
+    }
+
+    // LAST UPDATE (WAKTU LOAD)
+    const now = new Date();
+    const pad = n => n.toString().padStart(2, '0');
+    const lastUpdate =
+      `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ` +
+      `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    if (lastUpdateEl) {
+      lastUpdateEl.textContent = `Last Update: ${lastUpdate}`;
+    }
+
+    const map = {};
+
+    data.forEach(row => {
+      const indikator = row.indikator.trim();
+
+      if (!map[indikator]) {
+        map[indikator] = {
+          target: Number(row.target),
+          banten: null,
+          tangerang: null
+        };
+      }
+
+      if (row.witel === 'BANTEN') map[indikator].banten = Number(row.ach);
+      if (row.witel === 'TANGERANG') map[indikator].tangerang = Number(row.ach);
     });
+
+    Object.keys(map).forEach(indikator => {
+      const d = map[indikator];
+      const lowerBetter = indikator === 'Q Gangguan HSI';
+      const isGood = v => lowerBetter ? v <= d.target : v >= d.target;
+
+      const card = document.createElement('div');
+      card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
+
+      card.innerHTML = `
+        <div class="badge-card-header">${indikator}</div>
+        <div class="badge-card-body">
+          <div class="row-item">
+            <span>Target</span>
+            <span>${d.target.toFixed(2)}</span>
+          </div>
+          <div class="row-item">
+            <span>Banten</span>
+            <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
+              ${d.banten.toFixed(2)}
+            </span>
+          </div>
+          <div class="row-item">
+            <span>Tangerang</span>
+            <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
+              ${d.tangerang.toFixed(2)}
+            </span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?callback=${callbackName}`;
+  document.body.appendChild(script);
 }
