@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+/* ================= GLOBAL ================= */
 html, body {
   height: 100%;
   margin: 0;
@@ -18,7 +19,7 @@ html, body {
   overflow-y: auto;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 .navbar {
   position: fixed;
   top: 0;
@@ -39,20 +40,23 @@ html, body {
   color: #fff !important;
   padding: 8px 14px;
   border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
 .navbar-nav .nav-link:hover {
   background: rgba(255,255,255,0.15);
 }
 
-/* DROPDOWN */
+/* ================= DROPDOWN ================= */
 .dropdown-menu {
   background: rgba(0,0,0,0.95);
   border: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
 }
 
 .dropdown-item {
   color: #fff;
+  cursor: pointer;
   font-size: 14px;
 }
 
@@ -60,7 +64,7 @@ html, body {
   background: rgba(255,255,255,0.1);
 }
 
-/* HOME */
+/* ================= HOME ================= */
 .home-fullscreen {
   width: 100%;
   min-height: 100vh;
@@ -72,7 +76,7 @@ html, body {
   background: #000 !important;
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
 #content-area {
   width: 100%;
   min-height: calc(100vh - 56px);
@@ -84,9 +88,11 @@ html, body {
 
 #content-area.show-grid {
   display: block !important;
+  align-items: unset !important;
+  justify-content: unset !important;
 }
 
-/* GRID */
+/* ================= GRID ================= */
 .cards-scroll {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -94,7 +100,7 @@ html, body {
   padding: 16px;
 }
 
-/* CARD */
+/* ================= CARD ================= */
 .badge-card {
   border-radius: 10px;
   overflow: hidden;
@@ -102,30 +108,128 @@ html, body {
   background: #d1e7dd;
   box-shadow: 0 6px 14px rgba(0,0,0,0.6);
   font-size: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+}
+
+/* ================= CARD HEADER ================= */
 .badge-card-header {
   background: linear-gradient(135deg,#6f72ff,#8f94fb);
   color: #fff;
   font-weight: 700;
   text-align: center;
   padding: 8px;
+  letter-spacing: 0.3px;
 }
 
+/* ================= CARD BODY ================= */
 .badge-card-body {
   padding: 10px 12px;
 }
 
+/* ================= ROW ITEM ================= */
 .row-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  align-items: center;
   font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.card-good { background: #d1e7dd !important; }
-.card-bad { background: #f8d7da !important; }
+/* LABEL */
+.row-item span:first-child {
+  color: #000;
+}
+
+/* TARGET VALUE */
+.row-item:first-child span:last-child {
+  color: #000;
+  font-weight: 700;
+}
+
+/* TARGET SEPARATOR */
+.row-item:first-child {
+  border-bottom: 1px dashed rgba(0,0,0,0.3);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+/* ================= KPI VALUE ================= */
+.value-good {
+  color: #0f5132;
+  font-weight: 700;
+}
+
+.value-bad {
+  color: #842029;
+  font-weight: 700;
+}
+
+/* ================= CARD STATUS ================= */
+.card-good {
+  background: #d1e7dd !important;
+}
+
+.card-bad {
+  background: #f8d7da !important;
+}
+
+/* ================= DISTRICT WRAPPER ================= */
+.district-wrapper {
+  position: relative;
+}
+
+/* ================= LAST UPDATE ================= */
+.last-update {
+  font-size: 12px;
+  color: #bbb;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ================= LOADING OVERLAY ================= */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.loading-text {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* ================= SKELETON (OPTIONAL) ================= */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f2f2f2 37%,
+    #e0e0e0 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
 </style>
+
 </head>
 
 <body>
@@ -170,6 +274,9 @@ Dashboard B2B District BANTEN
 <li><a class="dropdown-item menu-link" data-menu="TTR-HSI">Performance TTR HSI dan Datin</a></li>
 </ul>
 </li>
+
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
 </ul>
 </li>
 
@@ -179,7 +286,7 @@ Dashboard B2B District BANTEN
 </nav>
 
 <div class="home-fullscreen" id="home-fullscreen">
-  <div id="content-area"></div>
+<div id="content-area"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -188,43 +295,66 @@ Dashboard B2B District BANTEN
 const B2B_API_URL =
 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
-function showLoading() {
-  const home = document.getElementById('home-fullscreen');
-  const content = document.getElementById('content-area');
-  home.classList.add('no-bg');
-  content.innerHTML = `
-    <div class="text-center">
-      <div class="spinner-border text-light mb-2"></div>
-      <div>Loading dashboard...</div>
-    </div>
-  `;
+function showUnderConstruction() {
+const home = document.getElementById('home-fullscreen');
+const content = document.getElementById('content-area');
+
+content.classList.remove('show-grid');
+content.style.display = 'flex';
+home.classList.add('no-bg');
+
+content.innerHTML = `
+<div class="d-flex flex-column align-items-center justify-content-center">
+<div class="spinner-border text-light mb-3"></div>
+<div>Loading dashboard...</div>
+</div>
+`;
+
+setTimeout(() => {
+content.innerHTML = '';
+const img = document.createElement('img');
+img.src = 'under contruction.png';
+content.appendChild(img);
+}, 800);
 }
 
-async function loadPartial(url) {
-  showLoading();
-  const res = await fetch(url);
-  document.getElementById('content-area').innerHTML = await res.text();
-  document.getElementById('content-area').classList.add('show-grid');
+async function loadPartialIntoContent(url, onLoaded) {
+const home = document.getElementById('home-fullscreen');
+const content = document.getElementById('content-area');
 
-  const s = document.createElement('script');
-  s.src = 'js/district-banten.js?' + Date.now();
-  s.onload = () => initDistrictBanten(B2B_API_URL);
-  document.body.appendChild(s);
+home.classList.add('no-bg');
+content.innerHTML = `
+<div class="d-flex flex-column align-items-center justify-content-center">
+<div class="spinner-border text-light mb-3"></div>
+<div>Loading...</div>
+</div>
+`;
+
+const res = await fetch(url);
+content.innerHTML = await res.text();
+if (onLoaded) onLoaded();
 }
 
 document.querySelectorAll('.menu-link').forEach(el => {
-  el.addEventListener('click', e => {
-    e.preventDefault();
-    const menu = el.dataset.menu;
+el.addEventListener('click', e => {
+e.preventDefault();
+const menu = el.dataset.menu;
 
-    if (
-      menu === 'District-Banten' ||
-      menu === 'Asgar-HSI' ||
-      menu === 'TTR-HSI'
-    ) {
-      loadPartial('partials/district-banten.html');
-    }
-  });
+if (menu === 'District-Banten') {
+loadPartialIntoContent('partials/district-banten.html', () => {
+const content = document.getElementById('content-area');
+content.classList.add('show-grid');
+content.style.display = 'block';
+
+const s = document.createElement('script');
+s.src = 'js/district-banten.js?v=' + Date.now();
+s.onload = () => initDistrictBanten(B2B_API_URL);
+document.body.appendChild(s);
+});
+} else {
+showUnderConstruction();
+}
+});
 });
 </script>
 
