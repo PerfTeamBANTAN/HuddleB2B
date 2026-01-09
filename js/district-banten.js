@@ -1,36 +1,41 @@
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
-  const contentArea = document.getElementById('content-area');
+  const wrapper = document.getElementById('district-banten-wrapper');
 
-  if (!container) {
-    console.error('Container district-banten-row tidak ditemukan');
-    return;
-  }
+  if (!container || !wrapper) return;
 
-  contentArea.classList.add('show-grid');
-
-  // ===== LOADING =====
   container.innerHTML = `
     <div class="loading-wrapper">
       <div class="spinner-border text-light"></div>
-      <div class="loading-text">Memuat data District Banten...</div>
+      <div class="loading-text">Memuat data...</div>
     </div>
   `;
 
   fetch(API_URL)
     .then(res => res.json())
-    .then(data => {
-      console.log('DATA API:', data);
+    .then(res => {
+      const data = res.data;
+      const lastUpdate = new Date(res.lastUpdate);
 
-      if (!Array.isArray(data) || data.length === 0) {
-        container.innerHTML =
-          '<div class="text-warning text-center">Data tidak tersedia</div>';
-        return;
-      }
+      // === FORMAT WAKTU INDONESIA ===
+      const formatted =
+        lastUpdate.toLocaleDateString('id-ID') +
+        ' ' +
+        lastUpdate.toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+      // === LAST UPDATE ELEMENT ===
+      const lastUpdateEl = document.createElement('div');
+      lastUpdateEl.className = 'text-light mb-2';
+      lastUpdateEl.style.fontSize = '13px';
+      lastUpdateEl.innerHTML = `<i class="fa fa-clock"></i> Last update: ${formatted}`;
+
+      wrapper.insertBefore(lastUpdateEl, wrapper.children[1]);
 
       container.innerHTML = '';
 
-      // ===== GROUP PER INDIKATOR =====
       const map = {};
 
       data.forEach(row => {
@@ -38,31 +43,22 @@ function initDistrictBanten(API_URL) {
 
         if (!map[indikator]) {
           map[indikator] = {
-            target: Number(row.target),
+            target: row.target,
             banten: null,
             tangerang: null
           };
         }
 
-        if (row.witel === 'BANTEN') {
-          map[indikator].banten = Number(row.ach);
-        }
-
-        if (row.witel === 'TANGERANG') {
-          map[indikator].tangerang = Number(row.ach);
-        }
+        if (row.witel === 'BANTEN') map[indikator].banten = row.ach;
+        if (row.witel === 'TANGERANG') map[indikator].tangerang = row.ach;
       });
 
-      // ===== RENDER CARD =====
       Object.keys(map).forEach(indikator => {
         const d = map[indikator];
-
-        if (d.banten === null || d.tangerang === null) return;
+        if (d.banten == null || d.tangerang == null) return;
 
         const lowerBetter = indikator === 'Q Gangguan HSI';
-
-        const isGood = val =>
-          lowerBetter ? val <= d.target : val >= d.target;
+        const isGood = v => (lowerBetter ? v <= d.target : v >= d.target);
 
         const card = document.createElement('div');
         card.className = `badge-card ${
@@ -72,34 +68,29 @@ function initDistrictBanten(API_URL) {
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
-
             <div class="row-item">
               <span>Target</span>
               <span>${d.target.toFixed(2)}</span>
             </div>
-
             <div class="row-item">
               <span>Banten</span>
               <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
                 ${d.banten.toFixed(2)}
               </span>
             </div>
-
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
                 ${d.tangerang.toFixed(2)}
               </span>
             </div>
-
           </div>
         `;
 
         container.appendChild(card);
       });
     })
-    .catch(err => {
-      console.error('FETCH ERROR:', err);
+    .catch(() => {
       container.innerHTML =
         '<div class="text-danger text-center">Gagal memuat data</div>';
     });
