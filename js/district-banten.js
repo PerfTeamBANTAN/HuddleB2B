@@ -1,44 +1,35 @@
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
   const contentArea = document.getElementById('content-area');
-  const lastUpdateEl = document.getElementById('last-update');
 
   if (!container) return;
 
   contentArea.classList.add('show-grid');
 
+  // loading state
   container.innerHTML = `
-    <div class="loading-wrapper">
-      <div class="spinner-border text-light"></div>
-      <div class="loading-text">Memuat data...</div>
+    <div class="text-center text-light py-4">
+      <div class="spinner-border text-light mb-2"></div><br>
+      Loading data...
     </div>
   `;
 
-  const callbackName = 'handleDistrictBanten_' + Date.now();
+  // nama callback unik
+  const callbackName = 'cbDistrictBanten_' + Date.now();
 
   window[callbackName] = function (data) {
     delete window[callbackName];
-    document.body.removeChild(script);
+    script.remove();
 
-    container.innerHTML = '';
-
-    if (!data || !data.length) {
+    if (!Array.isArray(data) || data.length === 0) {
       container.innerHTML =
-        '<div class="text-danger text-center">Data kosong</div>';
+        '<div class="text-warning text-center">Data tidak tersedia</div>';
       return;
     }
 
-    // LAST UPDATE (WAKTU LOAD)
-    const now = new Date();
-    const pad = n => n.toString().padStart(2, '0');
-    const lastUpdate =
-      `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ` +
-      `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    container.innerHTML = '';
 
-    if (lastUpdateEl) {
-      lastUpdateEl.textContent = `Last Update: ${lastUpdate}`;
-    }
-
+    // ================= GROUP DATA =================
     const map = {};
 
     data.forEach(row => {
@@ -52,14 +43,22 @@ function initDistrictBanten(API_URL) {
         };
       }
 
-      if (row.witel === 'BANTEN') map[indikator].banten = Number(row.ach);
-      if (row.witel === 'TANGERANG') map[indikator].tangerang = Number(row.ach);
+      if (row.witel === 'BANTEN') {
+        map[indikator].banten = Number(row.ach);
+      }
+
+      if (row.witel === 'TANGERANG') {
+        map[indikator].tangerang = Number(row.ach);
+      }
     });
 
+    // ================= RENDER CARD =================
     Object.keys(map).forEach(indikator => {
       const d = map[indikator];
+
       const lowerBetter = indikator === 'Q Gangguan HSI';
-      const isGood = v => lowerBetter ? v <= d.target : v >= d.target;
+      const isGood = val =>
+        lowerBetter ? val <= d.target : val >= d.target;
 
       const card = document.createElement('div');
       card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
@@ -71,16 +70,18 @@ function initDistrictBanten(API_URL) {
             <span>Target</span>
             <span>${d.target.toFixed(2)}</span>
           </div>
+
           <div class="row-item">
             <span>Banten</span>
             <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
-              ${d.banten.toFixed(2)}
+              ${d.banten?.toFixed(2) ?? '-'}
             </span>
           </div>
+
           <div class="row-item">
             <span>Tangerang</span>
             <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
-              ${d.tangerang.toFixed(2)}
+              ${d.tangerang?.toFixed(2) ?? '-'}
             </span>
           </div>
         </div>
@@ -90,7 +91,13 @@ function initDistrictBanten(API_URL) {
     });
   };
 
+  // inject script JSONP
   const script = document.createElement('script');
   script.src = `${API_URL}?callback=${callbackName}`;
+  script.onerror = () => {
+    container.innerHTML =
+      '<div class="text-danger text-center">Gagal memuat data</div>';
+  };
+
   document.body.appendChild(script);
 }
