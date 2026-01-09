@@ -15,24 +15,38 @@
     <div class="loading-text">Mengambil data...</div>
   </div>
 
-  <!-- ================= TABLE ALERT ================= -->
+  <!-- ================= TABLE SECTION ================= -->
   <div class="mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5 class="text-light mb-0">
-        Pragnosa Q B2B District Banten
-      </h5>
+    <h5 class="text-light mb-2">
+      Prognosa Q B2B District Banten
+    </h5>
+
+    <!-- ================= FILTER ================= -->
+    <div class="row g-2 mb-2">
+      <div class="col-md-3">
+        <select id="filter-witel" class="form-select form-select-sm">
+          <option value="">All Witel</option>
+          <option value="BANTEN">BANTEN</option>
+          <option value="TANGERANG">TANGERANG</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select id="filter-sto" class="form-select form-select-sm">
+          <option value="">All STO</option>
+        </select>
+      </div>
     </div>
 
+    <!-- ================= TABLE ================= -->
     <div class="table-responsive">
       <table
         class="table table-dark table-striped table-bordered table-sm align-middle"
         id="district-banten-table"
       >
         <thead class="table-secondary text-dark">
-          <tr id="district-banten-table-head">
-            <!-- header dari sheet -->
-          </tr>
+          <tr id="district-banten-table-head"></tr>
         </thead>
         <tbody id="district-banten-table-body">
           <tr>
