@@ -2,215 +2,182 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Bootstrap & Font Awesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
   <style>
-    :root {
-      --primary-blue: #004085;
-      --accent-blue: #007bff;
-    }
-
-    html,
-    body {
+    html, body {
       height: 100%;
       margin: 0;
-    }
-
-    body {
+      background: #000;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #000;
       overflow: hidden;
     }
 
+    /* ================= NAVBAR ================= */
     .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      background: rgba(0, 0, 0, 0.6) !important;
-      box-shadow: none;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
     }
 
     .navbar-brand {
-      font-weight: bold;
-      font-size: 24px;
+      font-weight: 700;
+      font-size: 22px;
       color: #fff;
     }
 
-    .navbar-nav .nav-link {
+    .nav-link {
       color: #fff !important;
-      transition: 0.3s;
-      padding: 8px 15px;
       border-radius: 6px;
+      padding: 8px 14px;
     }
 
-    .navbar-nav .nav-link:hover {
-      background-color: rgba(255, 255, 255, 0.15);
-      color: #fff !important;
+    .nav-link:hover {
+      background: rgba(255,255,255,0.15);
     }
 
     .dropdown-menu {
-      background-color: rgba(0, 0, 0, 0.85);
+      background: rgba(0,0,0,0.9);
       border: none;
     }
 
     .dropdown-item {
       color: #fff;
-      cursor: pointer;
     }
 
     .dropdown-item:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
       color: #fff;
     }
 
-    /* Background awal fullscreen */
+    /* ================= HOME ================= */
     .home-fullscreen {
-      width: 100%;
       height: 100vh;
-      background: url('huddle_performance.png') center center / cover no-repeat;
-      background-color: #000;
+      margin-top: 56px;
+      background: url('huddle_performance.png') center / cover no-repeat;
       display: flex;
-      align-items: center;
       justify-content: center;
-      margin-top: 56px; /* offset tinggi navbar */
-      transition: background 0.3s ease;
+      align-items: flex-start;
+      padding-top: 30px;
+      transition: 0.3s;
     }
 
-    /* class untuk menghapus background image */
-    .no-bg {
-      background: none !important;
-      background-color: #000 !important;
+    .home-fullscreen.no-bg {
+      background: #000;
     }
 
-    /* Container konten */
     #content-area {
       width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       color: #fff;
     }
 
-    #content-area img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
+    /* ================= DISTRICT ================= */
+    .district-wrapper {
+      max-width: 1400px;
+      margin: auto;
     }
 
-    /* Wrapper dan kartu District BANTEN */
-    .district-wrapper {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      margin-top: -120px; /* supaya deretan kartu naik sedikit */
+    /* ================= KPI CARDS ================= */
+    .cards-scroll {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+      padding: 10px;
     }
 
     .badge-card {
-      border: 2px solid #999;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 14px;
-      line-height: 1.3;
-      background-color: #fffbe6;
-      min-width: 210px;
-      max-width: 230px;
-      height: 110px;
-      box-sizing: border-box;
-      box-shadow: 0 0 6px rgba(255,255,255,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+      height: 140px;
+      font-size: 13px;
     }
 
     .badge-card-header {
+      background: linear-gradient(135deg, #6f72ff, #8f94fb);
+      color: #fff;
       font-weight: 700;
       text-align: center;
-      border-bottom: 1px solid #000;
-      margin-bottom: 6px;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding: 6px;
+      font-size: 13px;
     }
 
-    .badge-card .label {
-      font-weight: 600;
-      display: inline-block;
-      min-width: 70px;
+    .badge-card-body {
+      padding: 10px 12px;
     }
 
-    .badge-card .value-target {
-      color: #000;
+    .card-danger {
+      background: #f8d7da;
     }
 
-    .badge-card .value-banten {
-      color: #0000aa;
+    .card-success {
+      background: #d4edda;
     }
 
-    .badge-card .value-tangerang {
-      color: #cc0000;
+    .card-warning {
+      background: #fff3cd;
     }
 
-    .cards-scroll {
+    .row-item {
       display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 8px 4px;
-      gap: 8px;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
 
-    .cards-scroll::-webkit-scrollbar {
+    .target { color: #000; }
+    .banten { color: #0047ab; }
+    .tangerang { color: #b30000; }
+
+    /* ================= SCROLL ================= */
+    ::-webkit-scrollbar {
       height: 8px;
+      width: 8px;
     }
 
-    .cards-scroll::-webkit-scrollbar-thumb {
-      background: #777;
+    ::-webkit-scrollbar-thumb {
+      background: #666;
       border-radius: 4px;
     }
   </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="javascript:void(0)" onclick="location.reload()">
-      <img src="PERFORMANCE TEAM.png" style="height: 40px; margin-right: 10px;" alt="Logo">
+    <a class="navbar-brand" href="#" onclick="location.reload()">
+      <img src="PERFORMANCE TEAM.png" height="36" class="me-2">
       PERFORMANCE BAN-TAN
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <!-- Menu Rangking -->
+
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-            Huddle Performance
-          </a>
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Huddle Performance</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item menu-link" data-menu="q-hsi">Q HSI</a></li>
             <li><a class="dropdown-item menu-link" data-menu="q-datin">Q DATIN</a></li>
           </ul>
         </li>
 
-        <!-- Menu KPI -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
             Huddle Performance Khusus B2B
           </a>
           <ul class="dropdown-menu">
             <li class="dropdown dropend">
-              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+              <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">
                 Dashboard B2B District BANTEN
               </a>
               <ul class="dropdown-menu">
@@ -219,105 +186,73 @@
                 <li><a class="dropdown-item menu-link" data-menu="b2b-tangerang">B2B TANGERANG</a></li>
               </ul>
             </li>
-
             <li><hr class="dropdown-divider"></li>
-
-            <li>
-              <a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a>
-            </li>
+            <li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
           </ul>
         </li>
+
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- Area konten utama -->
-<div class="home-fullscreen" id="home-fullscreen">
-  <div id="content-area">
-    <!-- Awalnya kosong, hanya background huddle_performance -->
-  </div>
+<!-- ================= CONTENT ================= -->
+<div id="home-fullscreen" class="home-fullscreen">
+  <div id="content-area"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-  // URL Web App Apps Script
   const B2B_API_URL =
     'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
   function showUnderConstruction() {
     const home = document.getElementById('home-fullscreen');
-    const contentArea = document.getElementById('content-area');
-
+    const content = document.getElementById('content-area');
     home.classList.add('no-bg');
 
-    contentArea.innerHTML = `
-      <div class="d-flex flex-column align-items-center justify-content-center">
-        <div class="spinner-border text-light mb-3" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <div>Loading dashboard...</div>
+    content.innerHTML = `
+      <div class="text-center mt-5">
+        <div class="spinner-border text-light mb-3"></div>
+        <div>Under Construction</div>
       </div>
     `;
-
-    setTimeout(function () {
-      contentArea.innerHTML = '';
-      const img = document.createElement('img');
-      img.src = 'under contruction.png';
-      img.alt = 'Under Construction';
-      contentArea.appendChild(img);
-    }, 1000);
   }
 
-  // Helper untuk muat partial HTML ke #content-area
   async function loadPartialIntoContent(url, onLoaded) {
     const home = document.getElementById('home-fullscreen');
-    const contentArea = document.getElementById('content-area');
-
+    const content = document.getElementById('content-area');
     home.classList.add('no-bg');
-    contentArea.innerHTML = `
-      <div class="d-flex flex-column align-items-center justify-content-center">
-        <div class="spinner-border text-light mb-3" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
+
+    content.innerHTML = `
+      <div class="text-center mt-5">
+        <div class="spinner-border text-light mb-3"></div>
         <div>Loading...</div>
       </div>
     `;
 
-    try {
-      const res = await fetch(url);
-      const html = await res.text();
-      contentArea.innerHTML = html;
-      if (typeof onLoaded === 'function') onLoaded();
-    } catch (e) {
-      console.error(e);
-      contentArea.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
-    }
+    const res = await fetch(url);
+    content.innerHTML = await res.text();
+    if (onLoaded) onLoaded();
   }
 
-  // Binding menu-link
-  document.querySelectorAll('.menu-link').forEach(function (el) {
-    el.addEventListener('click', function (e) {
+  document.querySelectorAll('.menu-link').forEach(el => {
+    el.onclick = e => {
       e.preventDefault();
-      const menu = this.dataset.menu;
+      const menu = el.dataset.menu;
 
       if (menu === 'District-Banten') {
-        // muat partial + JS khusus District BANTEN
-        loadPartialIntoContent('partials/district-banten.html', function () {
+        loadPartialIntoContent('partials/district-banten.html', () => {
           const s = document.createElement('script');
           s.src = 'js/district-banten.js';
-          s.onload = function () {
-            if (typeof initDistrictBanten === 'function') {
-              initDistrictBanten(B2B_API_URL);
-            }
-          };
+          s.onload = () => initDistrictBanten(B2B_API_URL);
           document.body.appendChild(s);
         });
       } else {
-        // menu lain sementara masih under construction
         showUnderConstruction();
       }
-    });
+    };
   });
 </script>
 
