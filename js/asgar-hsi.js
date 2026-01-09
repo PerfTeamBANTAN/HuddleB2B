@@ -10,13 +10,14 @@ function initAsgarHSI(API_URL) {
 
   let rawTableData = [];
   let tableHeaders = [];
+  let rawTableDataHI = [];
 
   cardContainer.innerHTML = '';
   tableHead.innerHTML = '';
   tableBody.innerHTML = '';
 
   /* =====================================================
-     HELPER FORMAT ANGKA
+     FORMAT ANGKA
   ===================================================== */
   function formatNumber(val) {
     if (val === null || val === undefined || val === '') return '-';
@@ -25,34 +26,40 @@ function initAsgarHSI(API_URL) {
   }
 
   /* =====================================================
-     HELPER RULE WARNA MERAH
+     RULE WARNA MERAH
   ===================================================== */
   function isRedCell(header, row) {
     const val = row[header];
-
     if (typeof val !== 'number') return false;
 
-    // Rule 1 & 2
-    if (
-      (header === 'Asgar s/d HI' || header === 'Pragnosa Asgar') &&
-      val < 92
-    ) return true;
-
-    // Rule 3
+    if ((header === 'Asgar s/d HI' || header === 'Pragnosa Asgar') && val < 92) return true;
     if (header === 'Budg Asgar BI' && val <= 0) return true;
-
-    // Rule 4
-    if (
-      header === 'Total Tiket Asgar' &&
-      typeof row['Budg Asgar 30D'] === 'number' &&
-      val > row['Budg Asgar 30D']
-    ) return true;
-
-    // Rule 5
+    if (header === 'Total Tiket Asgar' &&
+        typeof row['Budg Asgar 30D'] === 'number' &&
+        val > row['Budg Asgar 30D']) return true;
     if (header === 'Asgar HI' && val > 0) return true;
 
     return false;
   }
+
+  /* =====================================================
+     LOAD DATA TIKET HI (DETAIL)
+  ===================================================== */
+  function loadTiketHI(API_URL) {
+    const cb = 'jsonp_tiket_hi_' + Date.now();
+
+    window[cb] = res => {
+      rawTableDataHI = res.data;
+      delete window[cb];
+      script.remove();
+    };
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?type=tiket_hi&callback=${cb}`;
+    document.body.appendChild(script);
+  }
+
+  loadTiketHI(API_URL);
 
   /* =====================================================
      KPI CARD
@@ -80,30 +87,19 @@ function initAsgarHSI(API_URL) {
         (lowerBetter ? val <= v.target : val >= v.target);
 
       const card = document.createElement('div');
-      card.className =
-        `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+      card.className = `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
       card.innerHTML = `
         <div class="badge-card-header">${indikator}</div>
         <div class="badge-card-body">
-          <div class="row-item">
-            <span>Target</span>
-            <span>${formatNumber(v.target)}</span>
+          <div class="row-item"><span>Target</span><span>${formatNumber(v.target)}</span></div>
+          <div class="row-item"><span>Banten</span>
+            <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">${formatNumber(v.BANTEN)}</span>
           </div>
-          <div class="row-item">
-            <span>Banten</span>
-            <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-              ${formatNumber(v.BANTEN)}
-            </span>
+          <div class="row-item"><span>Tangerang</span>
+            <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">${formatNumber(v.TANGERANG)}</span>
           </div>
-          <div class="row-item">
-            <span>Tangerang</span>
-            <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-              ${formatNumber(v.TANGERANG)}
-            </span>
-          </div>
-        </div>
-      `;
+        </div>`;
       cardContainer.appendChild(card);
     });
 
@@ -123,14 +119,12 @@ function initAsgarHSI(API_URL) {
     const cbTable = 'jsonp_asgar_table_' + Date.now();
 
     window[cbTable] = res => {
-
       rawTableData = res.data;
       tableHeaders = res.headers;
 
       const d = new Date(res.lastUpdate);
       lastUpdateEl.innerHTML =
-        `<i class="fa fa-clock me-1"></i> Last update: ` +
-        d.toLocaleString('id-ID');
+        `<i class="fa fa-clock me-1"></i> Last update: ${d.toLocaleString('id-ID')}`;
 
       renderTable(rawTableData);
       initFilterSTO(rawTableData);
@@ -158,12 +152,7 @@ function initAsgarHSI(API_URL) {
     tableBody.innerHTML = '';
 
     if (!data.length) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="${tableHeaders.length}" class="text-center text-muted">
-            Tidak ada data
-          </td>
-        </tr>`;
+      tableBody.innerHTML = `<tr><td colspan="${tableHeaders.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
       return;
     }
 
@@ -172,11 +161,17 @@ function initAsgarHSI(API_URL) {
 
       tableHeaders.forEach(h => {
         const td = document.createElement('td');
-
         td.textContent = formatNumber(row[h]);
 
         if (isRedCell(h, row)) {
           td.classList.add('text-danger', 'fw-semibold');
+        }
+
+        // CLICKABLE DETAIL
+        if (h === 'Tiket HI' || h === 'Asgar HI') {
+          td.classList.add('text-info', 'fw-bold');
+          td.style.cursor = 'pointer';
+          td.addEventListener('click', () => openHIModal(h, row.WITEL));
         }
 
         tr.appendChild(td);
@@ -187,12 +182,11 @@ function initAsgarHSI(API_URL) {
   }
 
   /* =====================================================
-     INIT FILTER STO
+     FILTER STO
   ===================================================== */
   function initFilterSTO(data) {
     const stoSet = new Set(data.map(r => r.STO).filter(Boolean));
     filterSTO.innerHTML = '<option value="">All STO</option>';
-
     [...stoSet].sort().forEach(sto => {
       const opt = document.createElement('option');
       opt.value = sto;
@@ -201,27 +195,62 @@ function initAsgarHSI(API_URL) {
     });
   }
 
-  /* =====================================================
-     FILTER EVENT
-  ===================================================== */
   filterWitel.addEventListener('change', applyFilter);
   filterSTO.addEventListener('change', applyFilter);
 
   function applyFilter() {
-    const witel = filterWitel.value;
-    const sto = filterSTO.value;
-
     let filtered = rawTableData;
-
-    if (witel) {
-      filtered = filtered.filter(r => r.WITEL === witel);
+    if (filterWitel.value) {
+      filtered = filtered.filter(r => r.WITEL === filterWitel.value);
       initFilterSTO(filtered);
     }
+    if (filterSTO.value) {
+      filtered = filtered.filter(r => r.STO === filterSTO.value);
+    }
+    renderTable(filtered);
+  }
 
-    if (sto) {
-      filtered = filtered.filter(r => r.STO === sto);
+  /* =====================================================
+     MODAL DETAIL HI
+  ===================================================== */
+  function openHIModal(type, witel) {
+    const modal = new bootstrap.Modal(document.getElementById('modalHI'));
+    const title = document.getElementById('modalHITitle');
+    const head = document.getElementById('modal-hi-head');
+    const body = document.getElementById('modal-hi-body');
+
+    title.textContent = `Detail ${type} – ${witel}`;
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    const headers = ['No Tiket','Customer','Produk','STO','Witel','Segment','Asgar HI','Status'];
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      head.appendChild(th);
+    });
+
+    const filtered = rawTableDataHI.filter(r => {
+      if (r.WITEL !== witel) return false;
+      if (r.CE !== 'Y') return false;
+      if (type === 'Asgar HI' && r.CG !== 1) return false;
+      return true;
+    });
+
+    if (!filtered.length) {
+      body.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Tidak ada data</td></tr>`;
     }
 
-    renderTable(filtered);
+    filtered.forEach(r => {
+      const tr = document.createElement('tr');
+      ['A','C','D','H','K','AU','CG','CP'].forEach(c => {
+        const td = document.createElement('td');
+        td.textContent = r[c] ?? '-';
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+
+    modal.show();
   }
 }
