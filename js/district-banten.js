@@ -52,7 +52,8 @@ function initDistrictBanten(API_URL) {
           (lowerBetter ? val <= v.target : val >= v.target);
 
         const card = document.createElement('div');
-        card.className = `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+        card.className =
+          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -172,11 +173,9 @@ function loadDistrictBantenTable(API_URL) {
             <a href="#" class="text-warning fw-bold text-decoration-none">
               ${row[h]}
             </a>`;
-
           td.onclick = e => {
             e.preventDefault();
-            const witel = row.WITEL || '-';
-            openTiketHIModal(API_URL, row.STO, witel);
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
           };
 
         /* ===== %Q s/d HI > 2 ===== */
@@ -192,6 +191,14 @@ function loadDistrictBantenTable(API_URL) {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
           if (!isNaN(val) && val <= 0) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+
+        /* ===== Pragn Q BI > 2 ===== */
+        } else if (h === 'Pragn Q BI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+          if (!isNaN(val) && val > 2) {
             td.classList.add('text-danger', 'fw-bold');
           }
 
@@ -277,6 +284,5 @@ function openTiketHIModal(API_URL, sto, witel) {
     `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
 
   document.body.appendChild(script);
-
   new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
