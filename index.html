@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+/* ================= GLOBAL ================= */
 html, body {
   height: 100%;
   margin: 0;
@@ -25,11 +26,12 @@ html, body {
   left: 0;
   right: 0;
   z-index: 10;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
 }
 
 .navbar-brand {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 22px;
   color: #fff;
 }
@@ -38,20 +40,24 @@ html, body {
   color: #fff !important;
   padding: 8px 14px;
   border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
 .navbar-nav .nav-link:hover {
   background: rgba(255,255,255,0.15);
 }
 
+/* ================= DROPDOWN ================= */
 .dropdown-menu {
-  background: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.95);
   border: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
 }
 
 .dropdown-item {
   color: #fff;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .dropdown-item:hover {
@@ -86,7 +92,7 @@ html, body {
   justify-content: unset !important;
 }
 
-/* ================= GRID CARD ================= */
+/* ================= GRID ================= */
 .cards-scroll {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -117,6 +123,7 @@ html, body {
   font-weight: 700;
   text-align: center;
   padding: 8px;
+  letter-spacing: 0.3px;
 }
 
 /* ================= CARD BODY ================= */
@@ -133,26 +140,25 @@ html, body {
   margin-bottom: 6px;
 }
 
-/* LABEL (TARGET / BANTEN / TANGERANG) → HITAM */
+/* LABEL */
 .row-item span:first-child {
   color: #000;
-  font-weight: 600;
 }
 
-/* TARGET (BARIS PERTAMA) → ANGKA HITAM */
+/* TARGET VALUE */
 .row-item:first-child span:last-child {
-  color: #000 !important;
+  color: #000;
   font-weight: 700;
 }
 
-/* PEMISAH TARGET */
+/* TARGET SEPARATOR */
 .row-item:first-child {
   border-bottom: 1px dashed rgba(0,0,0,0.3);
   padding-bottom: 4px;
   margin-bottom: 6px;
 }
 
-/* ================= VALUE KPI ================= */
+/* ================= KPI VALUE ================= */
 .value-good {
   color: #0f5132;
   font-weight: 700;
@@ -172,28 +178,55 @@ html, body {
   background: #f8d7da !important;
 }
 
-/* ================= LOADING STATE ================= */
-.loading-wrapper {
+/* ================= DISTRICT WRAPPER ================= */
+.district-wrapper {
+  position: relative;
+}
+
+/* ================= LAST UPDATE ================= */
+.last-update {
+  font-size: 12px;
+  color: #bbb;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ================= LOADING OVERLAY ================= */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  height: 100%;
+  z-index: 5;
 }
 
 .loading-text {
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 14px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
-.last-update {
-  color: #ccc;
-  font-size: 12px;
-  margin: 6px 4px 10px 4px;
-  font-style: italic;
-  text-align: left;
+/* ================= SKELETON (OPTIONAL) ================= */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f2f2f2 37%,
+    #e0e0e0 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 </style>
 
