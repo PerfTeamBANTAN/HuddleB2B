@@ -1,8 +1,11 @@
-function initDistrictBanten(API_URL) {
+function initDistrictBanten(apiUrl) {
   const container = document.getElementById('district-banten-row');
-  const wrapper = document.getElementById('district-banten-wrapper');
+  const lastUpdateEl = document.getElementById('last-update-banten');
 
-  if (!container || !wrapper) return;
+  if (!container) {
+    console.error('Container district-banten-row tidak ditemukan');
+    return;
+  }
 
   container.innerHTML = `
     <div class="loading-wrapper">
@@ -13,90 +16,76 @@ function initDistrictBanten(API_URL) {
 
   const callbackName = 'cbDistrictBanten_' + Date.now();
 
-  window[callbackName] = function (res) {
-    try {
-      const data = res.data;
-      const lastUpdate = new Date(res.lastUpdate);
+  window[callbackName] = function (data) {
+    delete window[callbackName];
+    document.body.removeChild(script);
 
-      const formatted =
-        lastUpdate.toLocaleDateString('id-ID') +
-        ' ' +
-        lastUpdate.toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
+    if (!Array.isArray(data)) {
+      container.innerHTML = '<div class="text-danger">Data tidak valid</div>';
+      return;
+    }
 
-      // LAST UPDATE
-      let lastEl = document.getElementById('last-update');
-      if (!lastEl) {
-        lastEl = document.createElement('div');
-        lastEl.id = 'last-update';
-        lastEl.className = 'text-light mb-2';
-        lastEl.style.fontSize = '13px';
-        wrapper.insertBefore(lastEl, wrapper.children[1]);
-      }
-      lastEl.innerHTML = `<i class="fa fa-clock"></i> Last update: ${formatted}`;
+    container.innerHTML = '';
 
-      container.innerHTML = '';
+    const grouped = {};
+    data.forEach(d => {
+      if (!grouped[d.indikator]) grouped[d.indikator] = {};
+      grouped[d.indikator][d.witel] = d;
+    });
 
-      const map = {};
+    Object.keys(grouped).forEach(indikator => {
+      const banten = grouped[indikator]['BANTEN'];
+      const tangerang = grouped[indikator]['TANGERANG'];
+      if (!banten || !tangerang) return;
 
-      data.forEach(r => {
-        if (!map[r.indikator]) {
-          map[r.indikator] = {
-            target: r.target,
-            banten: null,
-            tangerang: null
-          };
-        }
-        if (r.witel === 'BANTEN') map[r.indikator].banten = r.ach;
-        if (r.witel === 'TANGERANG') map[r.indikator].tangerang = r.ach;
-      });
+      const isGood =
+        indikator.startsWith('Q')
+          ? banten.ach <= banten.target
+          : banten.ach >= banten.target;
 
-      Object.keys(map).forEach(indikator => {
-        const d = map[indikator];
-        if (d.banten == null || d.tangerang == null) return;
+      const card = document.createElement('div');
+      card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'}`;
 
-        const lowerBetter = indikator === 'Q Gangguan HSI';
-        const isGood = v => (lowerBetter ? v <= d.target : v >= d.target);
-
-        const card = document.createElement('div');
-        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
-
-        card.innerHTML = `
-          <div class="badge-card-header">${indikator}</div>
-          <div class="badge-card-body">
-            <div class="row-item">
-              <span>Target</span>
-              <span>${d.target.toFixed(2)}</span>
-            </div>
-            <div class="row-item">
-              <span>Banten</span>
-              <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
-                ${d.banten.toFixed(2)}
-              </span>
-            </div>
-            <div class="row-item">
-              <span>Tangerang</span>
-              <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
-                ${d.tangerang.toFixed(2)}
-              </span>
-            </div>
+      card.innerHTML = `
+        <div class="badge-card-header">${indikator}</div>
+        <div class="badge-card-body">
+          <div class="row-item">
+            <span>Target</span>
+            <span>${Number(banten.target).toFixed(2)}</span>
           </div>
-        `;
+          <div class="row-item">
+            <span>Banten</span>
+            <span class="${isGood ? 'value-good' : 'value-bad'}">
+              ${Number(banten.ach).toFixed(2)}
+            </span>
+          </div>
+          <div class="row-item">
+            <span>Tangerang</span>
+            <span>${Number(tangerang.ach).toFixed(2)}</span>
+          </div>
+        </div>
+      `;
 
-        container.appendChild(card);
-      });
+      container.appendChild(card);
+    });
 
-    } catch (e) {
-      container.innerHTML =
-        '<div class="text-danger text-center">Data tidak tersedia</div>';
-    } finally {
-      delete window[callbackName];
+    // ✅ LAST UPDATE
+    const now = new Date();
+    const pad = n => n.toString().padStart(2, '0');
+    const formatted =
+      `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ` +
+      `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    if (lastUpdateEl) {
+      lastUpdateEl.textContent = `Last update: ${formatted}`;
     }
   };
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?callback=${callbackName}`;
+  script.src = `${apiUrl}?callback=${callbackName}`;
+  script.onerror = () => {
+    container.innerHTML = '<div class="text-danger">Gagal memuat data</div>';
+  };
+
   document.body.appendChild(script);
 }
