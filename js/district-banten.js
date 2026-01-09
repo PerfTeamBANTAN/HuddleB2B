@@ -48,11 +48,11 @@ function initDistrictBanten(API_URL) {
       Object.entries(map).forEach(([indikator, v]) => {
         const lowerBetter = indikator === 'Q Gangguan HSI';
         const isGood = val =>
-          lowerBetter ? val <= v.target : val >= v.target;
+          typeof val === 'number' &&
+          (lowerBetter ? val <= v.target : val >= v.target);
 
         const card = document.createElement('div');
-        card.className =
-          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+        card.className = `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -64,13 +64,13 @@ function initDistrictBanten(API_URL) {
             <div class="row-item">
               <span>Banten</span>
               <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-                ${v.BANTEN.toFixed(2)}
+                ${v.BANTEN?.toFixed(2) ?? '-'}
               </span>
             </div>
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-                ${v.TANGERANG.toFixed(2)}
+                ${v.TANGERANG?.toFixed(2) ?? '-'}
               </span>
             </div>
           </div>
@@ -119,12 +119,19 @@ function loadDistrictBantenTable(API_URL) {
       thead.appendChild(th);
     });
 
-    /* ===== FILTER STO ===== */
+    /* ===== FILTER ===== */
+    const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+
+    filterWitel.innerHTML = '<option value="">All WITEL</option>';
+    [...witelSet].sort().forEach(w =>
+      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
+    );
+
     filterSto.innerHTML = '<option value="">All STO</option>';
-    [...stoSet].sort().forEach(sto => {
-      filterSto.innerHTML += `<option value="${sto}">${sto}</option>`;
-    });
+    [...stoSet].sort().forEach(s =>
+      filterSto.innerHTML += `<option value="${s}">${s}</option>`
+    );
 
     filterWitel.onchange = filterSto.onchange = applyFilter;
     renderTable(rawData);
@@ -138,76 +145,66 @@ function loadDistrictBantenTable(API_URL) {
   }
 
   /* =====================================================
-     RENDER TABLE (DENGAN WARNA %Q s/d HI)
+     RENDER TABLE
   ===================================================== */
   function renderTable(data) {
-  tbody.innerHTML = '';
+    tbody.innerHTML = '';
 
-  if (!data.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="${headers.length}" class="text-center text-muted">
-          Tidak ada data
-        </td>
-      </tr>`;
-    return;
-  }
+    if (!data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+      return;
+    }
 
-  data.forEach(row => {
-    const tr = document.createElement('tr');
+    data.forEach(row => {
+      const tr = document.createElement('tr');
 
-    headers.forEach(h => {
-      const td = document.createElement('td');
+      headers.forEach(h => {
+        const td = document.createElement('td');
 
-      /* ===== CLICK Tiket HI ===== */
-      if (h === 'Tiket HI' && Number(row[h]) > 0) {
-        td.innerHTML = `
-          <a href="#" class="text-warning fw-bold text-decoration-none">
-            ${row[h]}
-          </a>`;
+        /* ===== Tiket HI ===== */
+        if (h === 'Tiket HI' && Number(row[h]) > 0) {
+          td.innerHTML = `
+            <a href="#" class="text-warning fw-bold text-decoration-none">
+              ${row[h]}
+            </a>`;
 
-        td.onclick = e => {
-          e.preventDefault();
+          td.onclick = e => {
+            e.preventDefault();
+            const witel = row.WITEL || '-';
+            openTiketHIModal(API_URL, row.STO, witel);
+          };
 
-          const witel =
-            row.WITEL ||
-            row.Witel ||
-            row['WITEL '] ||
-            row['WITEL\n'] ||
-            '-';
+        /* ===== %Q s/d HI > 2 ===== */
+        } else if (h === '%Q s/d HI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+          if (!isNaN(val) && val > 2) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
 
-          openTiketHIModal(API_URL, row.STO, witel);
-        };
+        /* ===== Budg Q BI ≤ 0 ===== */
+        } else if (h === 'Budg Q BI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+          if (!isNaN(val) && val <= 0) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
 
-      /* ===== %Q s/d HI > 2 ===== */
-      } else if (h === '%Q s/d HI') {
-        const val = Number(row[h]);
-        td.textContent = row[h] ?? '-';
-
-        if (!isNaN(val) && val > 2) {
-          td.classList.add('text-danger', 'fw-bold');
+        } else {
+          td.textContent = row[h] ?? '-';
         }
 
-      /* ===== Budg Q BI ≤ 0 ===== */
-      } else if (h === 'Budg Q BI') {
-        const val = Number(row[h]);
-        td.textContent = row[h] ?? '-';
+        tr.appendChild(td);
+      });
 
-        if (!isNaN(val) && val <= 0) {
-          td.classList.add('text-danger', 'fw-bold');
-        }
-
-      } else {
-        td.textContent = row[h] ?? '-';
-      }
-
-      tr.appendChild(td);
+      tbody.appendChild(tr);
     });
-
-    tbody.appendChild(tr);
-  });
-}
-
+  }
 
   const script = document.createElement('script');
   script.src = `${API_URL}?type=table&callback=${cbTable}`;
@@ -223,7 +220,6 @@ function openTiketHIModal(API_URL, sto, witel) {
   const head = document.getElementById('tiket-hi-head');
   const body = document.getElementById('tiket-hi-body');
 
-  /* ===== JUDUL MODAL ===== */
   title.textContent = `Detail Tiket HSI HI – ${witel} / ${sto}`;
 
   head.innerHTML = '';
@@ -253,7 +249,7 @@ function openTiketHIModal(API_URL, sto, witel) {
       head.appendChild(th);
     });
 
-    if (!res.data || res.data.length === 0) {
+    if (!res.data?.length) {
       body.innerHTML = `
         <tr>
           <td colspan="${cols.length}" class="text-center">
@@ -278,13 +274,9 @@ function openTiketHIModal(API_URL, sto, witel) {
 
   const script = document.createElement('script');
   script.src =
-    `${API_URL}?type=tiket_hi_detail` +
-    `&sto=${encodeURIComponent(sto)}` +
-    `&callback=${cb}`;
+    `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
 
   document.body.appendChild(script);
 
-  new bootstrap.Modal(
-    document.getElementById('modalTiketHI')
-  ).show();
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
