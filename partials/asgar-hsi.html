@@ -1,65 +1,177 @@
-<div id="asgar-hsi-wrapper" class="district-wrapper px-3">
+function initAsgarHSI(API_URL) {
 
-  <h4 class="text-center text-light mb-3">
-    Performance Assurance Guarantee HSI – B2B District Banten
-  </h4>
+  const cardContainer = document.getElementById('asgar-hsi-row');
+  const tableHead = document.getElementById('asgar-hsi-table-head');
+  const tableBody = document.getElementById('asgar-hsi-table-body');
+  const lastUpdateEl = document.getElementById('asgar-last-update');
 
-  <!-- ================= GRID CARD KPI ================= -->
-  <div id="asgar-hsi-row" class="cards-scroll"></div>
+  const filterWitel = document.getElementById('asgar-filter-witel');
+  const filterSTO = document.getElementById('asgar-filter-sto');
 
-  <!-- ================= LOADING OVERLAY ================= -->
-  <div id="asgar-loading-overlay" class="loading-overlay d-none">
-    <div class="spinner-border text-light mb-2"></div>
-    <div class="loading-text">Mengambil data...</div>
-  </div>
+  let rawAsgarData = [];
+  let tiketHIMap = {};
+  let tableHeaders = [];
 
-  <!-- ================= TABLE SECTION ================= -->
-  <div class="mt-4">
+  /* ================= FORMAT ================= */
+  function formatNumber(v) {
+    if (v === null || v === undefined || v === '') return '-';
+    if (typeof v !== 'number') return v;
+    return Number.isInteger(v) ? v : v.toFixed(2);
+  }
 
-    <h5 class="text-light mb-2">
-      Pragnosa Assurance Guarantee HSI
-    </h5>
+  /* ================= WARNA MERAH ================= */
+  function isRedCell(h, r) {
+    const v = r[h];
+    if (typeof v !== 'number') return false;
 
-    <!-- ================= FILTER (SAMA DENGAN DISTRICT BANTEN) ================= -->
-    <div class="row g-2 mb-2">
-      <div class="col-md-3">
-        <select id="asgar-filter-witel" class="form-select form-select-sm">
-          <option value="">All Witel</option>
-          <option value="BANTEN">BANTEN</option>
-          <option value="TANGERANG">TANGERANG</option>
-        </select>
-      </div>
+    if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && v < 92) return true;
+    if (h === 'Budg Asgar BI' && v <= 0) return true;
+    if (h === 'Total Tiket Asgar' && v > r['Budg Asgar 30D']) return true;
+    if (h === 'Asgar HI' && v > 0) return true;
 
-      <div class="col-md-3">
-        <select id="asgar-filter-sto" class="form-select form-select-sm">
-          <option value="">All STO</option>
-        </select>
-      </div>
-    </div>
+    return false;
+  }
 
-    <!-- ================= TABLE ================= -->
-    <div class="table-responsive">
-      <table
-        class="table table-dark table-striped table-bordered table-sm align-middle"
-      >
-        <thead class="table-secondary text-dark">
-          <tr id="asgar-hsi-table-head"></tr>
-        </thead>
-        <tbody id="asgar-hsi-table-body">
-          <tr>
-            <td class="text-center text-muted">
-              Memuat data...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  /* ================= LOAD COUNT Tiket HI ================= */
+  function loadTiketCount() {
+    return new Promise(resolve => {
+      const cb = 'cb_tiket_' + Date.now();
+      window[cb] = res => {
+        res.data.forEach(r => {
+          tiketHIMap[r.STO] = r['Tiket HI'] || 0;
+        });
+        delete window[cb];
+        script.remove();
+        resolve();
+      };
+      const script = document.createElement('script');
+      script.src = `${API_URL}?type=table&callback=${cb}`;
+      document.body.appendChild(script);
+    });
+  }
 
-  </div>
+  /* ================= LOAD ASGAR TABLE ================= */
+  function loadAsgarTable() {
+    const cb = 'cb_asgar_' + Date.now();
+    window[cb] = res => {
+      rawAsgarData = res.data.map(r => ({
+        ...r,
+        'Tiket HI': tiketHIMap[r.STO] || 0,
+        'Asgar HI': tiketHIMap[r.STO] || 0
+      }));
 
-  <!-- ================= LAST UPDATE ================= -->
-  <div id="asgar-last-update" class="last-update text-end px-2 pb-3 mt-2">
-    <i class="fa fa-clock me-1"></i> Last update: -
-  </div>
+      tableHeaders = res.headers;
+      if (!tableHeaders.includes('Tiket HI')) tableHeaders.push('Tiket HI');
+      if (!tableHeaders.includes('Asgar HI')) tableHeaders.push('Asgar HI');
 
-</div>
+      lastUpdateEl.innerHTML =
+        `<i class="fa fa-clock me-1"></i> Last update: ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
+
+      renderTable(rawAsgarData);
+      initSTOFilter(rawAsgarData);
+
+      delete window[cb];
+      script.remove();
+    };
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?type=asgar_table&callback=${cb}`;
+    document.body.appendChild(script);
+  }
+
+  /* ================= RENDER TABLE ================= */
+  function renderTable(data) {
+    tableHead.innerHTML = '';
+    tableHeaders.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      tableHead.appendChild(th);
+    });
+
+    tableBody.innerHTML = '';
+
+    data.forEach(r => {
+      const tr = document.createElement('tr');
+
+      tableHeaders.forEach(h => {
+        const td = document.createElement('td');
+        td.textContent = formatNumber(r[h]);
+
+        if (isRedCell(h, r)) td.classList.add('text-danger', 'fw-semibold');
+
+        if (h === 'Tiket HI' || h === 'Asgar HI') {
+          td.classList.add('text-info', 'fw-bold');
+          td.style.cursor = 'pointer';
+          td.onclick = () => openDetailModal(r.STO);
+        }
+
+        tr.appendChild(td);
+      });
+
+      tableBody.appendChild(tr);
+    });
+  }
+
+  /* ================= FILTER ================= */
+  function initSTOFilter(data) {
+    const stoSet = [...new Set(data.map(r => r.STO).filter(Boolean))];
+    filterSTO.innerHTML = '<option value="">All STO</option>';
+    stoSet.sort().forEach(s => {
+      const o = document.createElement('option');
+      o.value = s;
+      o.textContent = s;
+      filterSTO.appendChild(o);
+    });
+  }
+
+  function applyFilter() {
+    let d = rawAsgarData;
+    if (filterWitel.value) d = d.filter(r => r.WITEL === filterWitel.value);
+    if (filterSTO.value) d = d.filter(r => r.STO === filterSTO.value);
+    renderTable(d);
+  }
+
+  filterWitel.onchange = applyFilter;
+  filterSTO.onchange = applyFilter;
+
+  /* ================= MODAL ================= */
+  function openDetailModal(sto) {
+    const modal = new bootstrap.Modal(document.getElementById('modalHI'));
+    const head = document.getElementById('modal-hi-head');
+    const body = document.getElementById('modal-hi-body');
+    document.getElementById('modalHITitle').textContent = `Detail Tiket HI – ${sto}`;
+
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    const cols = ['Incident','Summary','Report Date','Service Type','WITEL','LABOR TEKNISI','TTR','Flag GAUL','Old Tiket'];
+    cols.forEach(c => {
+      const th = document.createElement('th');
+      th.textContent = c;
+      head.appendChild(th);
+    });
+
+    const cb = 'cb_detail_' + Date.now();
+    window[cb] = res => {
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        Object.values(r).forEach(v => {
+          const td = document.createElement('td');
+          td.textContent = v ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+      delete window[cb];
+      script.remove();
+      modal.show();
+    };
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?type=tiket_hi_detail&sto=${sto}&callback=${cb}`;
+    document.body.appendChild(script);
+  }
+
+  /* ================= INIT ================= */
+  loadTiketCount().then(loadAsgarTable);
+}
