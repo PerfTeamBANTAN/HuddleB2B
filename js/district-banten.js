@@ -1,11 +1,6 @@
-function initDistrictBanten(apiUrl) {
+async function initDistrictBanten(apiUrl) {
   const container = document.getElementById('district-banten-row');
   const lastUpdateEl = document.getElementById('last-update-banten');
-
-  if (!container) {
-    console.error('Container district-banten-row tidak ditemukan');
-    return;
-  }
 
   container.innerHTML = `
     <div class="loading-wrapper">
@@ -14,16 +9,10 @@ function initDistrictBanten(apiUrl) {
     </div>
   `;
 
-  const callbackName = 'cbDistrictBanten_' + Date.now();
-
-  window[callbackName] = function (data) {
-    delete window[callbackName];
-    document.body.removeChild(script);
-
-    if (!Array.isArray(data)) {
-      container.innerHTML = '<div class="text-danger">Data tidak valid</div>';
-      return;
-    }
+  try {
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+    const data = json.data;
 
     container.innerHTML = '';
 
@@ -51,17 +40,17 @@ function initDistrictBanten(apiUrl) {
         <div class="badge-card-body">
           <div class="row-item">
             <span>Target</span>
-            <span>${Number(banten.target).toFixed(2)}</span>
+            <span>${banten.target.toFixed(2)}</span>
           </div>
           <div class="row-item">
             <span>Banten</span>
             <span class="${isGood ? 'value-good' : 'value-bad'}">
-              ${Number(banten.ach).toFixed(2)}
+              ${banten.ach.toFixed(2)}
             </span>
           </div>
           <div class="row-item">
             <span>Tangerang</span>
-            <span>${Number(tangerang.ach).toFixed(2)}</span>
+            <span>${tangerang.ach.toFixed(2)}</span>
           </div>
         </div>
       `;
@@ -69,23 +58,16 @@ function initDistrictBanten(apiUrl) {
       container.appendChild(card);
     });
 
-    // ✅ LAST UPDATE
-    const now = new Date();
+    // ✅ LAST UPDATE (Indonesia format)
+    const dt = new Date(json.lastUpdate);
     const pad = n => n.toString().padStart(2, '0');
-    const formatted =
-      `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ` +
-      `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    lastUpdateEl.textContent =
+      `Last update: ${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()} ` +
+      `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
 
-    if (lastUpdateEl) {
-      lastUpdateEl.textContent = `Last update: ${formatted}`;
-    }
-  };
-
-  const script = document.createElement('script');
-  script.src = `${apiUrl}?callback=${callbackName}`;
-  script.onerror = () => {
-    container.innerHTML = '<div class="text-danger">Gagal memuat data</div>';
-  };
-
-  document.body.appendChild(script);
+  } catch (err) {
+    console.error(err);
+    container.innerHTML =
+      '<div class="text-danger">Gagal memuat data</div>';
+  }
 }
