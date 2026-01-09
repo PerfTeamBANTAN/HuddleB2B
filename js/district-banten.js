@@ -1,32 +1,24 @@
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
   const wrapper = document.getElementById('district-banten-wrapper');
+  const loading = document.getElementById('loading-overlay');
+  const lastUpdateEl = document.getElementById('last-update');
 
   if (!container || !wrapper) return;
 
   container.innerHTML = '';
-
-  // === LAST UPDATE ELEMENT ===
-  let lastUpdateEl = document.querySelector('.last-update');
-  if (!lastUpdateEl) {
-    lastUpdateEl = document.createElement('div');
-    lastUpdateEl.className = 'last-update';
-    lastUpdateEl.textContent = 'Last update: -';
-    wrapper.prepend(lastUpdateEl);
-  }
+  loading.style.display = 'flex';
 
   const callbackName = 'jsonp_cb_' + Date.now();
 
   window[callbackName] = function (res) {
     try {
-      console.log('DATA API:', res);
-
       const { data, lastUpdate } = res;
 
-      // ===== FORMAT WAKTU INDONESIA =====
+      // === FORMAT WAKTU ===
       const d = new Date(lastUpdate);
-      lastUpdateEl.textContent =
-        'Last update: ' +
+      lastUpdateEl.innerHTML =
+        `<i class="fa fa-clock me-1"></i> Last update: ` +
         d.toLocaleString('id-ID', {
           day: '2-digit',
           month: '2-digit',
@@ -36,7 +28,6 @@ function initDistrictBanten(API_URL) {
           hour12: false
         });
 
-      // ===== GROUP DATA =====
       const map = {};
 
       data.forEach(r => {
@@ -50,7 +41,6 @@ function initDistrictBanten(API_URL) {
         map[r.indikator][r.witel] = r.ach;
       });
 
-      // ===== RENDER CARD =====
       Object.entries(map).forEach(([indikator, v]) => {
         const lowerBetter = indikator === 'Q Gangguan HSI';
         const isGood = val =>
@@ -80,14 +70,14 @@ function initDistrictBanten(API_URL) {
             </div>
           </div>
         `;
-
         container.appendChild(card);
       });
 
-    } catch (err) {
-      console.error(err);
-      container.innerHTML = '<div class="text-danger">Gagal memuat data</div>';
+    } catch (e) {
+      container.innerHTML =
+        '<div class="text-danger">Gagal memuat data</div>';
     } finally {
+      loading.style.display = 'none';
       delete window[callbackName];
       script.remove();
     }
