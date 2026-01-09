@@ -146,15 +146,24 @@ function loadDistrictBantenTable(API_URL) {
       headers.forEach(h => {
         const td = document.createElement('td');
 
-        /* ===== CLICK Tiket HI ===== */
+        /* ===== CLICK Tiket HI (FIX WITEL) ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
           td.innerHTML = `
             <a href="#" class="text-warning fw-bold text-decoration-none">
               ${row[h]}
             </a>`;
+
           td.onclick = e => {
             e.preventDefault();
-            openTiketHIModal(API_URL, row.STO);
+
+            const witel =
+              row.WITEL ||
+              row.Witel ||
+              row['WITEL '] ||
+              row['WITEL\n'] ||
+              '-';
+
+            openTiketHIModal(API_URL, row.STO, witel);
           };
         } else {
           td.textContent = row[h] ?? '-';
@@ -181,7 +190,7 @@ function openTiketHIModal(API_URL, sto, witel) {
   const head = document.getElementById('tiket-hi-head');
   const body = document.getElementById('tiket-hi-body');
 
-  // === SET JUDUL MODAL ===
+  /* ===== JUDUL MODAL ===== */
   title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
   head.innerHTML = '';
