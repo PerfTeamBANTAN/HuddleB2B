@@ -9,16 +9,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* ================= GLOBAL ================= */
 html, body {
   height: 100%;
   margin: 0;
   background: #000;
   font-family: 'Segoe UI', sans-serif;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* ================= NAVBAR ================= */
+/* NAVBAR */
 .navbar {
   position: fixed;
   top: 0;
@@ -45,13 +45,22 @@ html, body {
   background: rgba(255,255,255,0.15);
 }
 
-/* ================= DROPDOWN ================= */
+/* DROPDOWN */
 .dropdown-menu {
   background: rgba(0,0,0,0.95);
   border: none;
 }
 
-/* ================= HOME ================= */
+.dropdown-item {
+  color: #fff;
+  font-size: 14px;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* HOME */
 .home-fullscreen {
   width: 100%;
   min-height: 100vh;
@@ -63,7 +72,7 @@ html, body {
   background: #000 !important;
 }
 
-/* ================= CONTENT ================= */
+/* CONTENT */
 #content-area {
   width: 100%;
   min-height: calc(100vh - 56px);
@@ -77,22 +86,15 @@ html, body {
   display: block !important;
 }
 
-/* ================= DASHBOARD FIX ================= */
-.dashboard-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px 40px;
-}
-
-/* ================= GRID KPI ================= */
+/* GRID */
 .cards-scroll {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  padding: 16px;
 }
 
-/* ================= CARD ================= */
+/* CARD */
 .badge-card {
   border-radius: 10px;
   overflow: hidden;
@@ -102,7 +104,6 @@ html, body {
   font-size: 13px;
 }
 
-/* ================= CARD HEADER ================= */
 .badge-card-header {
   background: linear-gradient(135deg,#6f72ff,#8f94fb);
   color: #fff;
@@ -111,7 +112,6 @@ html, body {
   padding: 8px;
 }
 
-/* ================= CARD BODY ================= */
 .badge-card-body {
   padding: 10px 12px;
 }
@@ -119,24 +119,12 @@ html, body {
 .row-item {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
   margin-bottom: 6px;
+  font-weight: 600;
 }
-
-.value-good { color: #0f5132; font-weight: 700; }
-.value-bad  { color: #842029; font-weight: 700; }
 
 .card-good { background: #d1e7dd !important; }
-.card-bad  { background: #f8d7da !important; }
-
-/* ================= TABLE ================= */
-.table-section {
-  margin-top: 20px;
-}
-
-.table-section table {
-  width: 100%;
-}
+.card-bad { background: #f8d7da !important; }
 </style>
 </head>
 
@@ -200,38 +188,28 @@ Dashboard B2B District BANTEN
 const B2B_API_URL =
 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
-function showUnderConstruction() {
+function showLoading() {
   const home = document.getElementById('home-fullscreen');
   const content = document.getElementById('content-area');
-
-  content.classList.remove('show-grid');
-  home.classList.add('no-bg');
-
-  content.innerHTML = `
-  <div class="d-flex flex-column align-items-center justify-content-center">
-    <div class="spinner-border text-light mb-3"></div>
-    <div>Loading dashboard...</div>
-  </div>`;
-}
-
-async function loadPartialIntoContent(url, onLoaded) {
-  const home = document.getElementById('home-fullscreen');
-  const content = document.getElementById('content-area');
-
   home.classList.add('no-bg');
   content.innerHTML = `
-  <div class="d-flex flex-column align-items-center justify-content-center">
-    <div class="spinner-border text-light mb-3"></div>
-    <div>Loading...</div>
-  </div>`;
-
-  const res = await fetch(url);
-  content.innerHTML = `
-    <div class="dashboard-container">
-      ${await res.text()}
+    <div class="text-center">
+      <div class="spinner-border text-light mb-2"></div>
+      <div>Loading dashboard...</div>
     </div>
   `;
-  if (onLoaded) onLoaded();
+}
+
+async function loadPartial(url) {
+  showLoading();
+  const res = await fetch(url);
+  document.getElementById('content-area').innerHTML = await res.text();
+  document.getElementById('content-area').classList.add('show-grid');
+
+  const s = document.createElement('script');
+  s.src = 'js/district-banten.js?' + Date.now();
+  s.onload = () => initDistrictBanten(B2B_API_URL);
+  document.body.appendChild(s);
 }
 
 document.querySelectorAll('.menu-link').forEach(el => {
@@ -239,18 +217,12 @@ document.querySelectorAll('.menu-link').forEach(el => {
     e.preventDefault();
     const menu = el.dataset.menu;
 
-    if (menu === 'District-Banten') {
-      loadPartialIntoContent('partials/district-banten.html', () => {
-        const content = document.getElementById('content-area');
-        content.classList.add('show-grid');
-
-        const s = document.createElement('script');
-        s.src = 'js/district-banten.js?v=' + Date.now();
-        s.onload = () => initDistrictBanten(B2B_API_URL);
-        document.body.appendChild(s);
-      });
-    } else {
-      showUnderConstruction();
+    if (
+      menu === 'District-Banten' ||
+      menu === 'Asgar-HSI' ||
+      menu === 'TTR-HSI'
+    ) {
+      loadPartial('partials/district-banten.html');
     }
   });
 });
