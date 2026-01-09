@@ -3,14 +3,23 @@ function initDistrictBanten(API_URL) {
   const contentArea = document.getElementById('content-area');
   if (!container) return;
 
+  // TAMPILKAN GRID MODE
   contentArea.classList.add('show-grid');
+
+  // LOADING STATE
+  container.innerHTML = `
+    <div class="loading-wrapper">
+      <div class="spinner-border text-light"></div>
+      <div class="loading-text">Memuat data KPI District BANTEN...</div>
+    </div>
+  `;
 
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
-      // GROUP DATA PER INDIKATOR
+      // ================= GROUP DATA PER INDIKATOR =================
       const map = {};
 
       data.forEach(row => {
@@ -33,37 +42,46 @@ function initDistrictBanten(API_URL) {
         }
       });
 
+      // ================= RENDER CARD =================
       Object.keys(map).forEach(indikator => {
         const d = map[indikator];
 
         // RULE KPI
         const lowerBetter = indikator === 'Q Gangguan HSI';
 
-        const isGood = val =>
-          lowerBetter ? val <= d.target : val >= d.target;
+        const isGood = val => {
+          if (val === null || isNaN(val)) return false;
+          return lowerBetter ? val <= d.target : val >= d.target;
+        };
 
         const card = document.createElement('div');
-        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
+        card.className = `badge-card ${
+          isGood(d.banten) ? 'card-good' : 'card-bad'
+        }`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
+
             <div class="row-item">
               <span>Target</span>
               <span>${d.target.toFixed(2)}</span>
             </div>
+
             <div class="row-item">
-              <span class="banten">Banten</span>
+              <span>Banten</span>
               <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
-                ${d.banten.toFixed(2)}
+                ${d.banten !== null ? d.banten.toFixed(2) : '-'}
               </span>
             </div>
+
             <div class="row-item">
-              <span class="tangerang">Tangerang</span>
+              <span>Tangerang</span>
               <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
-                ${d.tangerang.toFixed(2)}
+                ${d.tangerang !== null ? d.tangerang.toFixed(2) : '-'}
               </span>
             </div>
+
           </div>
         `;
 
@@ -72,7 +90,10 @@ function initDistrictBanten(API_URL) {
     })
     .catch(err => {
       console.error(err);
-      container.innerHTML =
-        '<div class="text-danger text-center">Gagal memuat data</div>';
+      container.innerHTML = `
+        <div class="text-danger text-center">
+          Gagal memuat data KPI
+        </div>
+      `;
     });
 }
