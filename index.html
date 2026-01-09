@@ -105,6 +105,63 @@
       max-height: 90%;
       object-fit: contain;
     }
+
+    /* Kartu District BANTEN (dipakai di partial) */
+    .badge-card {
+      border: 2px solid #999;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      line-height: 1.2;
+      background-color: #fffbe6;
+      min-width: 170px;
+      max-width: 190px;
+      height: 80px;
+      box-sizing: border-box;
+    }
+
+    .badge-card-header {
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 1px solid #000;
+      margin-bottom: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge-card .label {
+      font-weight: 600;
+    }
+
+    .badge-card .value-target {
+      color: #000;
+    }
+
+    .badge-card .value-banten {
+      color: #0000aa;
+    }
+
+    .badge-card .value-tangerang {
+      color: #cc0000;
+    }
+
+    .cards-scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .cards-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .cards-scroll::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -173,14 +230,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  // URL Web App Apps Script
+  const B2B_API_URL =
+    'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
+
   function showUnderConstruction() {
     const home = document.getElementById('home-fullscreen');
     const contentArea = document.getElementById('content-area');
 
-    // Hapus background image
     home.classList.add('no-bg');
 
-    // Tampilkan spinner
     contentArea.innerHTML = `
       <div class="d-flex flex-column align-items-center justify-content-center">
         <div class="spinner-border text-light mb-3" role="status">
@@ -190,21 +249,63 @@
       </div>
     `;
 
-    // Simulasi loading 1 detik, lalu tampilkan gambar
     setTimeout(function () {
       contentArea.innerHTML = '';
       const img = document.createElement('img');
-      img.src = 'under contruction.png'; // sesuaikan path kalau perlu
+      img.src = 'under contruction.png';
       img.alt = 'Under Construction';
       contentArea.appendChild(img);
-    }, 1000); // 1000 ms = 1 detik
+    }, 1000);
   }
 
-  // Tambahkan event ke semua item menu yang punya class .menu-link
+  // Helper untuk muat partial HTML ke #content-area
+  async function loadPartialIntoContent(url, onLoaded) {
+    const home = document.getElementById('home-fullscreen');
+    const contentArea = document.getElementById('content-area');
+
+    home.classList.add('no-bg');
+    contentArea.innerHTML = `
+      <div class="d-flex flex-column align-items-center justify-content-center">
+        <div class="spinner-border text-light mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div>Loading...</div>
+      </div>
+    `;
+
+    try {
+      const res = await fetch(url);
+      const html = await res.text();
+      contentArea.innerHTML = html;
+      if (typeof onLoaded === 'function') onLoaded();
+    } catch (e) {
+      console.error(e);
+      contentArea.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
+    }
+  }
+
+  // Binding menu-link
   document.querySelectorAll('.menu-link').forEach(function (el) {
     el.addEventListener('click', function (e) {
       e.preventDefault();
-      showUnderConstruction();
+      const menu = this.dataset.menu;
+
+      if (menu === 'District-Banten') {
+        // muat partial + JS khusus District BANTEN
+        loadPartialIntoContent('partials/district-banten.html', function () {
+          const s = document.createElement('script');
+          s.src = 'js/district-banten.js';
+          s.onload = function () {
+            if (typeof initDistrictBanten === 'function') {
+              initDistrictBanten(B2B_API_URL);
+            }
+          };
+          document.body.appendChild(s);
+        });
+      } else {
+        // menu lain sementara masih under construction
+        showUnderConstruction();
+      }
     });
   });
 </script>
