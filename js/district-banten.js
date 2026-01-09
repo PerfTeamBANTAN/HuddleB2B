@@ -1,50 +1,38 @@
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
+  const contentArea = document.getElementById('content-area');
   if (!container) return;
+
+  contentArea.classList.add('show-grid');
 
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
-      // group per indikator
-      const grouped = {};
-      data.forEach(r => {
-        if (!grouped[r.indikator]) grouped[r.indikator] = [];
-        grouped[r.indikator].push(r);
-      });
+      data.forEach(item => {
+        const indikator = item.INDIKATOR || item.indikator || '';
+        const target = Number(item.TARGET ?? item.target ?? 0);
+        const banten = Number(item.BANTEN ?? item.banten ?? 0);
+        const tangerang = Number(item.TANGERANG ?? item.tangerang ?? 0);
 
-      Object.keys(grouped).forEach(indikator => {
-        const rows = grouped[indikator];
-
-        const target = Number(rows.find(r => r.witel === 'Target')?.target || 0);
-        const banten = Number(rows.find(r => r.witel === 'Banten')?.ach || 0);
-        const tangerang = Number(rows.find(r => r.witel === 'Tangerang')?.ach || 0);
-
-        // RULE LOGIC
+        // RULE KPI
         let goodIfGreater = true;
         if (indikator.toLowerCase().includes('gangguan')) {
           goodIfGreater = false;
         }
 
-        function statusClass(value) {
-          if (goodIfGreater) {
-            return value >= target ? 'value-good' : 'value-bad';
-          } else {
-            return value <= target ? 'value-good' : 'value-bad';
-          }
-        }
+        const isGood = value =>
+          goodIfGreater ? value >= target : value <= target;
 
-        function cardClass(value) {
-          if (goodIfGreater) {
-            return value >= target ? 'card-good' : 'card-bad';
-          } else {
-            return value <= target ? 'card-good' : 'card-bad';
-          }
-        }
+        const valueClass = value =>
+          isGood(value) ? 'value-good' : 'value-bad';
+
+        const cardClass =
+          isGood(banten) ? 'card-good' : 'card-bad';
 
         const card = document.createElement('div');
-        card.className = `badge-card ${cardClass(banten)}`;
+        card.className = `badge-card ${cardClass}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -55,11 +43,11 @@ function initDistrictBanten(API_URL) {
             </div>
             <div class="row-item">
               <span class="banten">Banten</span>
-              <span class="${statusClass(banten)}">${banten.toFixed(2)}</span>
+              <span class="${valueClass(banten)}">${banten.toFixed(2)}</span>
             </div>
             <div class="row-item">
               <span class="tangerang">Tangerang</span>
-              <span class="${statusClass(tangerang)}">${tangerang.toFixed(2)}</span>
+              <span class="${valueClass(tangerang)}">${tangerang.toFixed(2)}</span>
             </div>
           </div>
         `;
