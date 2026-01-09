@@ -1,60 +1,86 @@
-function f2(val) {
-  const n = Number(val);
-  return isNaN(n) ? '-' : n.toFixed(2);
-}
+(function () {
 
-function initDistrictBanten(apiUrl) {
-  const row = document.getElementById('district-banten-row');
-  if (!row) return;
+  function format2(val) {
+    var n = Number(val);
+    if (isNaN(n)) return '-';
+    return n.toFixed(2);
+  }
 
-  row.innerHTML = `
-    <div class="text-light text-center w-100">
-      <div class="spinner-border mb-2"></div>
-      <div>Loading data District BANTEN...</div>
-    </div>
-  `;
+  window.initDistrictBanten = function (apiUrl) {
+    var row = document.getElementById('district-banten-row');
+    if (!row) {
+      console.error('district-banten-row not found');
+      return;
+    }
 
-  fetch(apiUrl)
-    .then(r => r.json())
-    .then(rows => {
-      const map = {};
+    row.innerHTML = `
+      <div class="text-light text-center w-100">
+        <div class="spinner-border mb-2"></div>
+        <div>Loading data District BANTEN...</div>
+      </div>
+    `;
 
-      rows.forEach(r => {
-        const ind = String(r.indikator || '').trim();
-        const witel = String(r.witel || '').trim().toUpperCase();
-        if (!ind || !witel) return;
+    fetch(apiUrl)
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
 
-        if (!map[ind]) {
-          map[ind] = { target: r.target, banten: '-', tangerang: '-' };
-        }
+        var map = {};
 
-        if (witel === 'BANTEN') map[ind].banten = f2(r.ach);
-        if (witel === 'TANGERANG') map[ind].tangerang = f2(r.ach);
-      });
+        data.forEach(function (r) {
+          var indikator = String(r.indikator || '').trim();
+          var witel = String(r.witel || '').trim().toUpperCase();
 
-      row.innerHTML = '';
+          if (!indikator || !witel) return;
 
-      Object.keys(map).forEach(ind => {
-        const d = map[ind];
-        row.innerHTML += `
-          <div class="badge-card">
-            <div class="badge-card-header">${ind}</div>
-            <div class="badge-card-body">
-              <div class="row-item target">
-                <span>Target</span><span>${f2(d.target)}</span>
-              </div>
-              <div class="row-item banten">
-                <span>Banten</span><span>${d.banten}</span>
-              </div>
-              <div class="row-item tangerang">
-                <span>Tangerang</span><span>${d.tangerang}</span>
+          if (!map[indikator]) {
+            map[indikator] = {
+              target: r.target,
+              banten: '-',
+              tangerang: '-'
+            };
+          }
+
+          if (witel === 'BANTEN') {
+            map[indikator].banten = format2(r.ach);
+          }
+
+          if (witel === 'TANGERANG') {
+            map[indikator].tangerang = format2(r.ach);
+          }
+        });
+
+        row.innerHTML = '';
+
+        Object.keys(map).forEach(function (indikator) {
+          var d = map[indikator];
+
+          var card = `
+            <div class="badge-card">
+              <div class="badge-card-header">${indikator}</div>
+              <div class="badge-card-body">
+                <div class="row-item target">
+                  <span>Target</span><span>${format2(d.target)}</span>
+                </div>
+                <div class="row-item banten">
+                  <span>Banten</span><span>${d.banten}</span>
+                </div>
+                <div class="row-item tangerang">
+                  <span>Tangerang</span><span>${d.tangerang}</span>
+                </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
+
+          row.insertAdjacentHTML('beforeend', card);
+        });
+
+      })
+      .catch(function (err) {
+        console.error(err);
+        row.innerHTML = '<div class="text-danger">Gagal load data</div>';
       });
-    })
-    .catch(() => {
-      row.innerHTML = '<div class="text-danger">Gagal load data</div>';
-    });
-}
+  };
+
+})();
