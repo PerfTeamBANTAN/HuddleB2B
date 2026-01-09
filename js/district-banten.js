@@ -5,24 +5,31 @@ function initDistrictBanten(API_URL) {
 
   contentArea.classList.add('show-grid');
 
+  // helper convert angka Indonesia → JS number
+  const toNumber = val =>
+    Number(String(val).replace(',', '.')) || 0;
+
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       container.innerHTML = '';
 
-      // GROUP DATA PER INDIKATOR
       const grouped = {};
+
       data.forEach(row => {
-        if (!grouped[row.indikator]) grouped[row.indikator] = {};
-        grouped[row.indikator][row.witel] = row;
+        const indikator = row.indikator.trim();
+        const witel = row.witel.trim().toLowerCase();
+
+        if (!grouped[indikator]) grouped[indikator] = {};
+        grouped[indikator][witel] = row;
       });
 
       Object.keys(grouped).forEach(indikator => {
         const rows = grouped[indikator];
 
-        const target = Number(rows['Target']?.target || 0);
-        const banten = Number(rows['Banten']?.ach || 0);
-        const tangerang = Number(rows['Tangerang']?.ach || 0);
+        const target    = toNumber(rows['banten']?.target);
+        const banten    = toNumber(rows['banten']?.ach);
+        const tangerang = toNumber(rows['tangerang']?.ach);
 
         // RULE KPI
         const isLowerBetter = indikator.toLowerCase().includes('gangguan');
@@ -63,6 +70,6 @@ function initDistrictBanten(API_URL) {
     .catch(err => {
       console.error(err);
       container.innerHTML =
-        '<div class="text-danger text-center">Gagal memuat data KPI</div>';
+        '<div class="text-danger text-center">Gagal memuat data</div>';
     });
 }
