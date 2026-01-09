@@ -1,86 +1,75 @@
-(function () {
+function initDistrictBanten(API_URL) {
+  const container = document.getElementById('district-banten-row');
+  if (!container) return;
 
-  function format2(val) {
-    var n = Number(val);
-    if (isNaN(n)) return '-';
-    return n.toFixed(2);
-  }
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      container.innerHTML = '';
 
-  window.initDistrictBanten = function (apiUrl) {
-    var row = document.getElementById('district-banten-row');
-    if (!row) {
-      console.error('district-banten-row not found');
-      return;
-    }
-
-    row.innerHTML = `
-      <div class="text-light text-center w-100">
-        <div class="spinner-border mb-2"></div>
-        <div>Loading data District BANTEN...</div>
-      </div>
-    `;
-
-    fetch(apiUrl)
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-
-        var map = {};
-
-        data.forEach(function (r) {
-          var indikator = String(r.indikator || '').trim();
-          var witel = String(r.witel || '').trim().toUpperCase();
-
-          if (!indikator || !witel) return;
-
-          if (!map[indikator]) {
-            map[indikator] = {
-              target: r.target,
-              banten: '-',
-              tangerang: '-'
-            };
-          }
-
-          if (witel === 'BANTEN') {
-            map[indikator].banten = format2(r.ach);
-          }
-
-          if (witel === 'TANGERANG') {
-            map[indikator].tangerang = format2(r.ach);
-          }
-        });
-
-        row.innerHTML = '';
-
-        Object.keys(map).forEach(function (indikator) {
-          var d = map[indikator];
-
-          var card = `
-            <div class="badge-card">
-              <div class="badge-card-header">${indikator}</div>
-              <div class="badge-card-body">
-                <div class="row-item target">
-                  <span>Target</span><span>${format2(d.target)}</span>
-                </div>
-                <div class="row-item banten">
-                  <span>Banten</span><span>${d.banten}</span>
-                </div>
-                <div class="row-item tangerang">
-                  <span>Tangerang</span><span>${d.tangerang}</span>
-                </div>
-              </div>
-            </div>
-          `;
-
-          row.insertAdjacentHTML('beforeend', card);
-        });
-
-      })
-      .catch(function (err) {
-        console.error(err);
-        row.innerHTML = '<div class="text-danger">Gagal load data</div>';
+      // group per indikator
+      const grouped = {};
+      data.forEach(r => {
+        if (!grouped[r.indikator]) grouped[r.indikator] = [];
+        grouped[r.indikator].push(r);
       });
-  };
 
-})();
+      Object.keys(grouped).forEach(indikator => {
+        const rows = grouped[indikator];
+
+        const target = Number(rows.find(r => r.witel === 'Target')?.target || 0);
+        const banten = Number(rows.find(r => r.witel === 'Banten')?.ach || 0);
+        const tangerang = Number(rows.find(r => r.witel === 'Tangerang')?.ach || 0);
+
+        // RULE LOGIC
+        let goodIfGreater = true;
+        if (indikator.toLowerCase().includes('gangguan')) {
+          goodIfGreater = false;
+        }
+
+        function statusClass(value) {
+          if (goodIfGreater) {
+            return value >= target ? 'value-good' : 'value-bad';
+          } else {
+            return value <= target ? 'value-good' : 'value-bad';
+          }
+        }
+
+        function cardClass(value) {
+          if (goodIfGreater) {
+            return value >= target ? 'card-good' : 'card-bad';
+          } else {
+            return value <= target ? 'card-good' : 'card-bad';
+          }
+        }
+
+        const card = document.createElement('div');
+        card.className = `badge-card ${cardClass(banten)}`;
+
+        card.innerHTML = `
+          <div class="badge-card-header">${indikator}</div>
+          <div class="badge-card-body">
+            <div class="row-item">
+              <span class="target">Target</span>
+              <span>${target.toFixed(2)}</span>
+            </div>
+            <div class="row-item">
+              <span class="banten">Banten</span>
+              <span class="${statusClass(banten)}">${banten.toFixed(2)}</span>
+            </div>
+            <div class="row-item">
+              <span class="tangerang">Tangerang</span>
+              <span class="${statusClass(tangerang)}">${tangerang.toFixed(2)}</span>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      container.innerHTML =
+        '<div class="text-danger text-center">Gagal memuat data KPI</div>';
+    });
+}
