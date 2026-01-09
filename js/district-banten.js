@@ -1,21 +1,21 @@
-// js/district-banten.js
-// Dipanggil dari index.html: initDistrictBanten(B2B_API_URL);
+function parseNumber(val) {
+  if (!val) return null;
+  const n = Number(String(val).replace('%', '').replace(',', '.'));
+  return isNaN(n) ? null : n;
+}
 
-function formatAch(value) {
-  if (!value && value !== 0) return '-';
+function getCardStatus(target, banten, tangerang) {
+  const t = parseNumber(target);
+  const b = parseNumber(banten);
+  const tg = parseNumber(tangerang);
 
-  const str = String(value).trim();
+  if (t === null || (b === null && tg === null)) return 'card-warning';
 
-  // Kalau sudah ada tanda persen atau koma, tampilkan apa adanya
-  if (str.includes('%') || str.includes(',')) {
-    return str;
+  if ((b !== null && b < t) || (tg !== null && tg < t)) {
+    return 'card-danger';
   }
 
-  // Coba parse sebagai number dan tampilkan 2 desimal
-  const num = Number(str);
-  if (isNaN(num)) return str;
-
-  return num.toFixed(2); // 2 desimal
+  return 'card-success';
 }
 
 function initDistrictBanten(apiUrl) {
@@ -23,10 +23,8 @@ function initDistrictBanten(apiUrl) {
   if (!row) return;
 
   row.innerHTML = `
-    <div class="d-flex flex-column align-items-center justify-content-center w-100">
-      <div class="spinner-border text-light mb-3" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
+    <div class="text-center text-light w-100">
+      <div class="spinner-border mb-2"></div>
       <div>Loading data District BANTEN...</div>
     </div>
   `;
@@ -39,62 +37,43 @@ function initDistrictBanten(apiUrl) {
       rows.forEach(r => {
         const ind = String(r.indikator || '').trim();
         const witel = String(r.witel || '').trim().toUpperCase();
-        const target = String(r.target || '').trim();
-        const achRaw = String(r.ach || '').trim();
-
         if (!ind || !witel) return;
 
         if (!indikatorMap[ind]) {
-          indikatorMap[ind] = {
-            target: target,
-            banten: null,
-            tangerang: null
-          };
+          indikatorMap[ind] = { target: r.target, banten: null, tangerang: null };
         }
 
-        const achFormatted = formatAch(achRaw);
-
-        if (witel === 'BANTEN') {
-          indikatorMap[ind].banten = achFormatted;
-          if (!indikatorMap[ind].target) indikatorMap[ind].target = target;
-        }
-        if (witel === 'TANGERANG') {
-          indikatorMap[ind].tangerang = achFormatted;
-          if (!indikatorMap[ind].target) indikatorMap[ind].target = target;
-        }
+        if (witel === 'BANTEN') indikatorMap[ind].banten = r.ach;
+        if (witel === 'TANGERANG') indikatorMap[ind].tangerang = r.ach;
       });
 
       row.innerHTML = '';
 
-      Object.keys(indikatorMap).forEach(indikator => {
-        const d = indikatorMap[indikator];
+      Object.entries(indikatorMap).forEach(([indikator, d]) => {
+        const statusClass = getCardStatus(d.target, d.banten, d.tangerang);
 
-        const cardContainer = document.createElement('div');
-        cardContainer.className = 'me-2';
-
-        cardContainer.innerHTML = `
-          <div class="badge-card">
-            <div class="badge-card-header">
-              ${indikator}
+        const card = document.createElement('div');
+        card.innerHTML = `
+          <div class="badge-card ${statusClass}">
+            <div class="badge-card-header">${indikator}</div>
+            <div class="badge-card-body">
+              <div class="row-item target">
+                <span>Target</span><span>${d.target ?? '-'}</span>
+              </div>
+              <div class="row-item banten">
+                <span>Banten</span><span>${d.banten ?? '-'}</span>
+              </div>
+              <div class="row-item tangerang">
+                <span>Tangerang</span><span>${d.tangerang ?? '-'}</span>
+              </div>
             </div>
-            <div><span class="label">Target :</span>
-              <span class="value-target">${d.target || '-'}</span></div>
-            <div><span class="label">Banten :</span>
-              <span class="value-banten">${d.banten ?? '-'}</span></div>
-            <div><span class="label">Tangerang :</span>
-              <span class="value-tangerang">${d.tangerang ?? '-'}</span></div>
           </div>
         `;
 
-        row.appendChild(cardContainer);
+        row.appendChild(card);
       });
-
-      if (!row.hasChildNodes()) {
-        row.innerHTML = '<div class="text-danger">Data District BANTEN kosong.</div>';
-      }
     })
-    .catch(err => {
-      console.error(err);
-      row.innerHTML = '<div class="text-danger">Gagal load data District BANTEN.</div>';
+    .catch(() => {
+      row.innerHTML = `<div class="text-danger">Gagal load data.</div>`;
     });
 }
