@@ -137,8 +137,21 @@ function loadDistrictBantenTable(API_URL) {
     renderTable(data);
   }
 
+  /* =====================================================
+     RENDER TABLE (DENGAN WARNA %Q s/d HI)
+  ===================================================== */
   function renderTable(data) {
     tbody.innerHTML = '';
+
+    if (!data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+      return;
+    }
 
     data.forEach(row => {
       const tr = document.createElement('tr');
@@ -146,7 +159,7 @@ function loadDistrictBantenTable(API_URL) {
       headers.forEach(h => {
         const td = document.createElement('td');
 
-        /* ===== CLICK Tiket HI (FIX WITEL) ===== */
+        /* ===== CLICK Tiket HI ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
           td.innerHTML = `
             <a href="#" class="text-warning fw-bold text-decoration-none">
@@ -165,6 +178,16 @@ function loadDistrictBantenTable(API_URL) {
 
             openTiketHIModal(API_URL, row.STO, witel);
           };
+
+        /* ===== WARNA %Q s/d HI ===== */
+        } else if (h === '%Q s/d HI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+
+          if (!isNaN(val) && val > 2) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+
         } else {
           td.textContent = row[h] ?? '-';
         }
