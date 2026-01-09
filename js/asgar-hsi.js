@@ -9,8 +9,6 @@ function initAsgarHSI(API_URL) {
   const filterSTO = document.getElementById('asgar-filter-sto');
 
   let rawData = [];
-  let tiketHIMap = {};
-  let asgarHIMap = {};
   let headers = [];
 
   /* ================= FORMAT ================= */
@@ -58,41 +56,16 @@ function initAsgarHSI(API_URL) {
     document.body.appendChild(s);
   }
 
-  /* ================= COUNT HI ================= */
-  function loadCount() {
-    return new Promise(resolve => {
-      const cb = 'cb_count_' + Date.now();
-      window[cb] = res => {
-        res.data.forEach(r => {
-          tiketHIMap[r.STO] = r['Tiket HI'] || 0;
-          asgarHIMap[r.STO] = r['Asgar HI'] || 0;
-        });
-        delete window[cb];
-        s.remove();
-        resolve();
-      };
-      const s = document.createElement('script');
-      s.src = `${API_URL}?type=table&callback=${cb}`;
-      document.body.appendChild(s);
-    });
-  }
-
   /* ================= TABLE ================= */
   function loadTable() {
     const cb = 'cb_tbl_' + Date.now();
     window[cb] = res => {
-      headers = [...res.headers];
-      if (!headers.includes('Tiket HI')) headers.push('Tiket HI');
-      if (!headers.includes('Asgar HI')) headers.push('Asgar HI');
 
-      rawData = res.data.map(r => ({
-        ...r,
-        'Tiket HI': tiketHIMap[r.STO] || 0,
-        'Asgar HI': asgarHIMap[r.STO] || 0
-      }));
+      headers = [...res.headers];
+      rawData = res.data;
 
       lastUpdateEl.innerHTML =
-        `<i class="fa fa-clock me-1"></i> Last update: ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
+        `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString('id-ID')}`;
 
       render(rawData);
       initFilter();
@@ -101,7 +74,7 @@ function initAsgarHSI(API_URL) {
       s.remove();
     };
     const s = document.createElement('script');
-    s.src = `${API_URL}?type=asgar_table&callback=${cb}`;
+    s.src = `${API_URL}?type=table&callback=${cb}`;
     document.body.appendChild(s);
   }
 
@@ -117,19 +90,25 @@ function initAsgarHSI(API_URL) {
     tableBody.innerHTML = '';
     data.forEach(r => {
       const tr = document.createElement('tr');
+
       headers.forEach(h => {
         const td = document.createElement('td');
         td.textContent = fmt(r[h]);
 
+        /* ===== CONDITIONAL COLOR ===== */
         if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && r[h] < 92)
           td.classList.add('text-danger','fw-semibold');
+
         if (h === 'Budg Asgar BI' && r[h] <= 0)
           td.classList.add('text-danger','fw-semibold');
+
         if (h === 'Total Tiket Asgar' && r[h] > r['Budg Asgar 30D'])
           td.classList.add('text-danger','fw-semibold');
+
         if (h === 'Asgar HI' && r[h] > 0)
           td.classList.add('text-danger','fw-semibold');
 
+        /* ===== CLICKABLE ===== */
         if (h === 'Tiket HI' || h === 'Asgar HI') {
           td.classList.add('text-info','fw-bold');
           td.style.cursor = 'pointer';
@@ -138,13 +117,14 @@ function initAsgarHSI(API_URL) {
 
         tr.appendChild(td);
       });
+
       tableBody.appendChild(tr);
     });
   }
 
   /* ================= FILTER ================= */
   function initFilter() {
-    const stos = [...new Set(rawData.map(r => r.STO))];
+    const stos = [...new Set(rawData.map(r => r.STO).filter(Boolean))];
     filterSTO.innerHTML = '<option value="">All STO</option>';
     stos.sort().forEach(s => {
       const o = document.createElement('option');
@@ -164,35 +144,45 @@ function initAsgarHSI(API_URL) {
   filterWitel.onchange = applyFilter;
   filterSTO.onchange = applyFilter;
 
-  /* ================= MODAL ================= */
+  /* ================= MODAL DETAIL ================= */
   function openDetail(sto) {
     const modal = new bootstrap.Modal(document.getElementById('modalTiketHI'));
     document.getElementById('modalTiketHITitle').textContent = `Detail Tiket HI – ${sto}`;
+
     const head = document.getElementById('tiket-hi-head');
     const body = document.getElementById('tiket-hi-body');
 
     head.innerHTML = '';
-    body.innerHTML = '';
+    body.innerHTML = '<tr><td colspan="20" class="text-center">Loading...</td></tr>';
 
     const cb = 'cb_detail_' + Date.now();
     window[cb] = res => {
+
+      head.innerHTML = '';
       res.headers.forEach(h => {
         const th = document.createElement('th');
         th.textContent = h;
         head.appendChild(th);
       });
-      res.data.forEach(r => {
-        const tr = document.createElement('tr');
-        Object.values(r).forEach(v => {
-          const td = document.createElement('td');
-          td.textContent = v ?? '-';
-          tr.appendChild(td);
+
+      body.innerHTML = '';
+      if (!res.data.length) {
+        body.innerHTML = `<tr><td colspan="${res.headers.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+      } else {
+        res.data.forEach(r => {
+          const tr = document.createElement('tr');
+          res.headers.forEach(h => {
+            const td = document.createElement('td');
+            td.textContent = r[h] ?? '-';
+            tr.appendChild(td);
+          });
+          body.appendChild(tr);
         });
-        body.appendChild(tr);
-      });
+      }
+
+      modal.show();
       delete window[cb];
       s.remove();
-      modal.show();
     };
 
     const s = document.createElement('script');
@@ -202,5 +192,5 @@ function initAsgarHSI(API_URL) {
 
   /* ================= INIT ================= */
   loadKPI();
-  loadCount().then(loadTable);
+  loadTable();
 }
