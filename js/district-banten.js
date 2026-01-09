@@ -176,14 +176,17 @@ function loadDistrictBantenTable(API_URL) {
    MODAL DETAIL Tiket HI
 ===================================================== */
 
-function openTiketHIModal(API_URL, sto) {
+function openTiketHIModal(API_URL, sto, witel) {
+  const title = document.getElementById('modalTiketHITitle');
   const head = document.getElementById('tiket-hi-head');
   const body = document.getElementById('tiket-hi-body');
+
+  // === SET JUDUL MODAL ===
+  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
   head.innerHTML = '';
   body.innerHTML = `<tr><td colspan="9">Loading...</td></tr>`;
 
-  /* === KEY HARUS SAMA DENGAN BACKEND === */
   const cols = [
     'Incident',
     'Summary',
@@ -209,10 +212,12 @@ function openTiketHIModal(API_URL, sto) {
     });
 
     if (!res.data || res.data.length === 0) {
-      body.innerHTML =
-        `<tr><td colspan="${cols.length}" class="text-center">
-          Tidak ada data
-        </td></tr>`;
+      body.innerHTML = `
+        <tr>
+          <td colspan="${cols.length}" class="text-center">
+            Tidak ada data
+          </td>
+        </tr>`;
     } else {
       res.data.forEach(r => {
         const tr = document.createElement('tr');
