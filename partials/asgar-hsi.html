@@ -20,7 +20,7 @@
       Pragnosa Assurance Guarantee HSI
     </h5>
 
-    <!-- ================= FILTER (SAMA DENGAN DISTRICT BANTEN) ================= -->
+    <!-- ================= FILTER ================= -->
     <div class="row g-2 mb-2">
       <div class="col-md-3">
         <select id="asgar-filter-witel" class="form-select form-select-sm">
@@ -39,9 +39,7 @@
 
     <!-- ================= TABLE ================= -->
     <div class="table-responsive">
-      <table
-        class="table table-dark table-striped table-bordered table-sm align-middle"
-      >
+      <table class="table table-dark table-striped table-bordered table-sm align-middle">
         <thead class="table-secondary text-dark">
           <tr id="asgar-hsi-table-head"></tr>
         </thead>
@@ -62,4 +60,46 @@
     <i class="fa fa-clock me-1"></i> Last update: -
   </div>
 
+</div>
+
+<!-- ===================================================
+     MODAL DETAIL TIKET HI / ASGAR HI
+=================================================== -->
+<div
+  class="modal fade"
+  id="modalTiketHI"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-light">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTiketHITitle">
+          Detail Tiket HI
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-dark table-striped table-sm">
+            <thead>
+              <tr id="tiket-hi-head"></tr>
+            </thead>
+            <tbody id="tiket-hi-body">
+              <tr>
+                <td class="text-muted">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
