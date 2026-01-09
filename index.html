@@ -28,18 +28,16 @@
       overflow: hidden;       /* tidak ada scroll */
     }
 
-    /* NAVBAR: fixed + background gelap transparan */
     .navbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 10;
-      background: rgba(0, 0, 0, 0.6) !important; /* gelap transparan */
+      background: rgba(0, 0, 0, 0.6) !important;
       box-shadow: none;
     }
 
-    /* Skema dark: teks putih di atas background gelap */
     .navbar-brand {
       font-weight: bold;
       font-size: 24px;
@@ -58,7 +56,6 @@
       color: #fff !important;
     }
 
-    /* dropdown agar konsisten gelap */
     .dropdown-menu {
       background-color: rgba(0, 0, 0, 0.85);
       border: none;
@@ -73,15 +70,16 @@
       color: #fff;
     }
 
-    /* HOMESCREEN: FULL 1 LAYAR DI BELAKANG NAVBAR */
+    /* PERBAIKAN: class ini yang dipakai untuk background fullscreen */
     .home-fullscreen {
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* wajib, supaya div punya tinggi penuh layar */
       background: url('huddle_performance.png') center center / cover no-repeat;
       background-color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-top: 56px; /* offset tinggi navbar (standard Bootstrap) */
     }
 
     .home-overlay {
@@ -125,7 +123,6 @@
             Huddle Performance Khusus B2B
           </a>
           <ul class="dropdown-menu">
-            <!-- Dashboard B2C nested -->
             <li class="dropdown dropend">
               <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 Dashboard B2B District BANTEN
@@ -148,8 +145,8 @@
   </div>
 </nav>
 
-<!-- Homescreen full 1 layar -->
-<div class="huddle_performance">
+<!-- PERBAIKAN: pakai class home-fullscreen, bukan huddle_performance -->
+<div class="home-fullscreen">
   <!-- Optional overlay text -->
   <!--
   <div class="home-overlay">
@@ -159,7 +156,6 @@
   -->
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
