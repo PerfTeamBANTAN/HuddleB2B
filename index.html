@@ -11,11 +11,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    :root {
-      --primary-blue: #6f72ff;
-      --accent-blue: #8f94fb;
-    }
-
     html, body {
       height: 100%;
       margin: 0;
@@ -31,7 +26,7 @@
       left: 0;
       right: 0;
       z-index: 10;
-      background: rgba(0, 0, 0, 0.6) !important;
+      background: rgba(0, 0, 0, 0.7);
     }
 
     .navbar-brand {
@@ -42,17 +37,16 @@
 
     .navbar-nav .nav-link {
       color: #fff !important;
-      transition: 0.3s;
-      padding: 8px 15px;
+      padding: 8px 14px;
       border-radius: 6px;
     }
 
     .navbar-nav .nav-link:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255,255,255,0.15);
     }
 
     .dropdown-menu {
-      background-color: rgba(0, 0, 0, 0.85);
+      background: rgba(0,0,0,0.9);
       border: none;
     }
 
@@ -62,7 +56,7 @@
     }
 
     .dropdown-item:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
       color: #fff;
     }
 
@@ -70,18 +64,16 @@
     .home-fullscreen {
       width: 100%;
       height: 100vh;
-      background: url('huddle_performance.png') center center / cover no-repeat;
-      background-color: #000;
+      margin-top: 56px;
+      background: url('huddle_performance.png') center / cover no-repeat;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 56px;
-      transition: background 0.3s ease;
+      transition: 0.3s;
     }
 
     .no-bg {
-      background: none !important;
-      background-color: #000 !important;
+      background: #000 !important;
     }
 
     #content-area {
@@ -99,7 +91,7 @@
       object-fit: contain;
     }
 
-    /* ================= KPI CARD (ENHANCEMENT ONLY) ================= */
+    /* ================= KPI CARD STYLE ================= */
     .cards-scroll {
       display: grid !important;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -110,13 +102,13 @@
     .badge-card {
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
       height: 140px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
       font-size: 13px;
     }
 
     .badge-card-header {
-      background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+      background: linear-gradient(135deg, #6f72ff, #8f94fb);
       color: #fff;
       font-weight: 700;
       text-align: center;
@@ -142,7 +134,6 @@
     .target { color: #000; }
     .banten { color: #0047ab; }
     .tangerang { color: #b30000; }
-
   </style>
 </head>
 
@@ -151,21 +142,24 @@
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container-fluid">
+
     <a class="navbar-brand" href="javascript:void(0)" onclick="location.reload()">
-      <img src="PERFORMANCE TEAM.png" style="height: 40px; margin-right: 10px;">
+      <img src="PERFORMANCE TEAM.png" style="height:40px;margin-right:10px;">
       PERFORMANCE BAN-TAN
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarNav">
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
 
+        <!-- MENU 1 -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             data-bs-toggle="dropdown">
             Huddle Performance
           </a>
           <ul class="dropdown-menu">
@@ -174,24 +168,51 @@
           </ul>
         </li>
 
+        <!-- MENU 2 (FIXED MULTI LEVEL) -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             data-bs-toggle="dropdown"
+             data-bs-auto-close="outside">
             Huddle Performance Khusus B2B
           </a>
+
           <ul class="dropdown-menu">
 
             <li class="dropdown dropend">
-              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside"> Dashboard B2B District BANTEN
+              <a class="dropdown-item dropdown-toggle"
+                 href="#"
+                 data-bs-toggle="dropdown"
+                 data-bs-auto-close="outside">
+                Dashboard B2B District BANTEN
               </a>
+
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item menu-link" data-menu="District-Banten">District BANTEN</a></li>
-                <li><a class="dropdown-item menu-link" data-menu="b2b-banten">B2B BANTEN</a></li>
-                <li><a class="dropdown-item menu-link" data-menu="b2b-tangerang">B2B TANGERANG</a></li>
+                <li>
+                  <a class="dropdown-item menu-link" data-menu="District-Banten">
+                    District BANTEN
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item menu-link" data-menu="b2b-banten">
+                    B2B BANTEN
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item menu-link" data-menu="b2b-tangerang">
+                    B2B TANGERANG
+                  </a>
+                </li>
               </ul>
             </li>
 
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
+
+            <li>
+              <a class="dropdown-item menu-link" data-menu="dashboard-b2b">
+                Dashboard B2B
+              </a>
+            </li>
 
           </ul>
         </li>
@@ -214,11 +235,10 @@
 
   function showUnderConstruction() {
     const home = document.getElementById('home-fullscreen');
-    const contentArea = document.getElementById('content-area');
+    const content = document.getElementById('content-area');
 
     home.classList.add('no-bg');
-
-    contentArea.innerHTML = `
+    content.innerHTML = `
       <div class="d-flex flex-column align-items-center justify-content-center">
         <div class="spinner-border text-light mb-3"></div>
         <div>Loading dashboard...</div>
@@ -226,20 +246,20 @@
     `;
 
     setTimeout(() => {
-      contentArea.innerHTML = '';
+      content.innerHTML = '';
       const img = document.createElement('img');
       img.src = 'under contruction.png';
       img.alt = 'Under Construction';
-      contentArea.appendChild(img);
+      content.appendChild(img);
     }, 800);
   }
 
   async function loadPartialIntoContent(url, onLoaded) {
     const home = document.getElementById('home-fullscreen');
-    const contentArea = document.getElementById('content-area');
+    const content = document.getElementById('content-area');
 
     home.classList.add('no-bg');
-    contentArea.innerHTML = `
+    content.innerHTML = `
       <div class="d-flex flex-column align-items-center justify-content-center">
         <div class="spinner-border text-light mb-3"></div>
         <div>Loading...</div>
@@ -248,10 +268,10 @@
 
     try {
       const res = await fetch(url);
-      contentArea.innerHTML = await res.text();
+      content.innerHTML = await res.text();
       if (onLoaded) onLoaded();
     } catch {
-      contentArea.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
+      content.innerHTML = '<div class="text-danger">Gagal memuat konten.</div>';
     }
   }
 
