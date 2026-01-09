@@ -18,7 +18,7 @@ html, body {
   overflow-y: auto;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 .navbar {
   position: fixed;
   top: 0;
@@ -58,7 +58,7 @@ html, body {
   background: rgba(255,255,255,0.1);
 }
 
-/* HOME */
+/* ================= HOME ================= */
 .home-fullscreen {
   width: 100%;
   min-height: 100vh;
@@ -70,7 +70,7 @@ html, body {
   background: #000 !important;
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
 #content-area {
   width: 100%;
   min-height: calc(100vh - 56px);
@@ -86,7 +86,7 @@ html, body {
   justify-content: unset !important;
 }
 
-/* GRID CARD */
+/* ================= GRID CARD ================= */
 .cards-scroll {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -95,22 +95,30 @@ html, body {
 }
 
 .badge-card {
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   height: 140px;
-  background: #d4edda;
+  background: #d1e7dd;
   box-shadow: 0 6px 14px rgba(0,0,0,0.6);
   font-size: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+}
+
+/* ================= CARD HEADER ================= */
 .badge-card-header {
   background: linear-gradient(135deg,#6f72ff,#8f94fb);
   color: #fff;
   font-weight: 700;
   text-align: center;
-  padding: 6px;
+  padding: 8px;
 }
 
+/* ================= CARD BODY ================= */
 .badge-card-body {
   padding: 10px 12px;
 }
@@ -118,14 +126,18 @@ html, body {
 .row-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.target { color:#000; }
-.banten { color:#0047ab; }
-.tangerang { color:#b30000; }
+/* ================= LABEL TEXT (HITAM) ================= */
+.row-item span:first-child {
+  color: #000;
+  font-weight: 600;
+}
 
+/* ================= VALUE COLOR ================= */
 .value-good {
   color: #0f5132;
   font-weight: 700;
@@ -136,15 +148,7 @@ html, body {
   font-weight: 700;
 }
 
-.badge-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.badge-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.8);
-}
-
+/* ================= CARD STATUS ================= */
 .card-good {
   background: #d1e7dd !important;
 }
@@ -153,6 +157,7 @@ html, body {
   background: #f8d7da !important;
 }
 </style>
+
 </head>
 
 <body>
