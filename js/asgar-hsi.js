@@ -18,7 +18,6 @@ function initAsgarHSI(API_URL) {
     try {
       const { data, lastUpdate } = res;
 
-      /* ===== LAST UPDATE ===== */
       const d = new Date(lastUpdate);
       lastUpdateEl.innerHTML =
         `<i class="fa fa-clock me-1"></i> Last update: ` +
@@ -31,9 +30,7 @@ function initAsgarHSI(API_URL) {
           hour12: false
         });
 
-      /* ===== KPI CARD ===== */
       const map = {};
-
       data.forEach(r => {
         if (!map[r.indikator]) {
           map[r.indikator] = {
@@ -112,7 +109,6 @@ function loadAsgarHSITable(API_URL) {
     headers = res.headers;
     rawData = res.data;
 
-    /* ===== TABLE HEAD ===== */
     thead.innerHTML = '';
     headers.forEach(h => {
       const th = document.createElement('th');
@@ -120,7 +116,6 @@ function loadAsgarHSITable(API_URL) {
       thead.appendChild(th);
     });
 
-    /* ===== FILTER ===== */
     const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
 
@@ -145,9 +140,6 @@ function loadAsgarHSITable(API_URL) {
     renderTable(data);
   }
 
-  /* =====================================================
-     RENDER TABLE
-  ===================================================== */
   function renderTable(data) {
     tbody.innerHTML = '';
 
@@ -168,8 +160,7 @@ function loadAsgarHSITable(API_URL) {
         const td = document.createElement('td');
         const val = row[h];
 
-        /* ===== CLICKABLE Tiket HI & Asgar HI ===== */
-        if ((h === 'Tiket HI' || h === 'Asgar HI') && Number(val) > 0) {
+        if (h === 'Tiket HI' && Number(val) > 0) {
           td.innerHTML = `
             <a href="#" class="text-info fw-bold text-decoration-none">
               ${val}
@@ -178,8 +169,6 @@ function loadAsgarHSITable(API_URL) {
             e.preventDefault();
             openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
           };
-
-        /* ===== CONDITIONAL COLOR ===== */
         } else {
           td.textContent = val ?? '-';
 
@@ -204,7 +193,7 @@ function loadAsgarHSITable(API_URL) {
   }
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?type=table&callback=${cbTable}`;
+  script.src = `${API_URL}?type=asgar_table&callback=${cbTable}`;
   document.body.appendChild(script);
 }
 
