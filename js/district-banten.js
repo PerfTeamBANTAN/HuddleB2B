@@ -1,73 +1,91 @@
-async function initDistrictBanten(apiUrl) {
+function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
-  const lastUpdateEl = document.getElementById('last-update-banten');
+  const wrapper = document.getElementById('district-banten-wrapper');
 
-  container.innerHTML = `
-    <div class="loading-wrapper">
-      <div class="spinner-border text-light"></div>
-      <div class="loading-text">Memuat data...</div>
-    </div>
-  `;
+  if (!container) return;
 
-  try {
-    const res = await fetch(apiUrl);
-    const json = await res.json();
-    const data = json.data;
+  container.innerHTML = '';
 
-    container.innerHTML = '';
+  // elemen last update
+  const lastUpdateEl = document.createElement('div');
+  lastUpdateEl.className = 'last-update';
+  lastUpdateEl.textContent = 'Last update: -';
+  wrapper.prepend(lastUpdateEl);
 
-    const grouped = {};
-    data.forEach(d => {
-      if (!grouped[d.indikator]) grouped[d.indikator] = {};
-      grouped[d.indikator][d.witel] = d;
-    });
+  const callbackName = 'jsonp_callback_' + Date.now();
 
-    Object.keys(grouped).forEach(indikator => {
-      const banten = grouped[indikator]['BANTEN'];
-      const tangerang = grouped[indikator]['TANGERANG'];
-      if (!banten || !tangerang) return;
+  window[callbackName] = function (res) {
+    try {
+      const { data, lastUpdate } = res;
 
-      const isGood =
-        indikator.startsWith('Q')
-          ? banten.ach <= banten.target
-          : banten.ach >= banten.target;
+      const d = new Date(lastUpdate);
+      lastUpdateEl.textContent =
+        'Last update: ' +
+        d.toLocaleString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
 
-      const card = document.createElement('div');
-      card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'}`;
+      // ===== MAP DATA =====
+      const map = {};
 
-      card.innerHTML = `
-        <div class="badge-card-header">${indikator}</div>
-        <div class="badge-card-body">
-          <div class="row-item">
-            <span>Target</span>
-            <span>${banten.target.toFixed(2)}</span>
+      data.forEach(row => {
+        const indikator = row.indikator.trim();
+
+        if (!map[indikator]) {
+          map[indikator] = {
+            target: Number(row.target),
+            banten: null,
+            tangerang: null
+          };
+        }
+
+        if (row.witel === 'BANTEN') map[indikator].banten = row.ach;
+        if (row.witel === 'TANGERANG') map[indikator].tangerang = row.ach;
+      });
+
+      Object.keys(map).forEach(indikator => {
+        const d = map[indikator];
+        const lowerBetter = indikator === 'Q Gangguan HSI';
+        const isGood = v => lowerBetter ? v <= d.target : v >= d.target;
+
+        const card = document.createElement('div');
+        card.className = `badge-card ${isGood(d.banten) ? 'card-good' : 'card-bad'}`;
+
+        card.innerHTML = `
+          <div class="badge-card-header">${indikator}</div>
+          <div class="badge-card-body">
+            <div class="row-item">
+              <span>Target</span>
+              <span>${d.target.toFixed(2)}</span>
+            </div>
+            <div class="row-item">
+              <span>Banten</span>
+              <span class="${isGood(d.banten) ? 'value-good' : 'value-bad'}">
+                ${d.banten.toFixed(2)}
+              </span>
+            </div>
+            <div class="row-item">
+              <span>Tangerang</span>
+              <span class="${isGood(d.tangerang) ? 'value-good' : 'value-bad'}">
+                ${d.tangerang.toFixed(2)}
+              </span>
+            </div>
           </div>
-          <div class="row-item">
-            <span>Banten</span>
-            <span class="${isGood ? 'value-good' : 'value-bad'}">
-              ${banten.ach.toFixed(2)}
-            </span>
-          </div>
-          <div class="row-item">
-            <span>Tangerang</span>
-            <span>${tangerang.ach.toFixed(2)}</span>
-          </div>
-        </div>
-      `;
+        `;
 
-      container.appendChild(card);
-    });
+        container.appendChild(card);
+      });
+    } finally {
+      delete window[callbackName];
+      script.remove();
+    }
+  };
 
-    // ✅ LAST UPDATE (Indonesia format)
-    const dt = new Date(json.lastUpdate);
-    const pad = n => n.toString().padStart(2, '0');
-    lastUpdateEl.textContent =
-      `Last update: ${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()} ` +
-      `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-
-  } catch (err) {
-    console.error(err);
-    container.innerHTML =
-      '<div class="text-danger">Gagal memuat data</div>';
-  }
+  const script = document.createElement('script');
+  script.src = `${API_URL}?callback=${callbackName}`;
+  document.body.appendChild(script);
 }
