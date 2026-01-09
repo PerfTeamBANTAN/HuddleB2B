@@ -141,63 +141,73 @@ function loadDistrictBantenTable(API_URL) {
      RENDER TABLE (DENGAN WARNA %Q s/d HI)
   ===================================================== */
   function renderTable(data) {
-    tbody.innerHTML = '';
+  tbody.innerHTML = '';
 
-    if (!data.length) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="${headers.length}" class="text-center text-muted">
-            Tidak ada data
-          </td>
-        </tr>`;
-      return;
-    }
+  if (!data.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="${headers.length}" class="text-center text-muted">
+          Tidak ada data
+        </td>
+      </tr>`;
+    return;
+  }
 
-    data.forEach(row => {
-      const tr = document.createElement('tr');
+  data.forEach(row => {
+    const tr = document.createElement('tr');
 
-      headers.forEach(h => {
-        const td = document.createElement('td');
+    headers.forEach(h => {
+      const td = document.createElement('td');
 
-        /* ===== CLICK Tiket HI ===== */
-        if (h === 'Tiket HI' && Number(row[h]) > 0) {
-          td.innerHTML = `
-            <a href="#" class="text-warning fw-bold text-decoration-none">
-              ${row[h]}
-            </a>`;
+      /* ===== CLICK Tiket HI ===== */
+      if (h === 'Tiket HI' && Number(row[h]) > 0) {
+        td.innerHTML = `
+          <a href="#" class="text-warning fw-bold text-decoration-none">
+            ${row[h]}
+          </a>`;
 
-          td.onclick = e => {
-            e.preventDefault();
+        td.onclick = e => {
+          e.preventDefault();
 
-            const witel =
-              row.WITEL ||
-              row.Witel ||
-              row['WITEL '] ||
-              row['WITEL\n'] ||
-              '-';
+          const witel =
+            row.WITEL ||
+            row.Witel ||
+            row['WITEL '] ||
+            row['WITEL\n'] ||
+            '-';
 
-            openTiketHIModal(API_URL, row.STO, witel);
-          };
+          openTiketHIModal(API_URL, row.STO, witel);
+        };
 
-        /* ===== WARNA %Q s/d HI ===== */
-        } else if (h === '%Q s/d HI') {
-          const val = Number(row[h]);
-          td.textContent = row[h] ?? '-';
+      /* ===== %Q s/d HI > 2 ===== */
+      } else if (h === '%Q s/d HI') {
+        const val = Number(row[h]);
+        td.textContent = row[h] ?? '-';
 
-          if (!isNaN(val) && val > 2) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
-
-        } else {
-          td.textContent = row[h] ?? '-';
+        if (!isNaN(val) && val > 2) {
+          td.classList.add('text-danger', 'fw-bold');
         }
 
-        tr.appendChild(td);
-      });
+      /* ===== Budg Q BI ≤ 0 ===== */
+      } else if (h === 'Budg Q BI') {
+        const val = Number(row[h]);
+        td.textContent = row[h] ?? '-';
 
-      tbody.appendChild(tr);
+        if (!isNaN(val) && val <= 0) {
+          td.classList.add('text-danger', 'fw-bold');
+        }
+
+      } else {
+        td.textContent = row[h] ?? '-';
+      }
+
+      tr.appendChild(td);
     });
-  }
+
+    tbody.appendChild(tr);
+  });
+}
+
 
   const script = document.createElement('script');
   script.src = `${API_URL}?type=table&callback=${cbTable}`;
