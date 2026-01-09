@@ -125,7 +125,7 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      // ================= INIT STO FILTER =================
+      // ================= STO FILTER =================
       const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
       filterSto.innerHTML = '<option value="">All STO</option>';
       [...stoSet].sort().forEach(sto => {
@@ -180,7 +180,22 @@ function loadDistrictBantenTable(API_URL) {
 
       headers.forEach(h => {
         const td = document.createElement('td');
-        td.textContent = row[h] ?? '-';
+
+        // ========= KLIK TIKET HI =========
+        if (h === 'Tiket HI' && Number(row[h]) > 0) {
+          td.innerHTML = `
+            <a href="#" class="text-warning fw-bold text-decoration-none">
+              ${row[h]}
+            </a>
+          `;
+          td.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row);
+          };
+        } else {
+          td.textContent = row[h] ?? '-';
+        }
+
         tr.appendChild(td);
       });
 
@@ -191,4 +206,64 @@ function loadDistrictBantenTable(API_URL) {
   const script = document.createElement('script');
   script.src = `${API_URL}?type=table&callback=${cbTable}`;
   document.body.appendChild(script);
+}
+
+/* =========================================================
+   ================= MODAL DETAIL TIKET HI =================
+   ========================================================= */
+
+function openTiketHIModal(API_URL, row) {
+  const head = document.getElementById('tiket-hi-head');
+  const body = document.getElementById('tiket-hi-body');
+
+  head.innerHTML = '';
+  body.innerHTML =
+    `<tr><td class="text-muted">Memuat data...</td></tr>`;
+
+  const cols = [
+    'A', 'C', 'D', 'H', 'I',
+    'J', 'AU', 'CG', 'CO', 'CP'
+  ];
+
+  const cb = 'jsonp_tiket_' + Date.now();
+
+  window[cb] = function (res) {
+    try {
+      head.innerHTML = '';
+      body.innerHTML = '';
+
+      cols.forEach(c => {
+        const th = document.createElement('th');
+        th.textContent = c;
+        head.appendChild(th);
+      });
+
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          td.textContent = r[c] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+
+    } finally {
+      delete window[cb];
+      script.remove();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${API_URL}?type=tiket_hi` +
+    `&witel=${encodeURIComponent(row.WITEL)}` +
+    `&sto=${encodeURIComponent(row.STO)}` +
+    `&callback=${cb}`;
+
+  document.body.appendChild(script);
+
+  new bootstrap.Modal(
+    document.getElementById('modalTiketHI')
+  ).show();
 }
