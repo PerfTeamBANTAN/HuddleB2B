@@ -1,35 +1,79 @@
-/* ================= JSONP HELPER ================= */
+/* =========================================================
+   core.js
+   Global utilities for B2B Dashboard
+========================================================= */
+
+/* ===================== GLOBAL CONFIG ===================== */
+window.APP = {
+  API_URL: null
+};
+
+/* ===================== SET API ===================== */
+function setApiUrl(url) {
+  APP.API_URL = url;
+}
+
+/* ===================== JSONP HELPER ===================== */
 function loadJSONP(url, callbackName, onSuccess, onError) {
-  window[callbackName] = function (res) {
+  if (!callbackName) {
+    callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  }
+
+  const script = document.createElement('script');
+
+  window[callbackName] = function (response) {
     try {
-      onSuccess(res);
-    } catch (e) {
-      console.error(e);
-      onError && onError(e);
+      onSuccess && onSuccess(response);
+    } catch (err) {
+      console.error('[JSONP callback error]', err);
+      onError && onError(err);
     } finally {
       delete window[callbackName];
       script.remove();
     }
   };
 
-  const script = document.createElement('script');
-  script.src = url;
+  script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+
   script.onerror = () => {
-    onError && onError(new Error('JSONP load failed'));
     delete window[callbackName];
     script.remove();
+    console.error('[JSONP load failed]');
+    onError && onError(new Error('JSONP load error'));
   };
 
   document.body.appendChild(script);
 }
 
-/* ================= FORMATTER ================= */
-function formatNumber(val, decimals = 2) {
-  if (typeof val !== 'number') return val ?? '-';
-  return Number.isInteger(val) ? val : val.toFixed(decimals);
+/* ===================== FORMATTER ===================== */
+function formatNumber(value, decimals = 2) {
+  if (value === null || value === undefined || value === '') return '-';
+  if (typeof value !== 'number') return value;
+  return Number.isInteger(value)
+    ? value
+    : value.toFixed(decimals);
 }
 
-/* ================= SAFE COMPARE ================= */
-function toStr(v) {
-  return v == null ? '' : String(v).trim();
+/* ===================== LOADING ===================== */
+function toggleLoading(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('d-none', !show);
+}
+
+/* ===================== SAFE INNERHTML ===================== */
+function safeHTML(el, html) {
+  if (!el) return;
+  el.innerHTML = html;
+}
+
+/* ===================== CLEAR ELEMENT ===================== */
+function clearEl(id) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = '';
+}
+
+/* ===================== LOG ===================== */
+function debugLog(...args) {
+  console.log('[B2B]', ...args);
 }
