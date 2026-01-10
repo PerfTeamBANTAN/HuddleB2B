@@ -3,7 +3,7 @@ let ttrHeaders = [];
 let currentType = 'ttr_hsi_table';
 
 /* =====================================================
-   FORMATTER (TAMBAHAN AMAN)
+   FORMATTER
 ===================================================== */
 function fmt(val, digit = 2) {
   if (val === null || val === undefined || val === '') return '-';
@@ -21,6 +21,42 @@ function fmtInt(val) {
   if (val === null || val === undefined || val === '') return '-';
   if (isNaN(val)) return val;
   return parseInt(val, 10);
+}
+
+/* =====================================================
+   RULE ALERT (AUTO MERAH)
+===================================================== */
+function isAlertCell(type, header, row) {
+
+  // ================= TTR HSI =================
+  if (type === 'ttr_hsi_table') {
+
+    if (header === '% TTR INDIBIZ 4H' && row[header] < 77) return true;
+    if (header === 'Tiket Not Ach INDIBIZ 4H' && row[header] > 0) return true;
+
+    if (header === '% TTR INDIBIZ 24H' && row[header] < 96.6) return true;
+    if (header === 'Tiket Not Ach INDIBIZ 24H' && row[header] > 0) return true;
+
+    if (header === '% TTR RESELLER 6H' && row[header] < 92.9) return true;
+    if (header === 'Tiket Not Ach RESELLER 6H' && row[header] > 0) return true;
+
+    if (header === '% TTR RESELLER 36H' && row[header] < 99.1) return true;
+    if (header === 'Tiket RESELLER 36H HI' && row[header] > 0) return true;
+  }
+
+  // ================= TTR DATIN =================
+  if (type === 'ttr_datin_table') {
+
+    if (header === '% TTR Datin K2' && row[header] < 81) return true;
+    if (header === 'Tiket Not Ach K2' && row[header] > 0) return true;
+    if (header === 'Tiket K2 HI' && row[header] > 0) return true;
+
+    if (header === '% TTR Datin K3' && row[header] < 95) return true;
+    if (header === 'Tiket Not Ach K3' && row[header] > 0) return true;
+    if (header === 'Tiket K3 HI' && row[header] > 0) return true;
+  }
+
+  return false;
 }
 
 /* =====================================================
@@ -145,7 +181,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE (FORMAT RAPI)
+   RENDER TABLE (FORMAT + AUTO MERAH)
 ===================================================== */
 function renderTTRTable() {
 
@@ -195,6 +231,11 @@ function renderTTRTable() {
       }
       else {
         td.textContent = fmt(r[h]);
+      }
+
+      // 🔴 AUTO MERAH SESUAI RULE
+      if (isAlertCell(currentType, h, r)) {
+        td.classList.add('table-danger', 'fw-bold');
       }
 
       tr.appendChild(td);
