@@ -1,13 +1,17 @@
 /* =========================================================
-   district-banten.js
-   Dashboard CX B2B District Banten
+   district-banten.js (FIXED)
 ========================================================= */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
+function initDistrictBanten(API_URL) {
+  loadDistrictBantenKPI(API_URL);
+  loadDistrictBantenTable(API_URL);
+}
 
-/* ===================== HELPER ===================== */
+/* ================= JSONP ================= */
 function loadJSONP(url, cbName, onSuccess, onError) {
-  window[cbName] = function (res) {
+  const script = document.createElement('script');
+
+  window[cbName] = res => {
     try {
       onSuccess(res);
     } catch (e) {
@@ -19,20 +23,14 @@ function loadJSONP(url, cbName, onSuccess, onError) {
     }
   };
 
-  const script = document.createElement('script');
   script.src = url;
   script.onerror = () => {
     delete window[cbName];
     script.remove();
-    onError && onError(new Error('JSONP load error'));
+    onError && onError(new Error('JSONP error'));
   };
 
   document.body.appendChild(script);
-}
-
-function formatNumber(val, d = 2) {
-  if (typeof val !== 'number') return val ?? '-';
-  return Number.isInteger(val) ? val : val.toFixed(d);
 }
 
 function showLoading(show) {
@@ -40,8 +38,8 @@ function showLoading(show) {
     ?.classList.toggle('d-none', !show);
 }
 
-/* ===================== LOAD KPI ===================== */
-function loadDistrictBantenKPI() {
+/* ================= KPI ================= */
+function loadDistrictBantenKPI(API_URL) {
   showLoading(true);
 
   const cb = 'cb_kpi_' + Date.now();
@@ -53,30 +51,32 @@ function loadDistrictBantenKPI() {
       const row = document.getElementById('district-banten-row');
       row.innerHTML = '';
 
-      (res.data || []).forEach(kpi => {
-        const div = document.createElement('div');
-        div.className = 'card-kpi';
-        div.innerHTML = `
-          <div class="kpi-title">${kpi.label}</div>
-          <div class="kpi-value">${formatNumber(kpi.value)}</div>
+      res.data.forEach(kpi => {
+        const card = document.createElement('div');
+        card.className = 'badge-card card-good';
+        card.innerHTML = `
+          <div class="badge-card-header">${kpi.label}</div>
+          <div class="badge-card-body">
+            <div class="row-item">
+              <span>Value</span>
+              <span>${kpi.value}</span>
+            </div>
+          </div>
         `;
-        row.appendChild(div);
+        row.appendChild(card);
       });
 
       document.getElementById('last-update').innerHTML =
-        `<i class="fa fa-clock me-1"></i> Last update: ${res.lastUpdate || '-'}`;
+        `<i class="fa fa-clock me-1"></i> Last update: ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
 
       showLoading(false);
     },
-    err => {
-      console.error('KPI error', err);
-      showLoading(false);
-    }
+    () => showLoading(false)
   );
 }
 
-/* ===================== LOAD TABLE ===================== */
-function loadDistrictBantenTable() {
+/* ================= TABLE ================= */
+function loadDistrictBantenTable(API_URL) {
   showLoading(true);
 
   const cb = 'cb_table_' + Date.now();
@@ -91,26 +91,25 @@ function loadDistrictBantenTable() {
       thead.innerHTML = '';
       tbody.innerHTML = '';
 
-      if (!res.data || !res.data.length) {
+      if (!res.data?.length) {
         tbody.innerHTML =
-          `<tr><td class="text-center text-muted">Data kosong</td></tr>`;
+          `<tr><td class="text-center text-muted">Tidak ada data</td></tr>`;
         showLoading(false);
         return;
       }
 
-      // header
-      Object.keys(res.data[0]).forEach(k => {
+      const headers = Object.keys(res.data[0]);
+      headers.forEach(h => {
         const th = document.createElement('th');
-        th.textContent = k;
+        th.textContent = h;
         thead.appendChild(th);
       });
 
-      // body
       res.data.forEach(r => {
         const tr = document.createElement('tr');
-        Object.values(r).forEach(v => {
+        headers.forEach(h => {
           const td = document.createElement('td');
-          td.textContent = formatNumber(v);
+          td.textContent = r[h] ?? '-';
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -118,15 +117,6 @@ function loadDistrictBantenTable() {
 
       showLoading(false);
     },
-    err => {
-      console.error('Table error', err);
-      showLoading(false);
-    }
+    () => showLoading(false)
   );
 }
-
-/* ===================== INIT ===================== */
-document.addEventListener('DOMContentLoaded', () => {
-  loadDistrictBantenKPI();
-  loadDistrictBantenTable();
-});
