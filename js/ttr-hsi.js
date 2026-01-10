@@ -47,7 +47,7 @@ async function initTTRHSI(API_URL) {
         row.appendChild(card);
       });
 
-    /* ================= TABLE (DEFAULT HSI) ================= */
+    /* ================= DEFAULT TABLE (HSI) ================= */
     await loadTTRTable(API_URL, 'ttr_hsi_table');
 
     lastUpdate.innerHTML =
@@ -66,20 +66,28 @@ async function initTTRHSI(API_URL) {
     overlay.classList.add('d-none');
   }
 
-  /* ================= FILTER ================= */
-  document.getElementById('ttr-filter-service')
-    ?.addEventListener('change', e => {
-      const type =
-        e.target.value === 'DATIN'
-          ? 'ttr_datin_table'
-          : 'ttr_hsi_table';
+  /* ================= TAB CLICK ================= */
+  document.querySelectorAll('#ttr-tabs button').forEach(btn => {
 
-      loadTTRTable(API_URL, type);
+    btn.addEventListener('click', async () => {
+
+      /* ACTIVE STATE */
+      document.querySelectorAll('#ttr-tabs button').forEach(b => {
+        b.classList.remove('btn-primary', 'active');
+        b.classList.add('btn-outline-light');
+      });
+
+      btn.classList.remove('btn-outline-light');
+      btn.classList.add('btn-primary', 'active');
+
+      /* LOAD TABLE */
+      await loadTTRTable(API_URL, btn.dataset.type);
     });
+  });
 }
 
 /* =====================================================
-   LOAD TABLE FUNCTION
+   LOAD TABLE
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
 
@@ -89,9 +97,7 @@ async function loadTTRTable(API_URL, type) {
   tableHead.innerHTML = '';
   tableBody.innerHTML = `
     <tr>
-      <td class="text-center text-muted">
-        Memuat data...
-      </td>
+      <td class="text-center text-muted">Memuat data...</td>
     </tr>
   `;
 
