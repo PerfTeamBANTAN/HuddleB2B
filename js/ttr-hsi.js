@@ -1,9 +1,11 @@
+let ttrRawData = [];
+let ttrHeaders = [];
+let currentType = 'ttr_hsi_table';
+
 async function initTTRHSI(API_URL) {
 
   const row = document.getElementById('ttr-row');
   const overlay = document.getElementById('ttr-loading-overlay');
-  const tableHead = document.getElementById('ttr-table-head');
-  const tableBody = document.getElementById('ttr-table-body');
   const lastUpdate = document.getElementById('ttr-last-update');
 
   overlay.classList.remove('d-none');
@@ -28,13 +30,11 @@ async function initTTRHSI(API_URL) {
           <div class="badge-card-header">
             ${d.indikator} - ${d.witel}
           </div>
-
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
               <span>${d.target}</span>
             </div>
-
             <div class="row-item">
               <span>Actual</span>
               <span class="${isGood ? 'value-good' : 'value-bad'}">
@@ -43,35 +43,25 @@ async function initTTRHSI(API_URL) {
             </div>
           </div>
         `;
-
         row.appendChild(card);
       });
 
-    /* ================= DEFAULT TABLE (HSI) ================= */
-    await loadTTRTable(API_URL, 'ttr_hsi_table');
+    /* ================= DEFAULT LOAD ================= */
+    await loadTTRTable(API_URL, currentType);
 
     lastUpdate.innerHTML =
       `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
 
   } catch (err) {
     console.error(err);
-    tableBody.innerHTML = `
-      <tr>
-        <td class="text-center text-danger">
-          Gagal memuat data
-        </td>
-      </tr>
-    `;
   } finally {
     overlay.classList.add('d-none');
   }
 
-  /* ================= TAB CLICK ================= */
+  /* ================= TAB EVENT ================= */
   document.querySelectorAll('#ttr-tabs button').forEach(btn => {
-
     btn.addEventListener('click', async () => {
 
-      /* ACTIVE STATE */
       document.querySelectorAll('#ttr-tabs button').forEach(b => {
         b.classList.remove('btn-primary', 'active');
         b.classList.add('btn-outline-light');
@@ -80,49 +70,97 @@ async function initTTRHSI(API_URL) {
       btn.classList.remove('btn-outline-light');
       btn.classList.add('btn-primary', 'active');
 
-      /* LOAD TABLE */
-      await loadTTRTable(API_URL, btn.dataset.type);
+      currentType = btn.dataset.type;
+      await loadTTRTable(API_URL, currentType);
     });
   });
 }
 
 /* =====================================================
-   LOAD TABLE
+   LOAD DATA
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
 
-  const tableHead = document.getElementById('ttr-table-head');
   const tableBody = document.getElementById('ttr-table-body');
-
-  tableHead.innerHTML = '';
-  tableBody.innerHTML = `
-    <tr>
-      <td class="text-center text-muted">Memuat data...</td>
-    </tr>
-  `;
+  tableBody.innerHTML =
+    `<tr><td class="text-center text-muted">Memuat data...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=' + type);
   const json = await res.json();
 
-  /* HEADER */
-  json.headers.forEach(h => {
+  ttrHeaders = json.headers;
+  ttrRawData = json.data;
+
+  initTTRFilter();
+  renderTTRTable();
+}
+
+/* =====================================================
+   FILTER INIT
+===================================================== */
+function initTTRFilter() {
+
+  const witelSelect = document.getElementById('ttr-filter-witel');
+  const stoSelect = document.getElementById('ttr-filter-sto');
+
+  const witels = [...new Set(ttrRawData.map(d => d.WITEL).filter(Boolean))];
+  const stos = [...new Set(ttrRawData.map(d => d.STO).filter(Boolean))];
+
+  witelSelect.innerHTML = `<option value="">All Witel</option>`;
+  witels.forEach(w =>
+    witelSelect.innerHTML += `<option value="${w}">${w}</option>`
+  );
+
+  stoSelect.innerHTML = `<option value="">All STO</option>`;
+  stos.forEach(s =>
+    stoSelect.innerHTML += `<option value="${s}">${s}</option>`
+  );
+
+  witelSelect.onchange = renderTTRTable;
+  stoSelect.onchange = renderTTRTable;
+}
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
+function renderTTRTable() {
+
+  const tableHead = document.getElementById('ttr-table-head');
+  const tableBody = document.getElementById('ttr-table-body');
+  const filterWitel = document.getElementById('ttr-filter-witel').value;
+  const filterSTO = document.getElementById('ttr-filter-sto').value;
+
+  tableHead.innerHTML = '';
+  ttrHeaders.forEach(h => {
     const th = document.createElement('th');
     th.textContent = h;
     tableHead.appendChild(th);
   });
 
-  /* BODY */
+  const filtered = ttrRawData.filter(r =>
+    (!filterWitel || r.WITEL === filterWitel) &&
+    (!filterSTO || r.STO === filterSTO)
+  );
+
   tableBody.innerHTML = '';
 
-  json.data.forEach(r => {
-    const tr = document.createElement('tr');
+  if (!filtered.length) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="${ttrHeaders.length}" class="text-center text-muted">
+          Tidak ada data
+        </td>
+      </tr>`;
+    return;
+  }
 
-    json.headers.forEach(h => {
+  filtered.forEach(r => {
+    const tr = document.createElement('tr');
+    ttrHeaders.forEach(h => {
       const td = document.createElement('td');
       td.textContent = r[h] ?? '-';
       tr.appendChild(td);
     });
-
     tableBody.appendChild(tr);
   });
 }
