@@ -295,6 +295,19 @@ Dashboard B2B District BANTEN
 const B2B_API_URL =
 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
+  
+function loadScriptOnce(src, onLoad) {
+  if (document.querySelector(`script[src^="${src}"]`)) {
+    onLoad();
+    return;
+  }
+  const s = document.createElement('script');
+  s.src = src;
+  s.onload = onLoad;
+  document.body.appendChild(s);
+}
+
+
 function showUnderConstruction() {
 const home = document.getElementById('home-fullscreen');
 const content = document.getElementById('content-area');
@@ -350,7 +363,7 @@ if (menu === 'District-Banten') {
     const s = document.createElement('script');
     s.src = 'js/district-banten.js?v=' + Date.now();
     s.onload = () => initDistrictBanten(B2B_API_URL);
-    document.body.appendChild(s);
+    loadScriptOnce('js/district-banten.js', () => initDistrictBanten(B2B_API_URL));
   });
 
 } else if (menu === 'Asgar-HSI') {
@@ -363,7 +376,7 @@ if (menu === 'District-Banten') {
     const s = document.createElement('script');
     s.src = 'js/asgar-hsi.js?v=' + Date.now();
     s.onload = () => initAsgarHSI(B2B_API_URL);
-    document.body.appendChild(s);
+    loadScriptOnce('js/district-banten.js', () => initDistrictBanten(B2B_API_URL));
   });
 
 } else {
