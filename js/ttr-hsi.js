@@ -2,6 +2,30 @@ let ttrRawData = [];
 let ttrHeaders = [];
 let currentType = 'ttr_hsi_table';
 
+/* =====================================================
+   FORMATTER (TAMBAHAN AMAN)
+===================================================== */
+function fmt(val, digit = 2) {
+  if (val === null || val === undefined || val === '') return '-';
+  if (isNaN(val)) return val;
+  return Number(val).toFixed(digit).replace(/\.00$/, '');
+}
+
+function fmtPercent(val) {
+  if (val === null || val === undefined || val === '') return '-';
+  if (isNaN(val)) return val;
+  return fmt(val, 2);
+}
+
+function fmtInt(val) {
+  if (val === null || val === undefined || val === '') return '-';
+  if (isNaN(val)) return val;
+  return parseInt(val, 10);
+}
+
+/* =====================================================
+   INIT
+===================================================== */
 async function initTTRHSI(API_URL) {
 
   const row = document.getElementById('ttr-row');
@@ -33,12 +57,12 @@ async function initTTRHSI(API_URL) {
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${d.target}</span>
+              <span>${fmt(d.target, 1)}</span>
             </div>
             <div class="row-item">
               <span>Actual</span>
               <span class="${isGood ? 'value-good' : 'value-bad'}">
-                ${d.ach}
+                ${fmt(d.ach, 2)}
               </span>
             </div>
           </div>
@@ -121,7 +145,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE
+   RENDER TABLE (FORMAT RAPI)
 ===================================================== */
 function renderTTRTable() {
 
@@ -156,11 +180,26 @@ function renderTTRTable() {
 
   filtered.forEach(r => {
     const tr = document.createElement('tr');
+
     ttrHeaders.forEach(h => {
       const td = document.createElement('td');
-      td.textContent = r[h] ?? '-';
+
+      if (h.includes('%') || h.toUpperCase().includes('TTR')) {
+        td.textContent = fmtPercent(r[h]);
+      }
+      else if (
+        h.toLowerCase().includes('tiket') ||
+        h.toLowerCase().includes('tot')
+      ) {
+        td.textContent = fmtInt(r[h]);
+      }
+      else {
+        td.textContent = fmt(r[h]);
+      }
+
       tr.appendChild(td);
     });
+
     tableBody.appendChild(tr);
   });
 }
