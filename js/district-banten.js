@@ -3,7 +3,7 @@
    Dashboard CX B2B District Banten
 ========================================================= */
 
-const API_URL = 'PASTE_URL_APPS_SCRIPT_KAMU_DI_SINI';
+const API_URL = 'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
 
 /* ===================== HELPER ===================== */
 function loadJSONP(url, cbName, onSuccess, onError) {
