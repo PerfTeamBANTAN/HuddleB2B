@@ -119,49 +119,121 @@ async function renderSummaryCards(API_URL) {
     row.appendChild(card);
   });
 
-  /* ===============================
-     HITUNG TIKET NOT ACH DARI TABLE
-  =============================== */
-  const tableRes = await fetch(API_URL + '?type=ttr_hsi_table');
-  const tableJson = await tableRes.json();
-  const data = tableJson.data;
+  /* =====================================================
+   RENDER CARD TTR & NOT ACH (FINAL FIX)
+===================================================== */
+async function renderSummaryCards(API_URL) {
 
-  const notAchConfig = [
+  const row = document.getElementById('ttr-row');
+  row.innerHTML = '';
+
+  /* ===============================
+     KPI TTR
+  =============================== */
+  const kpiRes = await fetch(API_URL + '?type=kpi');
+  const kpiJson = await kpiRes.json();
+
+  const ttrMap = {};
+
+  kpiJson.data
+    .filter(d => d.indikator.toUpperCase().includes('TTR'))
+    .forEach(d => {
+
+      const key = d.indikator.toUpperCase();
+
+      if (!ttrMap[key]) {
+        ttrMap[key] = {
+          indikator: d.indikator,
+          target: d.target,
+          BANTEN: 0,
+          TANGERANG: 0
+        };
+      }
+
+      if (d.witel === 'BANTEN') ttrMap[key].BANTEN = Number(d.ach) || 0;
+      if (d.witel === 'TANGERANG') ttrMap[key].TANGERANG = Number(d.ach) || 0;
+    });
+
+  Object.values(ttrMap).forEach(d => {
+    row.innerHTML += `
+      <div class="badge-card">
+        <div class="badge-card-header">${d.indikator}</div>
+        <div class="badge-card-body text-dark">
+          <div class="row-item"><span>Target</span><span>${fmt(d.target,1)}</span></div>
+          <div class="row-item"><span>Banten</span><span>${fmt(d.BANTEN)}</span></div>
+          <div class="row-item"><span>Tangerang</span><span>${fmt(d.TANGERANG)}</span></div>
+        </div>
+      </div>
+    `;
+  });
+
+  /* ===============================
+     DATIN TABLE (K2 & K3)
+  =============================== */
+  const datinRes = await fetch(API_URL + '?type=ttr_datin_table');
+  const datinJson = await datinRes.json();
+
+  const datinCards = [
     { title: 'Tiket Not Ach DATIN K2', col: 'Tiket Not Ach K2' },
-    { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' },
+    { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' }
+  ];
+
+  datinCards.forEach(cfg => {
+    let banten = 0;
+    let tgr = 0;
+
+    datinJson.data.forEach(r => {
+      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+    });
+
+    row.innerHTML += `
+      <div class="badge-card">
+        <div class="badge-card-header">${cfg.title}</div>
+        <div class="badge-card-body text-dark">
+          <div class="row-item"><span>District Banten</span><span>${banten + tgr}</span></div>
+          <div class="row-item"><span>Banten</span><span>${banten}</span></div>
+          <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
+        </div>
+      </div>
+    `;
+  });
+
+  /* ===============================
+     HSI & RESELLER TABLE
+  =============================== */
+  const hsiRes = await fetch(API_URL + '?type=ttr_hsi_table');
+  const hsiJson = await hsiRes.json();
+
+  const hsiCards = [
     { title: 'Tiket Not Ach HSI 4H', col: 'Tiket Not Ach INDIBIZ 4H' },
     { title: 'Tiket Not Ach HSI 24H', col: 'Tiket Not Ach INDIBIZ 24H' },
     { title: 'Tiket Not Ach Reseller 6H', col: 'Tiket Not Ach RESELLER 6H' },
     { title: 'Tiket Not Ach Reseller 36H', col: 'Tiket Not Ach RESELLER 36H' }
   ];
 
-  notAchConfig.forEach(cfg => {
-
+  hsiCards.forEach(cfg => {
     let banten = 0;
     let tgr = 0;
 
-    data.forEach(r => {
+    hsiJson.data.forEach(r => {
       if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
       if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
     });
 
-    const district = banten + tgr;
-
-    const card = document.createElement('div');
-    card.className = 'badge-card';
-
-    card.innerHTML = `
-      <div class="badge-card-header">${cfg.title}</div>
-      <div class="badge-card-body text-dark">
-        <div class="row-item"><span>District Banten</span><span>${district}</span></div>
-        <div class="row-item"><span>Banten</span><span>${banten}</span></div>
-        <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
+    row.innerHTML += `
+      <div class="badge-card">
+        <div class="badge-card-header">${cfg.title}</div>
+        <div class="badge-card-body text-dark">
+          <div class="row-item"><span>District Banten</span><span>${banten + tgr}</span></div>
+          <div class="row-item"><span>Banten</span><span>${banten}</span></div>
+          <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
+        </div>
       </div>
     `;
-
-    row.appendChild(card);
   });
 }
+
 
 /* =====================================================
    INIT
