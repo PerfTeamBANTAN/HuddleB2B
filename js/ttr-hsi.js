@@ -28,7 +28,6 @@ function fmtInt(val) {
 ===================================================== */
 function isAlertCell(type, header, row) {
 
-  // ================= TTR HSI =================
   if (type === 'ttr_hsi_table') {
 
     if (header === '% TTR INDIBIZ 4H' && row[header] < 77) return true;
@@ -44,7 +43,6 @@ function isAlertCell(type, header, row) {
     if (header === 'Tiket RESELLER 36H HI' && row[header] > 0) return true;
   }
 
-  // ================= TTR DATIN =================
   if (type === 'ttr_datin_table') {
 
     if (header === '% TTR Datin K2' && row[header] < 81) return true;
@@ -60,6 +58,83 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
+   DISTRICT KPI (BANTEN = BANTEN + TANGERANG)
+===================================================== */
+function renderDistrictKPICards(kpiData) {
+
+  const container = document.getElementById('district-kpi-row');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const grouped = {};
+
+  kpiData
+    .filter(d => d.indikator.toUpperCase().includes('TTR'))
+    .forEach(d => {
+
+      if (!grouped[d.indikator]) {
+        grouped[d.indikator] = {
+          indikator: d.indikator,
+          target: Number(d.target),
+          banten: 0,
+          tangerang: 0
+        };
+      }
+
+      if (d.witel.toUpperCase() === 'BANTEN') {
+        grouped[d.indikator].banten = Number(d.ach);
+      }
+
+      if (d.witel.toUpperCase() === 'TANGERANG') {
+        grouped[d.indikator].tangerang = Number(d.ach);
+      }
+    });
+
+  Object.values(grouped).forEach(item => {
+
+    const districtAch = item.banten + item.tangerang;
+    const isGood = districtAch <= item.target;
+
+    const card = document.createElement('div');
+    card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'}`;
+
+    card.innerHTML = `
+      <div class="badge-card-header">
+        ${item.indikator} - DISTRICT BANTEN
+      </div>
+      <div class="badge-card-body">
+
+        <div class="row-item">
+          <span>Target</span>
+          <span>${fmt(item.target, 1)}</span>
+        </div>
+
+        <div class="row-item">
+          <span>District</span>
+          <span class="${isGood ? 'value-good' : 'value-bad'}">
+            ${fmt(districtAch, 2)}
+          </span>
+        </div>
+
+        <div class="row-item">
+          <span>Banten</span>
+          <span>${fmt(item.banten, 2)}</span>
+        </div>
+
+        <div class="row-item">
+          <span>Tangerang</span>
+          <span>${fmt(item.tangerang, 2)}</span>
+        </div>
+
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+/* =====================================================
    INIT
 ===================================================== */
 async function initTTRHSI(API_URL) {
@@ -71,9 +146,11 @@ async function initTTRHSI(API_URL) {
   overlay.classList.remove('d-none');
 
   try {
-    /* ================= KPI CARD ================= */
+
     const kpiRes = await fetch(API_URL + '?type=kpi');
     const kpiJson = await kpiRes.json();
+
+    renderDistrictKPICards(kpiJson.data);
 
     row.innerHTML = '';
 
@@ -82,15 +159,15 @@ async function initTTRHSI(API_URL) {
       .forEach(d => {
 
         const isGood = d.ach <= d.target;
-const witelClass =
-  d.witel.toUpperCase() === 'BANTEN'
-    ? 'witel-banten'
-    : d.witel.toUpperCase() === 'TANGERANG'
-      ? 'witel-tangerang'
-      : '';
+        const witelClass =
+          d.witel.toUpperCase() === 'BANTEN'
+            ? 'witel-banten'
+            : d.witel.toUpperCase() === 'TANGERANG'
+              ? 'witel-tangerang'
+              : '';
 
-const card = document.createElement('div');
-card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`;
+        const card = document.createElement('div');
+        card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`;
 
         card.innerHTML = `
           <div class="badge-card-header">
@@ -109,10 +186,10 @@ card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`
             </div>
           </div>
         `;
+
         row.appendChild(card);
       });
 
-    /* ================= DEFAULT LOAD ================= */
     await loadTTRTable(API_URL, currentType);
 
     lastUpdate.innerHTML =
@@ -124,7 +201,6 @@ card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`
     overlay.classList.add('d-none');
   }
 
-  /* ================= TAB EVENT ================= */
   document.querySelectorAll('#ttr-tabs button').forEach(btn => {
     btn.addEventListener('click', async () => {
 
@@ -143,7 +219,7 @@ card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`
 }
 
 /* =====================================================
-   LOAD DATA
+   LOAD TABLE
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
 
@@ -162,7 +238,7 @@ async function loadTTRTable(API_URL, type) {
 }
 
 /* =====================================================
-   FILTER INIT
+   FILTER
 ===================================================== */
 function initTTRFilter() {
 
@@ -173,21 +249,17 @@ function initTTRFilter() {
   const stos = [...new Set(ttrRawData.map(d => d.STO).filter(Boolean))];
 
   witelSelect.innerHTML = `<option value="">All Witel</option>`;
-  witels.forEach(w =>
-    witelSelect.innerHTML += `<option value="${w}">${w}</option>`
-  );
+  witels.forEach(w => witelSelect.innerHTML += `<option value="${w}">${w}</option>`);
 
   stoSelect.innerHTML = `<option value="">All STO</option>`;
-  stos.forEach(s =>
-    stoSelect.innerHTML += `<option value="${s}">${s}</option>`
-  );
+  stos.forEach(s => stoSelect.innerHTML += `<option value="${s}">${s}</option>`);
 
   witelSelect.onchange = renderTTRTable;
   stoSelect.onchange = renderTTRTable;
 }
 
 /* =====================================================
-   RENDER TABLE (FORMAT + AUTO MERAH)
+   RENDER TABLE
 ===================================================== */
 function renderTTRTable() {
 
@@ -228,18 +300,12 @@ function renderTTRTable() {
 
       if (h.includes('%') || h.toUpperCase().includes('TTR')) {
         td.textContent = fmtPercent(r[h]);
-      }
-      else if (
-        h.toLowerCase().includes('tiket') ||
-        h.toLowerCase().includes('tot')
-      ) {
+      } else if (h.toLowerCase().includes('tiket')) {
         td.textContent = fmtInt(r[h]);
-      }
-      else {
+      } else {
         td.textContent = fmt(r[h]);
       }
 
-      // 🔴 AUTO MERAH SESUAI RULE
       if (isAlertCell(currentType, h, r)) {
         td.classList.add('table-danger', 'fw-bold');
       }
