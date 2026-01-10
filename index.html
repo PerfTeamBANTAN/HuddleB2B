@@ -257,6 +257,74 @@ html, body {
 .badge-card.witel-tangerang .badge-card-header {
   background: linear-gradient(135deg, #0d6efd, #6ea8fe);
 }
+
+/* ================= DISTRICT KPI CARD ================= */
+
+.district-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
+
+/* CARD */
+.district-kpi-card {
+  background: #0b0b0b;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.7);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 12.5px;
+}
+
+/* HEADER */
+.district-kpi-title {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* ROW */
+.district-kpi-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+/* LABEL */
+.district-kpi-label {
+  color: #aaa;
+}
+
+/* VALUE COLOR */
+.val-target {
+  color: #0dcaf0;
+  font-weight: 700;
+}
+
+.val-district {
+  color: #ffc107;
+  font-weight: 800;
+}
+
+.val-banten {
+  color: #20c997;
+  font-weight: 700;
+}
+
+.val-tangerang {
+  color: #6ea8fe;
+  font-weight: 700;
+}
+
+/* ALERT */
+.val-alert {
+  color: #ff4d4f !important;
+}
 </style>
 
 </head>
