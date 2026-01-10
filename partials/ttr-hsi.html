@@ -5,14 +5,27 @@
   </h4>
 
   <!-- ================= TAB FILTER ================= -->
-  <div class="mb-3 d-flex flex-wrap gap-2" id="ttr-tabs">
+  <div class="mb-2 d-flex flex-wrap gap-2" id="ttr-tabs">
     <button class="btn btn-sm btn-primary active" data-type="ttr_hsi_table">
       <i class="fa fa-clock me-1"></i> TTR HSI
     </button>
-
     <button class="btn btn-sm btn-outline-light" data-type="ttr_datin_table">
       <i class="fa fa-clock me-1"></i> TTR DATIN
     </button>
+  </div>
+
+  <!-- ================= FILTER WITEL & STO ================= -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <select id="ttr-filter-witel" class="form-select form-select-sm">
+        <option value="">All Witel</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select id="ttr-filter-sto" class="form-select form-select-sm">
+        <option value="">All STO</option>
+      </select>
+    </div>
   </div>
 
   <!-- ================= GRID CARD KPI ================= -->
@@ -26,10 +39,7 @@
 
   <!-- ================= TABLE SECTION ================= -->
   <div class="mt-4">
-
-    <h5 class="text-light mb-2">
-      Detail TTR
-    </h5>
+    <h5 class="text-light mb-2">Detail TTR</h5>
 
     <div class="table-responsive">
       <table class="table table-dark table-striped table-bordered table-sm align-middle">
@@ -43,7 +53,6 @@
         </tbody>
       </table>
     </div>
-
   </div>
 
   <!-- ================= LAST UPDATE ================= -->
