@@ -61,17 +61,20 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
-   KPI SUMMARY CARD (MODEL BARU)
+   KPI SUMMARY CARD FINAL
 ===================================================== */
 async function renderSummaryCards(API_URL) {
 
   const row = document.getElementById('ttr-row');
   row.innerHTML = '';
 
+  /* ===============================
+     FETCH KPI TTR
+  =============================== */
   const res = await fetch(API_URL + '?type=kpi');
   const json = await res.json();
 
-  const map = {};
+  const ttrMap = {};
 
   json.data
     .filter(d => d.indikator.toUpperCase().includes('TTR'))
@@ -79,8 +82,8 @@ async function renderSummaryCards(API_URL) {
 
       const key = d.indikator.toUpperCase();
 
-      if (!map[key]) {
-        map[key] = {
+      if (!ttrMap[key]) {
+        ttrMap[key] = {
           indikator: d.indikator,
           target: d.target,
           BANTEN: 0,
@@ -89,29 +92,70 @@ async function renderSummaryCards(API_URL) {
       }
 
       if (d.witel.toUpperCase() === 'BANTEN') {
-        map[key].BANTEN = Number(d.ach) || 0;
+        ttrMap[key].BANTEN = Number(d.ach) || 0;
       }
-
       if (d.witel.toUpperCase() === 'TANGERANG') {
-        map[key].TANGERANG = Number(d.ach) || 0;
+        ttrMap[key].TANGERANG = Number(d.ach) || 0;
       }
     });
 
-  Object.values(map).forEach(d => {
-
-    const district = d.BANTEN + d.TANGERANG;
+  /* ===============================
+     RENDER CARD TTR (NO DISTRICT)
+  =============================== */
+  Object.values(ttrMap).forEach(d => {
 
     const card = document.createElement('div');
     card.className = 'badge-card';
-    card.style.height = 'auto';
 
     card.innerHTML = `
       <div class="badge-card-header">${d.indikator}</div>
-      <div class="badge-card-body">
+      <div class="badge-card-body text-dark">
         <div class="row-item"><span>Target</span><span>${fmt(d.target,1)}</span></div>
         <div class="row-item"><span>Banten</span><span>${fmt(d.BANTEN)}</span></div>
         <div class="row-item"><span>Tangerang</span><span>${fmt(d.TANGERANG)}</span></div>
-        <div class="row-item"><b>District Banten</b><b>${fmt(district)}</b></div>
+      </div>
+    `;
+
+    row.appendChild(card);
+  });
+
+  /* ===============================
+     HITUNG TIKET NOT ACH DARI TABLE
+  =============================== */
+  const tableRes = await fetch(API_URL + '?type=ttr_hsi_table');
+  const tableJson = await tableRes.json();
+  const data = tableJson.data;
+
+  const notAchConfig = [
+    { title: 'Tiket Not Ach DATIN K2', col: 'Tiket Not Ach K2' },
+    { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' },
+    { title: 'Tiket Not Ach HSI 4H', col: 'Tiket Not Ach INDIBIZ 4H' },
+    { title: 'Tiket Not Ach HSI 24H', col: 'Tiket Not Ach INDIBIZ 24H' },
+    { title: 'Tiket Not Ach Reseller 6H', col: 'Tiket Not Ach RESELLER 6H' },
+    { title: 'Tiket Not Ach Reseller 36H', col: 'Tiket Not Ach RESELLER 36H' }
+  ];
+
+  notAchConfig.forEach(cfg => {
+
+    let banten = 0;
+    let tgr = 0;
+
+    data.forEach(r => {
+      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+    });
+
+    const district = banten + tgr;
+
+    const card = document.createElement('div');
+    card.className = 'badge-card';
+
+    card.innerHTML = `
+      <div class="badge-card-header">${cfg.title}</div>
+      <div class="badge-card-body text-dark">
+        <div class="row-item"><span>District Banten</span><span>${district}</span></div>
+        <div class="row-item"><span>Banten</span><span>${banten}</span></div>
+        <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
       </div>
     `;
 
