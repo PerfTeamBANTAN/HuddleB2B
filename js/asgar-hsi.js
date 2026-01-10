@@ -215,3 +215,73 @@ function loadAsgarHSITable(API_URL) {
   script.src = `${API_URL}?type=asgar_table&callback=${cbTable}`;
   document.body.appendChild(script);
 }
+
+/* =====================================================
+   MODAL DETAIL Tiket HI
+===================================================== */
+
+function openTiketHIModal(API_URL, sto, witel) {
+  const title = document.getElementById('modalTiketHITitle');
+  const head = document.getElementById('tiket-hi-head');
+  const body = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
+
+  const cols = [
+    'Incident',
+    'Summary',
+    'Report Date',
+    'Service Type',
+    'WITEL',
+    'Status',
+    'LABOR TEKNISI',
+    'TTR (Report Date s/d Resolved Date)',
+    'Flag GAUL',
+    'Old Tiket'
+  ];
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td colspan="${cols.length}">Loading...</td></tr>`;
+
+  const cb = 'jsonp_asgar_detail_' + Date.now();
+
+  window[cb] = function (res) {
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    cols.forEach(c => {
+      const th = document.createElement('th');
+      th.textContent = c;
+      head.appendChild(th);
+    });
+
+    if (!res.data?.length) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="${cols.length}" class="text-center">
+            Tidak ada data
+          </td>
+        </tr>`;
+    } else {
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          td.textContent = r[c] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    delete window[cb];
+    script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+
+  document.body.appendChild(script);
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
+}
