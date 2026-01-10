@@ -82,9 +82,15 @@ async function initTTRHSI(API_URL) {
       .forEach(d => {
 
         const isGood = d.ach <= d.target;
+const witelClass =
+  d.witel.toUpperCase() === 'BANTEN'
+    ? 'witel-banten'
+    : d.witel.toUpperCase() === 'TANGERANG'
+      ? 'witel-tangerang'
+      : '';
 
-        const card = document.createElement('div');
-        card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'}`;
+const card = document.createElement('div');
+card.className = `badge-card ${isGood ? 'card-good' : 'card-bad'} ${witelClass}`;
 
         card.innerHTML = `
           <div class="badge-card-header">
