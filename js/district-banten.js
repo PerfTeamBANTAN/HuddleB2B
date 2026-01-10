@@ -1,52 +1,21 @@
 /* =========================================================
-   district-banten.js (FIXED)
+   district-banten.js
 ========================================================= */
 
-function initDistrictBanten(API_URL) {
+function initDistrictBanten() {
+  const API_URL = getApiUrl();
+  if (!API_URL) return;
+
   loadDistrictBantenKPI(API_URL);
   loadDistrictBantenTable(API_URL);
 }
 
-/* ================= JSONP ================= */
-function loadJSONP(url, cbName, onSuccess, onError) {
-  const script = document.createElement('script');
-
-  window[cbName] = res => {
-    try {
-      onSuccess(res);
-    } catch (e) {
-      console.error(e);
-      onError && onError(e);
-    } finally {
-      delete window[cbName];
-      script.remove();
-    }
-  };
-
-  script.src = url;
-  script.onerror = () => {
-    delete window[cbName];
-    script.remove();
-    onError && onError(new Error('JSONP error'));
-  };
-
-  document.body.appendChild(script);
-}
-
-function showLoading(show) {
-  document.getElementById('loading-overlay')
-    ?.classList.toggle('d-none', !show);
-}
-
 /* ================= KPI ================= */
 function loadDistrictBantenKPI(API_URL) {
-  showLoading(true);
-
-  const cb = 'cb_kpi_' + Date.now();
+  toggleLoading('loading-overlay', true);
 
   loadJSONP(
-    `${API_URL}?type=kpi&callback=${cb}`,
-    cb,
+    `${API_URL}?type=kpi`,
     res => {
       const row = document.getElementById('district-banten-row');
       row.innerHTML = '';
@@ -61,29 +30,25 @@ function loadDistrictBantenKPI(API_URL) {
               <span>Value</span>
               <span>${kpi.value}</span>
             </div>
-          </div>
-        `;
+          </div>`;
         row.appendChild(card);
       });
 
       document.getElementById('last-update').innerHTML =
         `<i class="fa fa-clock me-1"></i> Last update: ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
 
-      showLoading(false);
+      toggleLoading('loading-overlay', false);
     },
-    () => showLoading(false)
+    () => toggleLoading('loading-overlay', false)
   );
 }
 
 /* ================= TABLE ================= */
 function loadDistrictBantenTable(API_URL) {
-  showLoading(true);
-
-  const cb = 'cb_table_' + Date.now();
+  toggleLoading('loading-overlay', true);
 
   loadJSONP(
-    `${API_URL}?type=table&callback=${cb}`,
-    cb,
+    `${API_URL}?type=table`,
     res => {
       const thead = document.getElementById('district-banten-table-head');
       const tbody = document.getElementById('district-banten-table-body');
@@ -94,7 +59,7 @@ function loadDistrictBantenTable(API_URL) {
       if (!res.data?.length) {
         tbody.innerHTML =
           `<tr><td class="text-center text-muted">Tidak ada data</td></tr>`;
-        showLoading(false);
+        toggleLoading('loading-overlay', false);
         return;
       }
 
@@ -105,18 +70,18 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      res.data.forEach(r => {
+      res.data.forEach(row => {
         const tr = document.createElement('tr');
         headers.forEach(h => {
           const td = document.createElement('td');
-          td.textContent = r[h] ?? '-';
+          td.textContent = row[h] ?? '-';
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
       });
 
-      showLoading(false);
+      toggleLoading('loading-overlay', false);
     },
-    () => showLoading(false)
+    () => toggleLoading('loading-overlay', false)
   );
 }
