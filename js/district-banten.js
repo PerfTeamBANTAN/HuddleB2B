@@ -1,87 +1,219 @@
-/* =========================================================
-   district-banten.js
-========================================================= */
+/* =====================================================
+   INIT KPI
+===================================================== */
 
-function initDistrictBanten() {
-  const API_URL = getApiUrl();
-  if (!API_URL) return;
+function initDistrictBanten(API_URL) {
+  const container = document.getElementById('district-banten-row');
+  const loading = document.getElementById('loading-overlay');
+  const lastUpdateEl = document.getElementById('last-update');
 
-  loadDistrictBantenKPI(API_URL);
-  loadDistrictBantenTable(API_URL);
-}
+  if (!container) return;
 
-/* ================= KPI ================= */
-function loadDistrictBantenKPI(API_URL) {
-  toggleLoading('loading-overlay', true);
+  container.innerHTML = '';
+  loading.style.display = 'flex';
 
-  loadJSONP(
-    `${API_URL}?type=kpi`,
-    res => {
-      const row = document.getElementById('district-banten-row');
-      row.innerHTML = '';
+  const cbKpi = 'jsonp_kpi_' + Date.now();
 
-      res.data.forEach(kpi => {
+  window[cbKpi] = function (res) {
+    try {
+      const { data, lastUpdate } = res;
+
+      /* ===== LAST UPDATE ===== */
+      const d = new Date(lastUpdate);
+      lastUpdateEl.innerHTML =
+        `<i class="fa fa-clock me-1"></i> Last update: ` +
+        d.toLocaleString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+
+      /* ===== KPI ===== */
+      const map = {};
+
+      data.forEach(r => {
+        if (!map[r.indikator]) {
+          map[r.indikator] = {
+            target: r.target,
+            BANTEN: null,
+            TANGERANG: null
+          };
+        }
+        map[r.indikator][r.witel] = r.ach;
+      });
+
+      Object.entries(map).forEach(([indikator, v]) => {
+        const lowerBetter = indikator === 'Q Gangguan HSI';
+        const isGood = val =>
+          typeof val === 'number' &&
+          (lowerBetter ? val <= v.target : val >= v.target);
+
         const card = document.createElement('div');
-        card.className = 'badge-card card-good';
+        card.className =
+          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+
         card.innerHTML = `
-          <div class="badge-card-header">${kpi.label}</div>
+          <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
             <div class="row-item">
-              <span>Value</span>
-              <span>${kpi.value}</span>
+              <span>Target</span>
+              <span>${v.target.toFixed(2)}</span>
             </div>
-          </div>`;
-        row.appendChild(card);
+            <div class="row-item">
+              <span>Banten</span>
+              <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
+                ${v.BANTEN?.toFixed(2) ?? '-'}
+              </span>
+            </div>
+            <div class="row-item">
+              <span>Tangerang</span>
+              <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
+                ${v.TANGERANG?.toFixed(2) ?? '-'}
+              </span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
       });
 
-      document.getElementById('last-update').innerHTML =
-        `<i class="fa fa-clock me-1"></i> Last update: ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
+      loadDistrictBantenTable(API_URL);
 
-      toggleLoading('loading-overlay', false);
-    },
-    () => toggleLoading('loading-overlay', false)
-  );
+    } finally {
+      loading.style.display = 'none';
+      delete window[cbKpi];
+      script.remove();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?callback=${cbKpi}`;
+  document.body.appendChild(script);
 }
 
-/* ================= TABLE ================= */
+/* =====================================================
+   TABLE
+===================================================== */
+
 function loadDistrictBantenTable(API_URL) {
-  toggleLoading('loading-overlay', true);
+  const thead = document.getElementById('district-banten-table-head');
+  const tbody = document.getElementById('district-banten-table-body');
+  const filterWitel = document.getElementById('filter-witel');
+  const filterSto = document.getElementById('filter-sto');
 
-  loadJSONP(
-    `${API_URL}?type=table`,
-    res => {
-      const thead = document.getElementById('district-banten-table-head');
-      const tbody = document.getElementById('district-banten-table-body');
+  let rawData = [];
+  let headers = [];
 
-      thead.innerHTML = '';
-      tbody.innerHTML = '';
+  const cbTable = 'jsonp_table_' + Date.now();
 
-      if (!res.data?.length) {
-        tbody.innerHTML =
-          `<tr><td class="text-center text-muted">Tidak ada data</td></tr>`;
-        toggleLoading('loading-overlay', false);
-        return;
-      }
+  window[cbTable] = function (res) {
+    headers = res.headers;
+    rawData = res.data;
 
-      const headers = Object.keys(res.data[0]);
+    /* ===== TABLE HEAD ===== */
+    thead.innerHTML = '';
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      thead.appendChild(th);
+    });
+
+    /* ===== FILTER ===== */
+    const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
+    const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+
+    filterWitel.innerHTML = '<option value="">All WITEL</option>';
+    [...witelSet].sort().forEach(w =>
+      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
+    );
+
+    filterSto.innerHTML = '<option value="">All STO</option>';
+    [...stoSet].sort().forEach(s =>
+      filterSto.innerHTML += `<option value="${s}">${s}</option>`
+    );
+
+    filterWitel.onchange = filterSto.onchange = applyFilter;
+    renderTable(rawData);
+  };
+
+  function applyFilter() {
+    let data = [...rawData];
+    if (filterWitel.value) data = data.filter(r => r.WITEL === filterWitel.value);
+    if (filterSto.value) data = data.filter(r => r.STO === filterSto.value);
+    renderTable(data);
+  }
+
+  /* =====================================================
+     RENDER TABLE
+  ===================================================== */
+  function renderTable(data) {
+    tbody.innerHTML = '';
+
+    if (!data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+      return;
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+
       headers.forEach(h => {
-        const th = document.createElement('th');
-        th.textContent = h;
-        thead.appendChild(th);
-      });
+        const td = document.createElement('td');
 
-      res.data.forEach(row => {
-        const tr = document.createElement('tr');
-        headers.forEach(h => {
-          const td = document.createElement('td');
+        /* ===== Tiket HI ===== */
+        if (h === 'Tiket HI' && Number(row[h]) > 0) {
+          td.innerHTML = `
+            <a href="#" class="text-warning fw-bold text-decoration-none">
+              ${row[h]}
+            </a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
+
+        /* ===== %Q s/d HI > 2 ===== */
+        } else if (h === '%Q s/d HI') {
+          const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
+          if (!isNaN(val) && val > 2) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+
+        /* ===== Budg Q BI ≤ 0 ===== */
+        } else if (h === 'Budg Q BI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+          if (!isNaN(val) && val <= 0) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+
+        /* ===== Pragn Q BI > 2 ===== */
+        } else if (h === 'Pragn Q BI') {
+          const val = Number(row[h]);
+          td.textContent = row[h] ?? '-';
+          if (!isNaN(val) && val > 2) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+
+        } else {
+          td.textContent = row[h] ?? '-';
+        }
+
+        tr.appendChild(td);
       });
 
-      toggleLoading('loading-overlay', false);
-    },
-    () => toggleLoading('loading-overlay', false)
-  );
+      tbody.appendChild(tr);
+    });
+  }
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?type=table&callback=${cbTable}`;
+  document.body.appendChild(script);
 }
