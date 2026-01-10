@@ -6,17 +6,10 @@
 <title>PERFORMANCE BAN-TAN - Dashboard Integrated</title>
 
 <!-- ================= CSS ================= -->
-<link
-  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-  rel="stylesheet"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-/* ================= GLOBAL ================= */
 html, body {
   height: 100%;
   margin: 0;
@@ -24,63 +17,29 @@ html, body {
   font-family: 'Segoe UI', sans-serif;
   overflow-x: hidden;
 }
-
-/* ================= NAVBAR ================= */
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 10;
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(6px);
 }
+.navbar-brand { font-weight: 700; font-size: 22px; color: #fff; }
+.navbar-nav .nav-link { color: #fff !important; padding: 8px 14px; border-radius: 6px; }
+.navbar-nav .nav-link:hover { background: rgba(255,255,255,0.15); }
 
-.navbar-brand {
-  font-weight: 700;
-  font-size: 22px;
-  color: #fff;
-}
+.dropdown-menu { background: rgba(0,0,0,0.95); border: none; }
+.dropdown-item { color: #fff; font-size: 14px; cursor: pointer; }
+.dropdown-item:hover { background: rgba(255,255,255,0.1); }
 
-.navbar-nav .nav-link {
-  color: #fff !important;
-  padding: 8px 14px;
-  border-radius: 6px;
-}
-
-.navbar-nav .nav-link:hover {
-  background: rgba(255,255,255,0.15);
-}
-
-/* ================= DROPDOWN ================= */
-.dropdown-menu {
-  background: rgba(0,0,0,0.95);
-  border: none;
-}
-
-.dropdown-item {
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* ================= HOME ================= */
 .home-fullscreen {
   width: 100%;
   min-height: 100vh;
   margin-top: 56px;
   background: url('huddle_performance.png') center / cover no-repeat;
 }
+.no-bg { background: #000 !important; }
 
-.no-bg {
-  background: #000 !important;
-}
-
-/* ================= CONTENT ================= */
 #content-area {
   width: 100%;
   min-height: calc(100vh - 56px);
@@ -89,51 +48,7 @@ html, body {
   justify-content: center;
   color: #fff;
 }
-
-#content-area.show-grid {
-  display: block !important;
-}
-
-/* ================= GRID ================= */
-.cards-scroll {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
-  padding: 16px;
-}
-
-/* ================= DISTRICT ================= */
-.district-wrapper {
-  position: relative;
-}
-
-/* ================= LOADING OVERLAY ================= */
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(2px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-}
-
-.loading-text {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-/* ================= LAST UPDATE ================= */
-.last-update {
-  font-size: 12px;
-  color: #bbb;
-  font-style: italic;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+#content-area.show-grid { display: block !important; }
 </style>
 </head>
 
@@ -142,80 +57,43 @@ html, body {
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container-fluid">
-
     <a class="navbar-brand" href="#" id="home-btn">
       <img src="PERFORMANCE TEAM.png" style="height:40px;margin-right:10px;" />
       PERFORMANCE BAN-TAN
     </a>
 
-    <button
-      class="navbar-toggler"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-    >
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
 
-        <!-- ================= Huddle Performance ================= -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            Huddle Performance
-          </a>
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Huddle Performance</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item menu-link" data-menu="q-hsi">Q HSI</a></li>
             <li><a class="dropdown-item menu-link" data-menu="q-datin">Q DATIN</a></li>
           </ul>
         </li>
 
-        <!-- ================= B2B ================= -->
         <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            data-bs-toggle="dropdown"
-            data-bs-auto-close="outside"
-          >
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
             Huddle Performance Khusus B2B
           </a>
-
           <ul class="dropdown-menu">
             <li class="dropdown dropend">
-              <a
-                class="dropdown-item dropdown-toggle"
-                href="#"
-                data-bs-toggle="dropdown"
-                data-bs-auto-close="outside"
-              >
+              <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 Dashboard B2B District BANTEN
               </a>
               <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item menu-link" data-menu="District-Banten">
-                    Performance Q HSI
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item menu-link" data-menu="Asgar-HSI">
-                    Performance Assurance Guarantee HSI
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item menu-link" data-menu="TTR-HSI">
-                    Performance TTR HSI dan Datin
-                  </a>
-                </li>
+                <li><a class="dropdown-item menu-link" data-menu="District-Banten">Performance Q HSI</a></li>
+                <li><a class="dropdown-item menu-link" data-menu="Asgar-HSI">Performance Assurance Guarantee HSI</a></li>
+                <li><a class="dropdown-item menu-link" data-menu="TTR-HSI">Performance TTR HSI dan Datin</a></li>
               </ul>
             </li>
-
             <li><hr class="dropdown-divider"></li>
-            <li>
-              <a class="dropdown-item menu-link" data-menu="dashboard-b2b">
-                Dashboard B2B
-              </a>
-            </li>
+            <li><a class="dropdown-item menu-link" data-menu="dashboard-b2b">Dashboard B2B</a></li>
           </ul>
         </li>
 
@@ -224,41 +102,23 @@ html, body {
   </div>
 </nav>
 
-<!-- ================= CONTENT ================= -->
 <div class="home-fullscreen" id="home-fullscreen">
   <div id="content-area"></div>
 </div>
 
-<!-- ================= MODAL GLOBAL TIKET HI ================= -->
-<div
-  class="modal fade"
-  id="modalTiketHI"
-  tabindex="-1"
-  aria-hidden="true"
->
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="modalTiketHI" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content bg-dark text-light">
       <div class="modal-header">
         <h5 class="modal-title" id="modalTiketHITitle">Detail Tiket HI</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-        ></button>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-dark table-striped table-sm">
-            <thead>
-              <tr id="tiket-hi-head"></tr>
-            </thead>
-            <tbody id="tiket-hi-body">
-              <tr>
-                <td class="text-muted">Memuat data...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="table table-dark table-striped table-sm">
+          <thead><tr id="tiket-hi-head"></tr></thead>
+          <tbody id="tiket-hi-body"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -267,19 +127,18 @@ html, body {
 <!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- CORE (WAJIB PALING AWAL) -->
+<!-- CORE -->
 <script src="js/core.js"></script>
 <script src="js/tiket-hi-modal.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-const B2B_API_URL =
-  'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec';
-
-setApiUrl(B2B_API_URL);
+/* ================= API CONFIG ================= */
+setApiUrl(
+  'https://script.google.com/macros/s/AKfycby8iFZkMY53F4pYQFuH00b6Av7NAwp5Rtrk3b1GfNd6hwJelmlSjcUGeZjXlnz_Zmr2/exec'
+);
 
 /* ================= UTIL ================= */
-function showLoader(text = 'Loading...') {
+function showLoader(text='Loading...') {
   const home = document.getElementById('home-fullscreen');
   const content = document.getElementById('content-area');
   home.classList.add('no-bg');
@@ -288,19 +147,18 @@ function showLoader(text = 'Loading...') {
     <div class="text-center">
       <div class="spinner-border text-light mb-2"></div>
       <div>${text}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 async function loadPartial(url, onLoaded) {
   showLoader('Loading dashboard...');
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: 'no-store' });
   document.getElementById('content-area').innerHTML = await res.text();
   document.getElementById('content-area').classList.add('show-grid');
   onLoaded && onLoaded();
 }
 
-/* ================= MENU HANDLER ================= */
+/* ================= MENU ================= */
 document.querySelectorAll('.menu-link').forEach(el => {
   el.addEventListener('click', e => {
     e.preventDefault();
@@ -309,32 +167,27 @@ document.querySelectorAll('.menu-link').forEach(el => {
     if (menu === 'District-Banten') {
       loadPartial('partials/district-banten.html', () => {
         const s = document.createElement('script');
-        s.src = 'js/district-banten.js?v=' + Date.now();
+        s.src = 'js/district-banten.js';
         s.onload = () => initDistrictBanten();
         document.body.appendChild(s);
       });
     }
 
-    else if (menu === 'Asgar-HSI') {
+    if (menu === 'Asgar-HSI') {
       loadPartial('partials/asgar-hsi.html', () => {
         const s = document.createElement('script');
-        s.src = 'js/asgar-hsi.js?v=' + Date.now();
+        s.src = 'js/asgar-hsi.js';
         s.onload = () => initAsgarHSI();
         document.body.appendChild(s);
       });
     }
-
-    else {
-      showLoader('Fitur sedang dikembangkan...');
-    }
   });
 });
 
-/* ================= HOME ================= */
-document.getElementById('home-btn').addEventListener('click', e => {
+document.getElementById('home-btn').onclick = e => {
   e.preventDefault();
   location.reload();
-});
+};
 </script>
 
 </body>
