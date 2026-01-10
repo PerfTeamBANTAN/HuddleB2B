@@ -13,17 +13,12 @@ function fmt(val, digit = 2) {
   if (isNaN(val)) return val;
   return Number(val).toFixed(digit).replace(/\.00$/, '');
 }
-
 function fmtPercent(val) {
-  if (val === null || val === undefined || val === '') return '-';
-  if (isNaN(val)) return val;
   return fmt(val, 2);
 }
-
 function fmtInt(val) {
   if (val === null || val === undefined || val === '') return '-';
-  if (isNaN(val)) return val;
-  return parseInt(val, 10);
+  return parseInt(val, 10) || 0;
 }
 
 /* =====================================================
@@ -32,7 +27,6 @@ function fmtInt(val) {
 function isAlertCell(type, header, row) {
 
   if (type === 'ttr_hsi_table') {
-
     if (header === '% TTR INDIBIZ 4H' && row[header] < 77) return true;
     if (header === 'Tiket Not Ach INDIBIZ 4H' && row[header] > 0) return true;
 
@@ -47,7 +41,6 @@ function isAlertCell(type, header, row) {
   }
 
   if (type === 'ttr_datin_table') {
-
     if (header === '% TTR Datin K2' && row[header] < 81) return true;
     if (header === 'Tiket Not Ach K2' && row[header] > 0) return true;
     if (header === 'Tiket K2 HI' && row[header] > 0) return true;
@@ -61,75 +54,14 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
-   KPI SUMMARY CARD FINAL
+   KPI & NOT ACH SUMMARY CARD (FINAL FIX)
 ===================================================== */
 async function renderSummaryCards(API_URL) {
 
   const row = document.getElementById('ttr-row');
   row.innerHTML = '';
 
-  /* ===============================
-     FETCH KPI TTR
-  =============================== */
-  const res = await fetch(API_URL + '?type=kpi');
-  const json = await res.json();
-
-  const ttrMap = {};
-
-  json.data
-    .filter(d => d.indikator.toUpperCase().includes('TTR'))
-    .forEach(d => {
-
-      const key = d.indikator.toUpperCase();
-
-      if (!ttrMap[key]) {
-        ttrMap[key] = {
-          indikator: d.indikator,
-          target: d.target,
-          BANTEN: 0,
-          TANGERANG: 0
-        };
-      }
-
-      if (d.witel.toUpperCase() === 'BANTEN') {
-        ttrMap[key].BANTEN = Number(d.ach) || 0;
-      }
-      if (d.witel.toUpperCase() === 'TANGERANG') {
-        ttrMap[key].TANGERANG = Number(d.ach) || 0;
-      }
-    });
-
-  /* ===============================
-     RENDER CARD TTR (NO DISTRICT)
-  =============================== */
-  Object.values(ttrMap).forEach(d => {
-
-    const card = document.createElement('div');
-    card.className = 'badge-card';
-
-    card.innerHTML = `
-      <div class="badge-card-header">${d.indikator}</div>
-      <div class="badge-card-body text-dark">
-        <div class="row-item"><span>Target</span><span>${fmt(d.target,1)}</span></div>
-        <div class="row-item"><span>Banten</span><span>${fmt(d.BANTEN)}</span></div>
-        <div class="row-item"><span>Tangerang</span><span>${fmt(d.TANGERANG)}</span></div>
-      </div>
-    `;
-
-    row.appendChild(card);
-  });
-
-  /* =====================================================
-   RENDER CARD TTR & NOT ACH (FINAL FIX)
-===================================================== */
-async function renderSummaryCards(API_URL) {
-
-  const row = document.getElementById('ttr-row');
-  row.innerHTML = '';
-
-  /* ===============================
-     KPI TTR
-  =============================== */
+  /* ================= KPI TTR ================= */
   const kpiRes = await fetch(API_URL + '?type=kpi');
   const kpiJson = await kpiRes.json();
 
@@ -140,6 +72,7 @@ async function renderSummaryCards(API_URL) {
     .forEach(d => {
 
       const key = d.indikator.toUpperCase();
+      const witel = d.witel.toUpperCase();
 
       if (!ttrMap[key]) {
         ttrMap[key] = {
@@ -150,8 +83,8 @@ async function renderSummaryCards(API_URL) {
         };
       }
 
-      if (d.witel === 'BANTEN') ttrMap[key].BANTEN = Number(d.ach) || 0;
-      if (d.witel === 'TANGERANG') ttrMap[key].TANGERANG = Number(d.ach) || 0;
+      if (witel === 'BANTEN') ttrMap[key].BANTEN = Number(d.ach) || 0;
+      if (witel === 'TANGERANG') ttrMap[key].TANGERANG = Number(d.ach) || 0;
     });
 
   Object.values(ttrMap).forEach(d => {
@@ -167,24 +100,21 @@ async function renderSummaryCards(API_URL) {
     `;
   });
 
-  /* ===============================
-     DATIN TABLE (K2 & K3)
-  =============================== */
+  /* ================= DATIN NOT ACH ================= */
   const datinRes = await fetch(API_URL + '?type=ttr_datin_table');
   const datinJson = await datinRes.json();
 
-  const datinCards = [
+  [
     { title: 'Tiket Not Ach DATIN K2', col: 'Tiket Not Ach K2' },
     { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' }
-  ];
+  ].forEach(cfg => {
 
-  datinCards.forEach(cfg => {
-    let banten = 0;
-    let tgr = 0;
+    let banten = 0, tgr = 0;
 
     datinJson.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+      const w = r.WITEL?.toUpperCase();
+      if (w === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (w === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
     });
 
     row.innerHTML += `
@@ -199,26 +129,23 @@ async function renderSummaryCards(API_URL) {
     `;
   });
 
-  /* ===============================
-     HSI & RESELLER TABLE
-  =============================== */
+  /* ================= HSI & RESELLER ================= */
   const hsiRes = await fetch(API_URL + '?type=ttr_hsi_table');
   const hsiJson = await hsiRes.json();
 
-  const hsiCards = [
+  [
     { title: 'Tiket Not Ach HSI 4H', col: 'Tiket Not Ach INDIBIZ 4H' },
     { title: 'Tiket Not Ach HSI 24H', col: 'Tiket Not Ach INDIBIZ 24H' },
     { title: 'Tiket Not Ach Reseller 6H', col: 'Tiket Not Ach RESELLER 6H' },
     { title: 'Tiket Not Ach Reseller 36H', col: 'Tiket Not Ach RESELLER 36H' }
-  ];
+  ].forEach(cfg => {
 
-  hsiCards.forEach(cfg => {
-    let banten = 0;
-    let tgr = 0;
+    let banten = 0, tgr = 0;
 
     hsiJson.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+      const w = r.WITEL?.toUpperCase();
+      if (w === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (w === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
     });
 
     row.innerHTML += `
@@ -233,7 +160,6 @@ async function renderSummaryCards(API_URL) {
     `;
   });
 }
-
 
 /* =====================================================
    INIT
@@ -241,43 +167,20 @@ async function renderSummaryCards(API_URL) {
 async function initTTRHSI(API_URL) {
 
   const overlay = document.getElementById('ttr-loading-overlay');
-  const lastUpdate = document.getElementById('ttr-last-update');
-
   overlay.classList.remove('d-none');
 
   try {
     await renderSummaryCards(API_URL);
     await loadTTRTable(API_URL, currentType);
-
-    lastUpdate.innerHTML =
-      `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
-
-  } catch (err) {
-    console.error(err);
   } finally {
     overlay.classList.add('d-none');
   }
-
-  document.querySelectorAll('#ttr-tabs button').forEach(btn => {
-    btn.onclick = async () => {
-      document.querySelectorAll('#ttr-tabs button').forEach(b => {
-        b.classList.remove('btn-primary', 'active');
-        b.classList.add('btn-outline-light');
-      });
-      btn.classList.add('btn-primary', 'active');
-      currentType = btn.dataset.type;
-      await loadTTRTable(API_URL, currentType);
-    };
-  });
 }
 
 /* =====================================================
    LOAD TABLE
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
-
-  const body = document.getElementById('ttr-table-body');
-  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=' + type);
   const json = await res.json();
@@ -337,7 +240,6 @@ function renderTTRTable() {
       const tr = document.createElement('tr');
 
       ttrHeaders.forEach(h => {
-
         const td = document.createElement('td');
 
         if (h.includes('%')) td.textContent = fmtPercent(r[h]);
