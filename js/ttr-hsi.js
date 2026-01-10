@@ -13,16 +13,30 @@ function fmt(val, digit = 2) {
   if (isNaN(val)) return val;
   return Number(val).toFixed(digit).replace(/\.00$/, '');
 }
+
 function fmtPercent(val) {
   return fmt(val, 2);
 }
+
 function fmtInt(val) {
   if (val === null || val === undefined || val === '') return '-';
-  return parseInt(val, 10) || 0;
+  return parseInt(val, 10);
 }
 
 /* =====================================================
-   AUTO ALERT RULE
+   CARD COLOR HELPER
+===================================================== */
+function danger(val, target) {
+  if (val === null || val === undefined) return '';
+  return Number(val) < Number(target) ? 'text-danger fw-bold' : '';
+}
+
+function dangerTicket(val) {
+  return Number(val) > 0 ? 'text-danger fw-bold' : '';
+}
+
+/* =====================================================
+   AUTO ALERT RULE (TABLE)
 ===================================================== */
 function isAlertCell(type, header, row) {
 
@@ -37,7 +51,7 @@ function isAlertCell(type, header, row) {
     if (header === 'Tiket Not Ach RESELLER 6H' && row[header] > 0) return true;
 
     if (header === '% TTR RESELLER 36H' && row[header] < 99.1) return true;
-    if (header === 'Tiket Not Ach RESELLER 36H HI' && row[header] > 0) return true;
+    if (header === 'Tiket Not Ach RESELLER 36H' && row[header] > 0) return true;
   }
 
   if (type === 'ttr_datin_table') {
@@ -54,14 +68,16 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
-   KPI & NOT ACH SUMMARY CARD (FINAL FIX)
+   KPI SUMMARY CARD
 ===================================================== */
 async function renderSummaryCards(API_URL) {
 
   const row = document.getElementById('ttr-row');
   row.innerHTML = '';
 
-  /* ================= KPI TTR ================= */
+  /* ===============================
+     KPI TTR
+  =============================== */
   const kpiRes = await fetch(API_URL + '?type=kpi');
   const kpiJson = await kpiRes.json();
 
@@ -72,7 +88,6 @@ async function renderSummaryCards(API_URL) {
     .forEach(d => {
 
       const key = d.indikator.toUpperCase();
-      const witel = d.witel.toUpperCase();
 
       if (!ttrMap[key]) {
         ttrMap[key] = {
@@ -83,8 +98,8 @@ async function renderSummaryCards(API_URL) {
         };
       }
 
-      if (witel === 'BANTEN') ttrMap[key].BANTEN = Number(d.ach) || 0;
-      if (witel === 'TANGERANG') ttrMap[key].TANGERANG = Number(d.ach) || 0;
+      if (d.witel === 'BANTEN') ttrMap[key].BANTEN = Number(d.ach) || 0;
+      if (d.witel === 'TANGERANG') ttrMap[key].TANGERANG = Number(d.ach) || 0;
     });
 
   Object.values(ttrMap).forEach(d => {
@@ -93,14 +108,20 @@ async function renderSummaryCards(API_URL) {
         <div class="badge-card-header">${d.indikator}</div>
         <div class="badge-card-body text-dark">
           <div class="row-item"><span>Target</span><span>${fmt(d.target,1)}</span></div>
-          <div class="row-item"><span>Banten</span><span>${fmt(d.BANTEN)}</span></div>
-          <div class="row-item"><span>Tangerang</span><span>${fmt(d.TANGERANG)}</span></div>
+          <div class="row-item"><span>Banten</span>
+            <span class="${danger(d.BANTEN, d.target)}">${fmt(d.BANTEN)}</span>
+          </div>
+          <div class="row-item"><span>Tangerang</span>
+            <span class="${danger(d.TANGERANG, d.target)}">${fmt(d.TANGERANG)}</span>
+          </div>
         </div>
       </div>
     `;
   });
 
-  /* ================= DATIN NOT ACH ================= */
+  /* ===============================
+     DATIN NOT ACH
+  =============================== */
   const datinRes = await fetch(API_URL + '?type=ttr_datin_table');
   const datinJson = await datinRes.json();
 
@@ -109,27 +130,35 @@ async function renderSummaryCards(API_URL) {
     { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' }
   ].forEach(cfg => {
 
-    let banten = 0, tgr = 0;
+    let banten = 0;
+    let tgr = 0;
 
     datinJson.data.forEach(r => {
-      const w = r.WITEL?.toUpperCase();
-      if (w === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (w === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
     });
 
     row.innerHTML += `
       <div class="badge-card">
         <div class="badge-card-header">${cfg.title}</div>
         <div class="badge-card-body text-dark">
-          <div class="row-item"><span>District Banten</span><span>${banten + tgr}</span></div>
-          <div class="row-item"><span>Banten</span><span>${banten}</span></div>
-          <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
+          <div class="row-item"><span>District Banten</span>
+            <span class="${dangerTicket(banten+tgr)}">${banten+tgr}</span>
+          </div>
+          <div class="row-item"><span>Banten</span>
+            <span class="${dangerTicket(banten)}">${banten}</span>
+          </div>
+          <div class="row-item"><span>Tangerang</span>
+            <span class="${dangerTicket(tgr)}">${tgr}</span>
+          </div>
         </div>
       </div>
     `;
   });
 
-  /* ================= HSI & RESELLER ================= */
+  /* ===============================
+     HSI & RESELLER NOT ACH
+  =============================== */
   const hsiRes = await fetch(API_URL + '?type=ttr_hsi_table');
   const hsiJson = await hsiRes.json();
 
@@ -140,21 +169,27 @@ async function renderSummaryCards(API_URL) {
     { title: 'Tiket Not Ach Reseller 36H', col: 'Tiket Not Ach RESELLER 36H' }
   ].forEach(cfg => {
 
-    let banten = 0, tgr = 0;
+    let banten = 0;
+    let tgr = 0;
 
     hsiJson.data.forEach(r => {
-      const w = r.WITEL?.toUpperCase();
-      if (w === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (w === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
     });
 
     row.innerHTML += `
       <div class="badge-card">
         <div class="badge-card-header">${cfg.title}</div>
         <div class="badge-card-body text-dark">
-          <div class="row-item"><span>District Banten</span><span>${banten + tgr}</span></div>
-          <div class="row-item"><span>Banten</span><span>${banten}</span></div>
-          <div class="row-item"><span>Tangerang</span><span>${tgr}</span></div>
+          <div class="row-item"><span>District Banten</span>
+            <span class="${dangerTicket(banten+tgr)}">${banten+tgr}</span>
+          </div>
+          <div class="row-item"><span>Banten</span>
+            <span class="${dangerTicket(banten)}">${banten}</span>
+          </div>
+          <div class="row-item"><span>Tangerang</span>
+            <span class="${dangerTicket(tgr)}">${tgr}</span>
+          </div>
         </div>
       </div>
     `;
@@ -167,20 +202,47 @@ async function renderSummaryCards(API_URL) {
 async function initTTRHSI(API_URL) {
 
   const overlay = document.getElementById('ttr-loading-overlay');
+  const lastUpdate = document.getElementById('ttr-last-update');
+
   overlay.classList.remove('d-none');
 
   try {
     await renderSummaryCards(API_URL);
     await loadTTRTable(API_URL, currentType);
+
+    lastUpdate.innerHTML =
+      `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
+  } catch (err) {
+    console.error(err);
   } finally {
     overlay.classList.add('d-none');
   }
+
+  /* TAB CLICK FIX */
+  document.querySelectorAll('#ttr-tabs button').forEach(btn => {
+    btn.onclick = async () => {
+
+      document.querySelectorAll('#ttr-tabs button').forEach(b => {
+        b.classList.remove('btn-primary', 'active');
+        b.classList.add('btn-outline-light');
+      });
+
+      btn.classList.remove('btn-outline-light');
+      btn.classList.add('btn-primary', 'active');
+
+      currentType = btn.dataset.type;
+      await loadTTRTable(API_URL, currentType);
+    };
+  });
 }
 
 /* =====================================================
    LOAD TABLE
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
+
+  const body = document.getElementById('ttr-table-body');
+  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=' + type);
   const json = await res.json();
@@ -240,6 +302,7 @@ function renderTTRTable() {
       const tr = document.createElement('tr');
 
       ttrHeaders.forEach(h => {
+
         const td = document.createElement('td');
 
         if (h.includes('%')) td.textContent = fmtPercent(r[h]);
