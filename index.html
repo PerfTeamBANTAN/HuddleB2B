@@ -367,6 +367,19 @@ if (menu === 'District-Banten') {
     document.body.appendChild(s);
   });
 
+} else if (menu === 'TTR-HSI') {
+
+  loadPartialIntoContent('partials/ttr-hsi.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/ttr-hsi.js?v=' + Date.now();
+    s.onload = () => initTTRHSI(B2B_API_URL);
+    document.body.appendChild(s);
+  });
+
 } else {
   showUnderConstruction();
 }
