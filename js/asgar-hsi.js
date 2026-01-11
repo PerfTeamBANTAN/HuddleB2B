@@ -185,10 +185,19 @@ function loadAsgarHSITable(API_URL) {
               : (val ?? '-');
 
           if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
-            td.classList.add('text-danger', 'fw-bold');
+              td.classList.add('text-danger', 'fw-bold');
 
-          if (h === 'Asgar HI' && Number(val) > 0)
-            td.classList.add('text-danger', 'fw-bold');
+         if (h === 'Budg Asgar BI' && Number(val) <= 0)
+              td.classList.add('text-danger', 'fw-bold');
+
+         if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
+              td.classList.add('text-danger', 'fw-bold');
+
+         if (h === 'Asgar HI' && Number(val) > 0)
+              td.classList.add('text-danger', 'fw-bold');
+
+         if (h === 'Vol. Tiket %Ach' && Number(val) >= 0)
+              td.classList.add('text-danger', 'fw-bold');
         }
 
         tr.appendChild(td);
