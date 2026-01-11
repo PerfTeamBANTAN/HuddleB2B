@@ -1,6 +1,7 @@
 /* =====================================================
    INIT KPI ASGAR HSI
 ===================================================== */
+
 function initAsgarHSI(API_URL) {
   const container = document.getElementById('asgar-hsi-row');
   const loading = document.getElementById('asgar-loading-overlay');
@@ -33,11 +34,7 @@ function initAsgarHSI(API_URL) {
 
       data.forEach(r => {
         if (!map[r.indikator]) {
-          map[r.indikator] = {
-            target: r.target,
-            BANTEN: null,
-            TANGERANG: null
-          };
+          map[r.indikator] = { target: r.target, BANTEN: null, TANGERANG: null };
         }
         map[r.indikator][r.witel] = r.ach;
       });
@@ -55,13 +52,18 @@ function initAsgarHSI(API_URL) {
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
           <div class="badge-card-body">
-            <div class="row-item"><span>Target</span><span>${v.target.toFixed(2)}</span></div>
-            <div class="row-item"><span>Banten</span>
+            <div class="row-item">
+              <span>Target</span>
+              <span>${v.target.toFixed(2)}</span>
+            </div>
+            <div class="row-item">
+              <span>Banten</span>
               <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
                 ${typeof v.BANTEN === 'number' ? v.BANTEN.toFixed(2) : '-'}
               </span>
             </div>
-            <div class="row-item"><span>Tangerang</span>
+            <div class="row-item">
+              <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
                 ${typeof v.TANGERANG === 'number' ? v.TANGERANG.toFixed(2) : '-'}
               </span>
@@ -88,6 +90,7 @@ function initAsgarHSI(API_URL) {
 /* =====================================================
    TABLE ASGAR HSI
 ===================================================== */
+
 function loadAsgarHSITable(API_URL) {
 
   const thead = document.getElementById('asgar-hsi-table-head');
@@ -111,18 +114,15 @@ function loadAsgarHSITable(API_URL) {
       thead.appendChild(th);
     });
 
-    const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
-    const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
-
     filterWitel.innerHTML = '<option value="">All Witel</option>';
-    [...witelSet].sort().forEach(w =>
-      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
-    );
+    [...new Set(rawData.map(r => r.WITEL).filter(Boolean))]
+      .sort()
+      .forEach(w => filterWitel.innerHTML += `<option value="${w}">${w}</option>`);
 
     filterSto.innerHTML = '<option value="">All STO</option>';
-    [...stoSet].sort().forEach(s =>
-      filterSto.innerHTML += `<option value="${s}">${s}</option>`
-    );
+    [...new Set(rawData.map(r => r.STO).filter(Boolean))]
+      .sort()
+      .forEach(s => filterSto.innerHTML += `<option value="${s}">${s}</option>`);
 
     filterWitel.onchange = filterSto.onchange = applyFilter;
     renderTable(rawData);
@@ -135,11 +135,19 @@ function loadAsgarHSITable(API_URL) {
     renderTable(data);
   }
 
+  /* =====================================================
+     RENDER TABLE (WARNA + CLICK FIX)
+  ===================================================== */
   function renderTable(data) {
     tbody.innerHTML = '';
 
     if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
       return;
     }
 
@@ -150,26 +158,39 @@ function loadAsgarHSITable(API_URL) {
         const td = document.createElement('td');
         const val = row[h];
 
+        let valueClass = '';
+
+        if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
+          valueClass = 'text-danger fw-bold';
+
+        if (h === 'Budg Asgar BI' && Number(val) <= 0)
+          valueClass = 'text-danger fw-bold';
+
+        if (h === 'Total Tiket Asgar' &&
+            Number(val) > Number(row['Budg Asgar 30D']))
+          valueClass = 'text-danger fw-bold';
+
+        if (h === 'Asgar HI' && Number(val) > 0)
+          valueClass = 'text-danger fw-bold';
+
         /* ===== CLICKABLE ===== */
-        if (h === 'Tiket HI' && Number(val) > 0) {
-          td.innerHTML = `<a href="#" class="text-info fw-bold">${val}</a>`;
+        if ((h === 'Tiket HI' || h === 'Asgar HI') && Number(val) > 0) {
+          td.innerHTML = `
+            <a href="#"
+               class="${valueClass || 'text-info fw-bold'} text-decoration-none">
+              ${val}
+            </a>`;
           td.onclick = e => {
             e.preventDefault();
             openTiketHIModal(API_URL, row.STO, row.WITEL);
           };
-        }
-        else if (h === 'Asgar HI' && Number(val) > 0) {
-          td.innerHTML = `<a href="#" class="text-warning fw-bold">${val}</a>`;
-          td.onclick = e => {
-            e.preventDefault();
-            openAsgarHIModal(API_URL, row.STO, row.WITEL);
-          };
-        }
-        else {
+        } else {
           td.textContent =
             typeof val === 'number'
               ? (Number.isInteger(val) ? val : val.toFixed(2))
               : val ?? '-';
+
+          if (valueClass) td.className = valueClass;
         }
 
         tr.appendChild(td);
@@ -185,8 +206,9 @@ function loadAsgarHSITable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL TIKET HI
+   MODAL DETAIL TIKET HI / ASGAR HI
 ===================================================== */
+
 function openTiketHIModal(API_URL, sto, witel) {
 
   const title = document.getElementById('modalTiketHITitle');
@@ -196,45 +218,24 @@ function openTiketHIModal(API_URL, sto, witel) {
   title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
   const cols = [
-    'Incident','Summary','Report Date','Service Type','WITEL',
-    'LABOR TEKNISI','TTR (Report Date s/d Resolved Date)',
-    'Flag GAUL','Old Tiket'
+    'Incident',
+    'Summary',
+    'Reported Date',
+    'Service Type',
+    'WITEL',
+    'WORKZONE',
+    'STATUS',
+    'TTR HSI',
+    'GAUL HSI',
+    'FLAG HSI'
   ];
-
-  loadModal(API_URL, 'tiket_hi_detail', sto, cols, head, body);
-}
-
-/* =====================================================
-   MODAL DETAIL ASGAR HI
-===================================================== */
-function openAsgarHIModal(API_URL, sto, witel) {
-
-  const title = document.getElementById('modalTiketHITitle');
-  const head = document.getElementById('tiket-hi-head');
-  const body = document.getElementById('tiket-hi-body');
-
-  title.textContent = `Detail Asgar HI – ${witel} / ${sto}`;
-
-  const cols = [
-    'Incident','Summary','Report Date','Service Type',
-    'WITEL','TECHNICIAN','TTR HSI','GAUL HSI'
-  ];
-
-  loadModal(API_URL, 'asgar_hi_detail', sto, cols, head, body);
-}
-
-/* =====================================================
-   MODAL LOADER (REUSABLE)
-===================================================== */
-function loadModal(API_URL, type, sto, cols, head, body) {
 
   head.innerHTML = '';
   body.innerHTML = `<tr><td colspan="${cols.length}">Loading...</td></tr>`;
 
-  const cb = 'jsonp_modal_' + Date.now();
+  const cb = 'jsonp_asgar_detail_' + Date.now();
 
   window[cb] = function (res) {
-
     head.innerHTML = '';
     body.innerHTML = '';
 
@@ -244,9 +245,13 @@ function loadModal(API_URL, type, sto, cols, head, body) {
       head.appendChild(th);
     });
 
-    if (!res.data?.length) {
-      body.innerHTML =
-        `<tr><td colspan="${cols.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+    if (!res.data || !res.data.length) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="${cols.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
     } else {
       res.data.forEach(r => {
         const tr = document.createElement('tr');
@@ -265,8 +270,16 @@ function loadModal(API_URL, type, sto, cols, head, body) {
 
   const script = document.createElement('script');
   script.src =
-    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+    `${API_URL}?type=tiket_hi_detail`
+    + `&sto=${encodeURIComponent(sto)}`
+    + `&witel=${encodeURIComponent(witel)}`
+    + `&flag_hsi=Y`
+    + `&gaul_hsi=1`
+    + `&callback=${cb}`;
+
   document.body.appendChild(script);
 
-  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
+  new bootstrap.Modal(
+    document.getElementById('modalTiketHI')
+  ).show();
 }
