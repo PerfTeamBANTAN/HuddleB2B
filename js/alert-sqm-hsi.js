@@ -3,6 +3,7 @@
 ===================================================== */
 let alertRawData = [];
 let alertHeaders = [];
+window.API_URL = '';
 
 /* =====================================================
    FORMATTER
@@ -80,7 +81,7 @@ async function renderAlertSummaryCards(API_URL) {
 ===================================================== */
 async function initAlertHSI(API_URL_PARAM) {
 
-  window.API_URL = API_URL_PARAM; // 🔥 PENTING
+  window.API_URL = API_URL_PARAM;
 
   const overlay = document.getElementById('alert-loading-overlay');
   const lastUpdate = document.getElementById('alert-last-update');
@@ -107,13 +108,20 @@ async function initAlertHSI(API_URL_PARAM) {
 async function loadAlertTable(API_URL) {
 
   const body = document.getElementById('alert-table-body');
-  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
+  body.innerHTML = `
+    <tr>
+      <td colspan="20" class="text-center text-muted py-3">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Loading data...
+      </td>
+    </tr>
+  `;
 
   const res = await fetch(API_URL + '?type=alert_sqm_table');
   const json = await res.json();
 
-  alertHeaders = json.headers;
-  alertRawData = json.data;
+  alertHeaders = json.headers || [];
+  alertRawData = json.data || [];
 
   initAlertFilter();
   renderAlertTable();
@@ -129,10 +137,12 @@ function initAlertFilter() {
 
   witel.innerHTML = `<option value="">All Witel</option>`;
   [...new Set(alertRawData.map(d => d.WITEL).filter(Boolean))]
+    .sort()
     .forEach(v => witel.innerHTML += `<option>${v}</option>`);
 
   sto.innerHTML = `<option value="">All STO</option>`;
   [...new Set(alertRawData.map(d => d.STO).filter(Boolean))]
+    .sort()
     .forEach(v => sto.innerHTML += `<option>${v}</option>`);
 
   witel.onchange = renderAlertTable;
@@ -158,39 +168,53 @@ function renderAlertTable() {
 
   body.innerHTML = '';
 
-  alertRawData
-    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs))
-    .forEach(r => {
+  const filtered = alertRawData.filter(r =>
+    (!fw || r.WITEL === fw) &&
+    (!fs || r.STO === fs)
+  );
 
-      const tr = document.createElement('tr');
+  if (filtered.length === 0) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="${alertHeaders.length}" class="text-center text-muted py-4">
+          Tidak ada data
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
-      alertHeaders.forEach(h => {
+  filtered.forEach(r => {
 
-        const td = document.createElement('td');
-        const val = r[h];
+    const tr = document.createElement('tr');
 
-        if (h === 'Tiket SQM HSI' && Number(val) > 0) {
+    alertHeaders.forEach(h => {
 
-          td.innerHTML = `
-            <a href="#" class="fw-bold text-danger"
-               onclick="openSQMDetail('${r.WITEL}','${r.STO}')">
-              ${val}
-            </a>
-          `;
+      const td = document.createElement('td');
+      const val = r[h];
 
-        } else {
+      if (h === 'Tiket SQM HSI' && Number(val) > 0) {
 
-          td.textContent = fmtAlertInt(val);
-          if (isAlertValue(val)) {
-            td.classList.add('table-danger', 'fw-bold');
-          }
+        td.innerHTML = `
+          <a href="#" class="fw-bold text-danger"
+             onclick="openSQMDetail('${r.WITEL}','${r.STO}')">
+            ${val}
+          </a>
+        `;
+
+      } else {
+
+        td.textContent = fmtAlertInt(val);
+        if (isAlertValue(val)) {
+          td.classList.add('table-danger', 'fw-bold');
         }
+      }
 
-        tr.appendChild(td);
-      });
-
-      body.appendChild(tr);
+      tr.appendChild(td);
     });
+
+    body.appendChild(tr);
+  });
 }
 
 /* =====================================================
@@ -198,42 +222,68 @@ function renderAlertTable() {
 ===================================================== */
 async function openSQMDetail(witel, sto) {
 
-  const res = await fetch(
-    `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
-  );
-
-  const json = await res.json();
-
   const modal = document.getElementById('global-modal');
   const title = modal.querySelector('.modal-title');
   const body = modal.querySelector('.modal-body');
 
   title.textContent = `Detail Tiket SQM HSI – ${sto}`;
-
-  let html = `
-    <div class="table-responsive">
-      <table class="table table-sm table-bordered table-dark">
-        <thead>
-          <tr>
-            ${json.headers.map(h => `<th>${h}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-  `;
-
-  json.data.forEach(r => {
-    html += `<tr>`;
-    json.headers.forEach(h => html += `<td>${r[h] ?? ''}</td>`);
-    html += `</tr>`;
-  });
-
-  html += `
-        </tbody>
-      </table>
+  body.innerHTML = `
+    <div class="d-flex flex-column align-items-center py-5">
+      <div class="spinner-border text-light mb-3"></div>
+      <div class="text-muted">Mengambil data...</div>
     </div>
   `;
 
-  body.innerHTML = html;
-
   new bootstrap.Modal(modal).show();
+
+  try {
+    const res = await fetch(
+      `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
+    );
+    const json = await res.json();
+
+    if (!json.data || json.data.length === 0) {
+      body.innerHTML = `
+        <div class="text-center text-muted py-4">
+          Tidak ada data tiket
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered table-dark">
+          <thead>
+            <tr>
+              ${json.headers.map(h => `<th>${h}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    json.data.forEach(r => {
+      html += `<tr>`;
+      json.headers.forEach(h => {
+        html += `<td>${r[h] ?? ''}</td>`;
+      });
+      html += `</tr>`;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    body.innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    body.innerHTML = `
+      <div class="text-center text-danger py-4">
+        Gagal mengambil data
+      </div>
+    `;
+  }
 }
