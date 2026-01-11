@@ -192,6 +192,7 @@ function renderAlertTable() {
       const td = document.createElement('td');
       const val = r[h];
 
+      /* === CLICKABLE COLUMNS === */
       if (h === 'Tiket SQM HSI' && Number(val) > 0) {
 
         td.innerHTML = `
@@ -201,10 +202,19 @@ function renderAlertTable() {
           </a>
         `;
 
-      } else if (h === 'SQM HSI Jadi Tiket' && Number(val) > 0) {
+      } else if (h === 'Tiket SQM DATIN' && Number(val) > 0) {
 
         td.innerHTML = `
           <a href="#" class="fw-bold text-warning"
+             onclick="openSQMDetail('sqm_datin_detail','${r.STO}')">
+            ${val}
+          </a>
+        `;
+
+      } else if (h === 'SQM HSI Jadi Tiket' && Number(val) > 0) {
+
+        td.innerHTML = `
+          <a href="#" class="fw-bold text-info"
              onclick="openSQMDetail('sqm_tiket_detail','${r.STO}')">
             ${val}
           </a>
@@ -234,10 +244,13 @@ async function openSQMDetail(type, sto) {
   const title = modal.querySelector('.modal-title');
   const body = modal.querySelector('.modal-body');
 
-  title.textContent =
-    type === 'sqm_hsi_detail'
-      ? `Detail Tiket SQM HSI – ${sto}`
-      : `Detail SQM HSI Jadi Tiket – ${sto}`;
+  const titleMap = {
+    sqm_hsi_detail: `Detail Tiket SQM HSI – ${sto}`,
+    sqm_datin_detail: `Detail Tiket SQM DATIN – ${sto}`,
+    sqm_tiket_detail: `Detail SQM HSI Jadi Tiket – ${sto}`
+  };
+
+  title.textContent = titleMap[type] || `Detail – ${sto}`;
 
   body.innerHTML = `
     <div class="d-flex flex-column align-items-center py-5">
