@@ -48,7 +48,6 @@ async function renderAlertSummaryCards(API_URL) {
     });
 
     const district = banten + tangerang;
-    const isBad = district > 0;
 
     const card = document.createElement('div');
     card.className = 'district-kpi-card';
@@ -58,7 +57,7 @@ async function renderAlertSummaryCards(API_URL) {
 
       <div class="district-kpi-row">
         <span>District</span>
-        <span class="${isBad ? 'val-alert' : ''}">${district}</span>
+        <span class="${district > 0 ? 'val-alert' : ''}">${district}</span>
       </div>
 
       <div class="district-kpi-row">
@@ -197,7 +196,16 @@ function renderAlertTable() {
 
         td.innerHTML = `
           <a href="#" class="fw-bold text-danger"
-             onclick="openSQMDetail('${r.WITEL}','${r.STO}')">
+             onclick="openSQMDetail('sqm_hsi_detail','${r.STO}')">
+            ${val}
+          </a>
+        `;
+
+      } else if (h === 'SQM HSI Jadi Tiket' && Number(val) > 0) {
+
+        td.innerHTML = `
+          <a href="#" class="fw-bold text-warning"
+             onclick="openSQMDetail('sqm_tiket_detail','${r.STO}')">
             ${val}
           </a>
         `;
@@ -218,15 +226,19 @@ function renderAlertTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL SQM MODAL
+   OPEN DETAIL MODAL (UNIVERSAL)
 ===================================================== */
-async function openSQMDetail(witel, sto) {
+async function openSQMDetail(type, sto) {
 
   const modal = document.getElementById('global-modal');
   const title = modal.querySelector('.modal-title');
   const body = modal.querySelector('.modal-body');
 
-  title.textContent = `Detail Tiket SQM HSI – ${sto}`;
+  title.textContent =
+    type === 'sqm_hsi_detail'
+      ? `Detail Tiket SQM HSI – ${sto}`
+      : `Detail SQM HSI Jadi Tiket – ${sto}`;
+
   body.innerHTML = `
     <div class="d-flex flex-column align-items-center py-5">
       <div class="spinner-border text-light mb-3"></div>
@@ -238,7 +250,7 @@ async function openSQMDetail(witel, sto) {
 
   try {
     const res = await fetch(
-      `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
+      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
     );
     const json = await res.json();
 
