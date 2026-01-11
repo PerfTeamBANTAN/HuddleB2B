@@ -14,14 +14,14 @@ function fmtAlertInt(val) {
 }
 
 /* =====================================================
-   ALERT RULE (MERAH JIKA > 0)
+   ALERT RULE
 ===================================================== */
 function isAlertValue(val) {
   return Number(val) > 0;
 }
 
 /* =====================================================
-   RENDER KPI CARD
+   KPI CARD
 ===================================================== */
 async function renderAlertSummaryCards(API_URL) {
 
@@ -78,7 +78,9 @@ async function renderAlertSummaryCards(API_URL) {
 /* =====================================================
    INIT
 ===================================================== */
-async function initAlertHSI(API_URL) {
+async function initAlertHSI(API_URL_PARAM) {
+
+  window.API_URL = API_URL_PARAM; // 🔥 PENTING
 
   const overlay = document.getElementById('alert-loading-overlay');
   const lastUpdate = document.getElementById('alert-last-update');
@@ -167,7 +169,6 @@ function renderAlertTable() {
         const td = document.createElement('td');
         const val = r[h];
 
-        /* ===== KHUSUS Tiket SQM HSI ===== */
         if (h === 'Tiket SQM HSI' && Number(val) > 0) {
 
           td.innerHTML = `
@@ -180,7 +181,6 @@ function renderAlertTable() {
         } else {
 
           td.textContent = fmtAlertInt(val);
-
           if (isAlertValue(val)) {
             td.classList.add('table-danger', 'fw-bold');
           }
@@ -210,18 +210,28 @@ async function openSQMDetail(witel, sto) {
 
   title.textContent = `Detail Tiket SQM HSI – ${sto}`;
 
-  let html = `<div class="table-responsive"><table class="table table-sm table-bordered">`;
-  html += '<thead><tr>';
-  json.headers.forEach(h => html += `<th>${h}</th>`);
-  html += '</tr></thead><tbody>';
+  let html = `
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-dark">
+        <thead>
+          <tr>
+            ${json.headers.map(h => `<th>${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+  `;
 
   json.data.forEach(r => {
-    html += '<tr>';
+    html += `<tr>`;
     json.headers.forEach(h => html += `<td>${r[h] ?? ''}</td>`);
-    html += '</tr>';
+    html += `</tr>`;
   });
 
-  html += '</tbody></table></div>';
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
 
   body.innerHTML = html;
 
