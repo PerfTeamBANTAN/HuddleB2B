@@ -354,9 +354,9 @@ td {
 }
 
 /* =========================================================
-   STRIPED ROW
+   STRIPED ROW (DEFAULT)
 ========================================================= */
-tbody tr:nth-child(even) td {
+tbody tr:nth-child(even):not(.tr-pragnosa-bad) td {
   background: #242a30;
 }
 
@@ -370,23 +370,23 @@ td:first-child {
 }
 
 /* =========================================================
-   BAD ROW (TIDAK ACH) – FULL RED ROW
+   BAD ROW (TIDAK ACH) – LOCKED FULL RED
 ========================================================= */
-.tr-pragnosa-bad td {
+tbody tr.tr-pragnosa-bad td {
   background: linear-gradient(
     90deg,
-    rgba(120, 0, 0, 0.55),
-    rgba(60, 0, 0, 0.35)
+    rgba(110, 0, 0, 0.65),
+    rgba(50, 0, 0, 0.45)
   ) !important;
-  color: #fff;
+  color: #fff !important;
 }
 
-/* STO column stronger red */
-.tr-pragnosa-bad td:first-child {
+/* STO column stronger */
+tbody tr.tr-pragnosa-bad td:first-child {
   background: linear-gradient(
     90deg,
     rgba(160, 0, 0, 0.95),
-    rgba(90, 0, 0, 0.65)
+    rgba(90, 0, 0, 0.7)
   ) !important;
   font-weight: 800;
 }
@@ -394,12 +394,27 @@ td:first-child {
 /* =========================================================
    GOOD ROW (ACH)
 ========================================================= */
-.tr-pragnosa-good td {
+tbody tr.tr-pragnosa-good td {
   background: #1f2428;
 }
 
 /* =========================================================
-   NUMBER COLOR RULE
+   HOVER (DO NOT BREAK BAD ROW)
+========================================================= */
+tbody tr:hover td {
+  background: #303840;
+}
+
+tbody tr.tr-pragnosa-bad:hover td {
+  background: linear-gradient(
+    90deg,
+    rgba(110, 0, 0, 0.7),
+    rgba(50, 0, 0, 0.5)
+  ) !important;
+}
+
+/* =========================================================
+   TEXT COLOR RULE
 ========================================================= */
 .text-red {
   color: #ff4d4f;
@@ -425,22 +440,14 @@ td:first-child {
 }
 
 /* =========================================================
-   HOVER
-========================================================= */
-tbody tr:hover td {
-  background: #303840 !important;
-}
-
-/* =========================================================
-   RESPONSIVE SAFE
+   RESPONSIVE
 ========================================================= */
 @media (max-width: 768px) {
-  td, th {
+  th, td {
     font-size: 12px;
     padding: 5px;
   }
 }
-
 </style>
 
 </head>
