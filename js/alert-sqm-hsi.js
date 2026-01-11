@@ -21,7 +21,7 @@ function isAlertValue(val) {
 }
 
 /* =====================================================
-   RENDER KPI CARD (TANPA TAB)
+   RENDER KPI CARD
 ===================================================== */
 async function renderAlertSummaryCards(API_URL) {
 
@@ -42,12 +42,8 @@ async function renderAlertSummaryCards(API_URL) {
     let tangerang = 0;
 
     json.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') {
-        banten += Number(r[cfg.col]) || 0;
-      }
-      if (r.WITEL === 'TANGERANG') {
-        tangerang += Number(r[cfg.col]) || 0;
-      }
+      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'TANGERANG') tangerang += Number(r[cfg.col]) || 0;
     });
 
     const district = banten + tangerang;
@@ -60,24 +56,18 @@ async function renderAlertSummaryCards(API_URL) {
       <div class="district-kpi-title">${cfg.title}</div>
 
       <div class="district-kpi-row">
-        <span class="district-kpi-label">District</span>
-        <span class="val-district ${isBad ? 'val-alert' : ''}">
-          ${district}
-        </span>
+        <span>District</span>
+        <span class="${isBad ? 'val-alert' : ''}">${district}</span>
       </div>
 
       <div class="district-kpi-row">
-        <span class="district-kpi-label">Banten</span>
-        <span class="val-banten ${banten > 0 ? 'val-alert' : ''}">
-          ${banten}
-        </span>
+        <span>Banten</span>
+        <span class="${banten > 0 ? 'val-alert' : ''}">${banten}</span>
       </div>
 
       <div class="district-kpi-row">
-        <span class="district-kpi-label">Tangerang</span>
-        <span class="val-tangerang ${tangerang > 0 ? 'val-alert' : ''}">
-          ${tangerang}
-        </span>
+        <span>Tangerang</span>
+        <span class="${tangerang > 0 ? 'val-alert' : ''}">${tangerang}</span>
       </div>
     `;
 
@@ -89,8 +79,6 @@ async function renderAlertSummaryCards(API_URL) {
    INIT
 ===================================================== */
 async function initAlertHSI(API_URL) {
-
-  console.log('Alert JS version: CLEAN'); // DEBUG
 
   const overlay = document.getElementById('alert-loading-overlay');
   const lastUpdate = document.getElementById('alert-last-update');
@@ -105,7 +93,7 @@ async function initAlertHSI(API_URL) {
       `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
 
   } catch (err) {
-    console.error('ALERT HSI ERROR:', err);
+    console.error('ALERT ERROR:', err);
   } finally {
     overlay.classList.add('d-none');
   }
@@ -117,8 +105,7 @@ async function initAlertHSI(API_URL) {
 async function loadAlertTable(API_URL) {
 
   const body = document.getElementById('alert-table-body');
-  body.innerHTML =
-    `<tr><td class="text-center text-muted">Loading...</td></tr>`;
+  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=alert_sqm_table');
   const json = await res.json();
@@ -170,22 +157,33 @@ function renderAlertTable() {
   body.innerHTML = '';
 
   alertRawData
-    .filter(r =>
-      (!fw || r.WITEL === fw) &&
-      (!fs || r.STO === fs)
-    )
+    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs))
     .forEach(r => {
 
       const tr = document.createElement('tr');
 
       alertHeaders.forEach(h => {
+
         const td = document.createElement('td');
         const val = r[h];
 
-        td.textContent = fmtAlertInt(val);
+        /* ===== KHUSUS Tiket SQM HSI ===== */
+        if (h === 'Tiket SQM HSI' && Number(val) > 0) {
 
-        if (isAlertValue(val)) {
-          td.classList.add('table-danger', 'fw-bold');
+          td.innerHTML = `
+            <a href="#" class="fw-bold text-danger"
+               onclick="openSQMDetail('${r.WITEL}','${r.STO}')">
+              ${val}
+            </a>
+          `;
+
+        } else {
+
+          td.textContent = fmtAlertInt(val);
+
+          if (isAlertValue(val)) {
+            td.classList.add('table-danger', 'fw-bold');
+          }
         }
 
         tr.appendChild(td);
@@ -193,4 +191,39 @@ function renderAlertTable() {
 
       body.appendChild(tr);
     });
+}
+
+/* =====================================================
+   OPEN DETAIL SQM MODAL
+===================================================== */
+async function openSQMDetail(witel, sto) {
+
+  const res = await fetch(
+    `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
+  );
+
+  const json = await res.json();
+
+  const modal = document.getElementById('global-modal');
+  const title = modal.querySelector('.modal-title');
+  const body = modal.querySelector('.modal-body');
+
+  title.textContent = `Detail Tiket SQM HSI – ${sto}`;
+
+  let html = `<div class="table-responsive"><table class="table table-sm table-bordered">`;
+  html += '<thead><tr>';
+  json.headers.forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+
+  json.data.forEach(r => {
+    html += '<tr>';
+    json.headers.forEach(h => html += `<td>${r[h] ?? ''}</td>`);
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  body.innerHTML = html;
+
+  new bootstrap.Modal(modal).show();
 }
