@@ -54,17 +54,14 @@ async function renderAlertSummaryCards(API_URL) {
 
     card.innerHTML = `
       <div class="district-kpi-title">${cfg.title}</div>
-
       <div class="district-kpi-row">
         <span>District</span>
         <span class="${district > 0 ? 'val-alert' : ''}">${district}</span>
       </div>
-
       <div class="district-kpi-row">
         <span>Banten</span>
         <span class="${banten > 0 ? 'val-alert' : ''}">${banten}</span>
       </div>
-
       <div class="district-kpi-row">
         <span>Tangerang</span>
         <span class="${tangerang > 0 ? 'val-alert' : ''}">${tangerang}</span>
@@ -90,12 +87,8 @@ async function initAlertHSI(API_URL_PARAM) {
   try {
     await renderAlertSummaryCards(API_URL);
     await loadAlertTable(API_URL);
-
     lastUpdate.innerHTML =
       `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
-
-  } catch (err) {
-    console.error('ALERT ERROR:', err);
   } finally {
     overlay.classList.add('d-none');
   }
@@ -109,7 +102,7 @@ async function loadAlertTable(API_URL) {
   const body = document.getElementById('alert-table-body');
   body.innerHTML = `
     <tr>
-      <td colspan="20" class="text-center text-muted py-3">
+      <td colspan="20" class="text-center py-3">
         <span class="spinner-border spinner-border-sm me-2"></span>
         Loading data...
       </td>
@@ -136,13 +129,11 @@ function initAlertFilter() {
 
   witel.innerHTML = `<option value="">All Witel</option>`;
   [...new Set(alertRawData.map(d => d.WITEL).filter(Boolean))]
-    .sort()
-    .forEach(v => witel.innerHTML += `<option>${v}</option>`);
+    .sort().forEach(v => witel.innerHTML += `<option>${v}</option>`);
 
   sto.innerHTML = `<option value="">All STO</option>`;
   [...new Set(alertRawData.map(d => d.STO).filter(Boolean))]
-    .sort()
-    .forEach(v => sto.innerHTML += `<option>${v}</option>`);
+    .sort().forEach(v => sto.innerHTML += `<option>${v}</option>`);
 
   witel.onchange = renderAlertTable;
   sto.onchange = renderAlertTable;
@@ -172,14 +163,11 @@ function renderAlertTable() {
     (!fs || r.STO === fs)
   );
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     body.innerHTML = `
-      <tr>
-        <td colspan="${alertHeaders.length}" class="text-center text-muted py-4">
-          Tidak ada data
-        </td>
-      </tr>
-    `;
+      <tr><td colspan="${alertHeaders.length}" class="text-center py-4">
+        Tidak ada data
+      </td></tr>`;
     return;
   }
 
@@ -192,40 +180,25 @@ function renderAlertTable() {
       const td = document.createElement('td');
       const val = r[h];
 
-      /* === CLICKABLE COLUMNS === */
-      if (h === 'Tiket SQM HSI' && Number(val) > 0) {
+      if (h === 'Tiket SQM HSI' && val > 0) {
+        td.innerHTML = `<a href="#" class="fw-bold text-danger"
+          onclick="openSQMDetail('sqm_hsi_detail','${r.STO}')">${val}</a>`;
 
-        td.innerHTML = `
-          <a href="#" class="fw-bold text-danger"
-             onclick="openSQMDetail('sqm_hsi_detail','${r.STO}')">
-            ${val}
-          </a>
-        `;
+      } else if (h === 'Tiket SQM DATIN' && val > 0) {
+        td.innerHTML = `<a href="#" class="fw-bold text-warning"
+          onclick="openSQMDetail('sqm_datin_detail','${r.STO}')">${val}</a>`;
 
-      } else if (h === 'Tiket SQM DATIN' && Number(val) > 0) {
+      } else if (h === 'SQM HSI Jadi Tiket' && val > 0) {
+        td.innerHTML = `<a href="#" class="fw-bold text-info"
+          onclick="openSQMDetail('sqm_tiket_hsi_detail','${r.STO}')">${val}</a>`;
 
-        td.innerHTML = `
-          <a href="#" class="fw-bold text-warning"
-             onclick="openSQMDetail('sqm_datin_detail','${r.STO}')">
-            ${val}
-          </a>
-        `;
-
-      } else if (h === 'SQM HSI Jadi Tiket' && Number(val) > 0) {
-
-        td.innerHTML = `
-          <a href="#" class="fw-bold text-info"
-             onclick="openSQMDetail('sqm_tiket_detail','${r.STO}')">
-            ${val}
-          </a>
-        `;
+      } else if (h === 'SQM DATIN Jadi Tiket' && val > 0) {
+        td.innerHTML = `<a href="#" class="fw-bold text-primary"
+          onclick="openSQMDetail('sqm_tiket_datin_detail','${r.STO}')">${val}</a>`;
 
       } else {
-
         td.textContent = fmtAlertInt(val);
-        if (isAlertValue(val)) {
-          td.classList.add('table-danger', 'fw-bold');
-        }
+        if (isAlertValue(val)) td.classList.add('table-danger', 'fw-bold');
       }
 
       tr.appendChild(td);
@@ -236,7 +209,7 @@ function renderAlertTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL MODAL (UNIVERSAL)
+   OPEN DETAIL MODAL
 ===================================================== */
 async function openSQMDetail(type, sto) {
 
@@ -245,70 +218,39 @@ async function openSQMDetail(type, sto) {
   const body = modal.querySelector('.modal-body');
 
   const titleMap = {
-    sqm_hsi_detail: `Detail Tiket SQM HSI – ${sto}`,
-    sqm_datin_detail: `Detail Tiket SQM DATIN – ${sto}`,
-    sqm_tiket_detail: `Detail SQM HSI Jadi Tiket – ${sto}`
+    sqm_hsi_detail: 'Detail Tiket SQM HSI',
+    sqm_datin_detail: 'Detail Tiket SQM DATIN',
+    sqm_tiket_hsi_detail: 'Detail SQM HSI Jadi Tiket',
+    sqm_tiket_datin_detail: 'Detail SQM DATIN Jadi Tiket'
   };
 
-  title.textContent = titleMap[type] || `Detail – ${sto}`;
+  title.textContent = `${titleMap[type]} – ${sto}`;
 
   body.innerHTML = `
-    <div class="d-flex flex-column align-items-center py-5">
-      <div class="spinner-border text-light mb-3"></div>
-      <div class="text-muted">Mengambil data...</div>
+    <div class="text-center py-5">
+      <span class="spinner-border"></span>
     </div>
   `;
 
   new bootstrap.Modal(modal).show();
 
-  try {
-    const res = await fetch(
-      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
-    );
-    const json = await res.json();
+  const res = await fetch(`${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`);
+  const json = await res.json();
 
-    if (!json.data || json.data.length === 0) {
-      body.innerHTML = `
-        <div class="text-center text-muted py-4">
-          Tidak ada data tiket
-        </div>
-      `;
-      return;
-    }
-
-    let html = `
-      <div class="table-responsive">
-        <table class="table table-sm table-bordered table-dark">
-          <thead>
-            <tr>
-              ${json.headers.map(h => `<th>${h}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    json.data.forEach(r => {
-      html += `<tr>`;
-      json.headers.forEach(h => {
-        html += `<td>${r[h] ?? ''}</td>`;
-      });
-      html += `</tr>`;
-    });
-
-    html += `
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    body.innerHTML = html;
-
-  } catch (err) {
-    console.error(err);
-    body.innerHTML = `
-      <div class="text-center text-danger py-4">
-        Gagal mengambil data
-      </div>
-    `;
+  if (!json.data?.length) {
+    body.innerHTML = `<div class="text-center py-4">Tidak ada data</div>`;
+    return;
   }
+
+  body.innerHTML = `
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-dark">
+        <thead><tr>${json.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${json.data.map(r =>
+            `<tr>${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}</tr>`
+          ).join('')}
+        </tbody>
+      </table>
+    </div>`;
 }
