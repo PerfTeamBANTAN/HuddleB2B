@@ -369,7 +369,7 @@ Dashboard B2B District BANTEN
 <li><a class="dropdown-item menu-link" data-menu="District-Banten">Performance Q HSI</a></li>
 <li><a class="dropdown-item menu-link" data-menu="Asgar-HSI">Performance Assurance Guarantee HSI</a></li>
 <li><a class="dropdown-item menu-link" data-menu="TTR-HSI">Performance TTR HSI dan Datin</a></li>
-<li><a class="dropdown-item menu-link" data-menu="TTR-HSI">Performance Alert HSI dan SQM HSI</a></li>
+<li><a class="dropdown-item menu-link" data-menu="ALERT-HSI">Performance Alert HSI dan SQM HSI</a></li>
 </ul>
 </li>
 
@@ -474,6 +474,19 @@ if (menu === 'District-Banten') {
     const s = document.createElement('script');
     s.src = 'js/ttr-hsi.js?v=' + Date.now();
     s.onload = () => initTTRHSI(B2B_API_URL);
+    document.body.appendChild(s);
+  });
+
+} else if (menu === 'ALERT-HSI') {
+
+  loadPartialIntoContent('partials/alert-hsi.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/alert-hsi.js?v=' + Date.now();
+    s.onload = () => initAlertHSI(B2B_API_URL);
     document.body.appendChild(s);
   });
 
