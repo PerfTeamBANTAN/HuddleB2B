@@ -14,6 +14,21 @@ function fmtAlertInt(val) {
   return parseInt(val, 10);
 }
 
+/* === FORMAT DATETIME (FIX JAM ISO) === */
+function fmtDateTime(val) {
+  if (!val) return '';
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  return d.toLocaleString('id-ID', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
+
 /* =====================================================
    ALERT RULE
 ===================================================== */
@@ -165,11 +180,9 @@ function renderAlertTable() {
 
   if (!filtered.length) {
     body.innerHTML = `
-      <tr>
-        <td colspan="${alertHeaders.length}" class="text-center py-4">
-          Tidak ada data
-        </td>
-      </tr>`;
+      <tr><td colspan="${alertHeaders.length}" class="text-center py-4">
+        Tidak ada data
+      </td></tr>`;
     return;
   }
 
@@ -197,10 +210,6 @@ function renderAlertTable() {
       } else if (h === 'SQM DATIN Jadi Tiket' && val > 0) {
         td.innerHTML = `<a href="#" class="fw-bold text-primary"
           onclick="openSQMDetail('sqm_tiket_datin_detail','${r.STO}')">${val}</a>`;
-
-      } else if (h === 'Alert Jadi Tiket' && val > 0) {
-        td.innerHTML = `<a href="#" class="fw-bold text-success"
-          onclick="openSQMDetail('alert_jadi_tiket_detail','${r.STO}')">${val}</a>`;
 
       } else {
         td.textContent = fmtAlertInt(val);
@@ -231,7 +240,7 @@ async function openSQMDetail(type, sto) {
     alert_jadi_tiket_detail: 'Detail Alert Jadi Tiket'
   };
 
-  title.textContent = `${titleMap[type]} – ${sto}`;
+  title.textContent = `${titleMap[type] || 'Detail'} – ${sto}`;
 
   body.innerHTML = `
     <div class="text-center py-5">
@@ -241,12 +250,10 @@ async function openSQMDetail(type, sto) {
 
   new bootstrap.Modal(modal).show();
 
-  const res = await fetch(
-    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
-  );
+  const res = await fetch(`${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`);
   const json = await res.json();
 
-  if (!json.data || !json.data.length) {
+  if (!json.data?.length) {
     body.innerHTML = `<div class="text-center py-4">Tidak ada data</div>`;
     return;
   }
@@ -259,10 +266,14 @@ async function openSQMDetail(type, sto) {
         </thead>
         <tbody>
           ${json.data.map(r =>
-            `<tr>${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}</tr>`
+            `<tr>${json.headers.map(h => `
+              <td>${
+                h === 'alert_time' || h === 'reported_date'
+                  ? fmtDateTime(r[h])
+                  : (r[h] ?? '')
+              }</td>`).join('')}</tr>`
           ).join('')}
         </tbody>
       </table>
-    </div>
-  `;
+    </div>`;
 }
