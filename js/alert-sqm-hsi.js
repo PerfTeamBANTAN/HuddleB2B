@@ -165,9 +165,11 @@ function renderAlertTable() {
 
   if (!filtered.length) {
     body.innerHTML = `
-      <tr><td colspan="${alertHeaders.length}" class="text-center py-4">
-        Tidak ada data
-      </td></tr>`;
+      <tr>
+        <td colspan="${alertHeaders.length}" class="text-center py-4">
+          Tidak ada data
+        </td>
+      </tr>`;
     return;
   }
 
@@ -196,6 +198,10 @@ function renderAlertTable() {
         td.innerHTML = `<a href="#" class="fw-bold text-primary"
           onclick="openSQMDetail('sqm_tiket_datin_detail','${r.STO}')">${val}</a>`;
 
+      } else if (h === 'Alert Jadi Tiket' && val > 0) {
+        td.innerHTML = `<a href="#" class="fw-bold text-success"
+          onclick="openSQMDetail('alert_jadi_tiket_detail','${r.STO}')">${val}</a>`;
+
       } else {
         td.textContent = fmtAlertInt(val);
         if (isAlertValue(val)) td.classList.add('table-danger', 'fw-bold');
@@ -221,7 +227,8 @@ async function openSQMDetail(type, sto) {
     sqm_hsi_detail: 'Detail Tiket SQM HSI',
     sqm_datin_detail: 'Detail Tiket SQM DATIN',
     sqm_tiket_hsi_detail: 'Detail SQM HSI Jadi Tiket',
-    sqm_tiket_datin_detail: 'Detail SQM DATIN Jadi Tiket'
+    sqm_tiket_datin_detail: 'Detail SQM DATIN Jadi Tiket',
+    alert_jadi_tiket_detail: 'Detail Alert Jadi Tiket'
   };
 
   title.textContent = `${titleMap[type]} – ${sto}`;
@@ -234,10 +241,12 @@ async function openSQMDetail(type, sto) {
 
   new bootstrap.Modal(modal).show();
 
-  const res = await fetch(`${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`);
+  const res = await fetch(
+    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
+  );
   const json = await res.json();
 
-  if (!json.data?.length) {
+  if (!json.data || !json.data.length) {
     body.innerHTML = `<div class="text-center py-4">Tidak ada data</div>`;
     return;
   }
@@ -245,12 +254,15 @@ async function openSQMDetail(type, sto) {
   body.innerHTML = `
     <div class="table-responsive">
       <table class="table table-sm table-bordered table-dark">
-        <thead><tr>${json.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <thead>
+          <tr>${json.headers.map(h => `<th>${h}</th>`).join('')}</tr>
+        </thead>
         <tbody>
           ${json.data.map(r =>
             `<tr>${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}</tr>`
           ).join('')}
         </tbody>
       </table>
-    </div>`;
+    </div>
+  `;
 }
