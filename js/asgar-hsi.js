@@ -179,19 +179,12 @@ function loadAsgarHSITable(API_URL) {
           };
 
         } else {
-          if (typeof val === 'number') {
-            td.textContent = Number.isInteger(val) ? val : val.toFixed(2);
-          } else {
-            td.textContent = val ?? '-';
-          }
+          td.textContent =
+            typeof val === 'number'
+              ? (Number.isInteger(val) ? val : val.toFixed(2))
+              : (val ?? '-');
 
           if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
-            td.classList.add('text-danger', 'fw-bold');
-
-          if (h === 'Budg Asgar BI' && Number(val) <= 0)
-            td.classList.add('text-danger', 'fw-bold');
-
-          if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
             td.classList.add('text-danger', 'fw-bold');
 
           if (h === 'Asgar HI' && Number(val) > 0)
@@ -211,7 +204,7 @@ function loadAsgarHSITable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL ASGAR HI (GAUL HSI = 1)
+   MODAL DETAIL ASGAR HI  (SUDAH SESUAI APPS SCRIPT)
 ===================================================== */
 function openAsgarHIModal(API_URL, sto, witel) {
   const title = document.getElementById('modalTiketHITitle');
@@ -221,14 +214,15 @@ function openAsgarHIModal(API_URL, sto, witel) {
   title.textContent = `Detail Asgar HI – ${witel} / ${sto}`;
 
   const cols = [
-    'Incident',
-    'Summary',
-    'Report Date',
-    'Service Type',
-    'WITEL',
+    'INCIDENT',
+    'SUMMARY',
+    'CUSTOMER SEGMENT',
+    'SERVICE TYPE',
+    'STATUS',
+    'SERVICE ID',
     'TECHNICIAN',
-    'TTR HSI',
-    'GAUL HSI'
+    'GAUL HSI',
+    'IN LAMA HSI'
   ];
 
   head.innerHTML = '';
@@ -278,7 +272,7 @@ function openAsgarHIModal(API_URL, sto, witel) {
 }
 
 /* =====================================================
-   MODAL DETAIL TIKET HI
+   MODAL DETAIL TIKET HI (TIDAK DIUBAH)
 ===================================================== */
 function openTiketHIModal(API_URL, sto, witel) {
   const title = document.getElementById('modalTiketHITitle');
