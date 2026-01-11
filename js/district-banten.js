@@ -1,16 +1,15 @@
 /* =====================================================
    INIT KPI
 ===================================================== */
-
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
-  const loading = document.getElementById('loading-overlay');
+  const loading = document.getElementById('ttr-loading-overlay');
   const lastUpdateEl = document.getElementById('last-update');
 
   if (!container) return;
 
   container.innerHTML = '';
-  loading.style.display = 'flex';
+  loading.classList.remove('d-none');
 
   const cbKpi = 'jsonp_kpi_' + Date.now();
 
@@ -31,7 +30,7 @@ function initDistrictBanten(API_URL) {
           hour12: false
         });
 
-      /* ===== KPI ===== */
+      /* ===== KPI CARD ===== */
       const map = {};
 
       data.forEach(r => {
@@ -60,7 +59,7 @@ function initDistrictBanten(API_URL) {
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${v.target.toFixed(2)}</span>
+              <span>${v.target?.toFixed(2) ?? '-'}</span>
             </div>
             <div class="row-item">
               <span>Banten</span>
@@ -82,7 +81,7 @@ function initDistrictBanten(API_URL) {
       loadDistrictBantenTable(API_URL);
 
     } finally {
-      loading.style.display = 'none';
+      loading.classList.add('d-none');
       delete window[cbKpi];
       script.remove();
     }
@@ -96,12 +95,13 @@ function initDistrictBanten(API_URL) {
 /* =====================================================
    TABLE
 ===================================================== */
-
 function loadDistrictBantenTable(API_URL) {
   const thead = document.getElementById('district-banten-table-head');
   const tbody = document.getElementById('district-banten-table-body');
-  const filterWitel = document.getElementById('filter-witel');
-  const filterSto = document.getElementById('filter-sto');
+
+  const filterWitel = document.getElementById('alert-filter-witel');
+  const filterSto = document.getElementById('alert-filter-sto');
+  const filterPic = document.getElementById('asgar-filter-pic');
 
   let rawData = [];
   let headers = [];
@@ -109,8 +109,8 @@ function loadDistrictBantenTable(API_URL) {
   const cbTable = 'jsonp_table_' + Date.now();
 
   window[cbTable] = function (res) {
-    headers = res.headers;
-    rawData = res.data;
+    headers = res.headers || [];
+    rawData = res.data || [];
 
     /* ===== TABLE HEAD ===== */
     thead.innerHTML = '';
@@ -120,28 +120,45 @@ function loadDistrictBantenTable(API_URL) {
       thead.appendChild(th);
     });
 
-    /* ===== FILTER ===== */
+    /* ===== FILTER DATA ===== */
     const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+    const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
 
-    filterWitel.innerHTML = '<option value="">All WITEL</option>';
-    [...witelSet].sort().forEach(w =>
-      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
+    filterWitel.innerHTML = '<option value="">All Witel</option>';
+    [...witelSet].sort().forEach(v =>
+      filterWitel.innerHTML += `<option value="${v}">${v}</option>`
     );
 
     filterSto.innerHTML = '<option value="">All STO</option>';
-    [...stoSet].sort().forEach(s =>
-      filterSto.innerHTML += `<option value="${s}">${s}</option>`
+    [...stoSet].sort().forEach(v =>
+      filterSto.innerHTML += `<option value="${v}">${v}</option>`
     );
 
-    filterWitel.onchange = filterSto.onchange = applyFilter;
+    filterPic.innerHTML = '<option value="">All PIC</option>';
+    [...picSet].sort().forEach(v =>
+      filterPic.innerHTML += `<option value="${v}">${v}</option>`
+    );
+
+    filterWitel.onchange =
+    filterSto.onchange =
+    filterPic.onchange = applyFilter;
+
     renderTable(rawData);
   };
 
   function applyFilter() {
     let data = [...rawData];
-    if (filterWitel.value) data = data.filter(r => r.WITEL === filterWitel.value);
-    if (filterSto.value) data = data.filter(r => r.STO === filterSto.value);
+
+    if (filterWitel.value)
+      data = data.filter(r => r.WITEL === filterWitel.value);
+
+    if (filterSto.value)
+      data = data.filter(r => r.STO === filterSto.value);
+
+    if (filterPic.value)
+      data = data.filter(r => r.PIC === filterPic.value);
+
     renderTable(data);
   }
 
@@ -167,7 +184,7 @@ function loadDistrictBantenTable(API_URL) {
       headers.forEach(h => {
         const td = document.createElement('td');
 
-        /* ===== Tiket HI ===== */
+        /* ===== Tiket HI (CLICKABLE) ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
           td.innerHTML = `
             <a href="#" class="text-warning fw-bold text-decoration-none">
@@ -175,30 +192,22 @@ function loadDistrictBantenTable(API_URL) {
             </a>`;
           td.onclick = e => {
             e.preventDefault();
-            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+            openTiketHIModal(API_URL, row.STO, row.WITEL);
           };
 
-        /* ===== %Q s/d HI > 2 ===== */
-        } else if (h === '%Q s/d HI') {
-          const val = Number(row[h]);
-          td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
-
-        /* ===== Budg Q BI ≤ 0 ===== */
-        } else if (h === 'Budg Q BI') {
+        /* ===== Budg Asgar BI ≤ 0 ===== */
+        } else if (h === 'Budg Asgar BI') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
           if (!isNaN(val) && val <= 0) {
             td.classList.add('text-danger', 'fw-bold');
           }
 
-        /* ===== Pragn Q BI > 2 ===== */
-        } else if (h === 'Pragn Q BI') {
+        /* ===== Vol. Tiket %Ach ≥ 0 ===== */
+        } else if (h === 'Vol. Tiket %Ach') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) {
+          if (!isNaN(val) && val >= 0) {
             td.classList.add('text-danger', 'fw-bold');
           }
 
@@ -221,7 +230,6 @@ function loadDistrictBantenTable(API_URL) {
 /* =====================================================
    MODAL DETAIL Tiket HI
 ===================================================== */
-
 function openTiketHIModal(API_URL, sto, witel) {
   const title = document.getElementById('modalTiketHITitle');
   const head = document.getElementById('tiket-hi-head');
@@ -259,7 +267,7 @@ function openTiketHIModal(API_URL, sto, witel) {
     if (!res.data?.length) {
       body.innerHTML = `
         <tr>
-          <td colspan="${cols.length}" class="text-center">
+          <td colspan="${cols.length}" class="text-center text-muted">
             Tidak ada data
           </td>
         </tr>`;
