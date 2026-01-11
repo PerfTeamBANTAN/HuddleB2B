@@ -75,9 +75,6 @@ async function renderSummaryCards(API_URL) {
   const row = document.getElementById('ttr-row');
   row.innerHTML = '';
 
-  /* ===============================
-     KPI TTR
-  =============================== */
   const kpiRes = await fetch(API_URL + '?type=kpi');
   const kpiJson = await kpiRes.json();
 
@@ -118,82 +115,6 @@ async function renderSummaryCards(API_URL) {
       </div>
     `;
   });
-
-  /* ===============================
-     DATIN NOT ACH
-  =============================== */
-  const datinRes = await fetch(API_URL + '?type=ttr_datin_table');
-  const datinJson = await datinRes.json();
-
-  [
-    { title: 'Tiket Not Ach DATIN K2', col: 'Tiket Not Ach K2' },
-    { title: 'Tiket Not Ach DATIN K3', col: 'Tiket Not Ach K3' }
-  ].forEach(cfg => {
-
-    let banten = 0;
-    let tgr = 0;
-
-    datinJson.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
-    });
-
-    row.innerHTML += `
-      <div class="badge-card">
-        <div class="badge-card-header">${cfg.title}</div>
-        <div class="badge-card-body text-dark">
-          <div class="row-item"><span>District Banten</span>
-            <span class="${dangerTicket(banten+tgr)}">${banten+tgr}</span>
-          </div>
-          <div class="row-item"><span>Banten</span>
-            <span class="${dangerTicket(banten)}">${banten}</span>
-          </div>
-          <div class="row-item"><span>Tangerang</span>
-            <span class="${dangerTicket(tgr)}">${tgr}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  /* ===============================
-     HSI & RESELLER NOT ACH
-  =============================== */
-  const hsiRes = await fetch(API_URL + '?type=ttr_hsi_table');
-  const hsiJson = await hsiRes.json();
-
-  [
-    { title: 'Tiket Not Ach HSI 4H', col: 'Tiket Not Ach INDIBIZ 4H' },
-    { title: 'Tiket Not Ach HSI 24H', col: 'Tiket Not Ach INDIBIZ 24H' },
-    { title: 'Tiket Not Ach Reseller 6H', col: 'Tiket Not Ach RESELLER 6H' },
-    { title: 'Tiket Not Ach Reseller 36H', col: 'Tiket Not Ach RESELLER 36H' }
-  ].forEach(cfg => {
-
-    let banten = 0;
-    let tgr = 0;
-
-    hsiJson.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (r.WITEL === 'TANGERANG') tgr += Number(r[cfg.col]) || 0;
-    });
-
-    row.innerHTML += `
-      <div class="badge-card">
-        <div class="badge-card-header">${cfg.title}</div>
-        <div class="badge-card-body text-dark">
-          <div class="row-item"><span>District Banten</span>
-            <span class="${dangerTicket(banten+tgr)}">${banten+tgr}</span>
-          </div>
-          <div class="row-item"><span>Banten</span>
-            <span class="${dangerTicket(banten)}">${banten}</span>
-          </div>
-          <div class="row-item"><span>Tangerang</span>
-            <span class="${dangerTicket(tgr)}">${tgr}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  });
 }
 
 /* =====================================================
@@ -218,7 +139,6 @@ async function initTTRHSI(API_URL) {
     overlay.classList.add('d-none');
   }
 
-  /* TAB CLICK FIX */
   document.querySelectorAll('#ttr-tabs button').forEach(btn => {
     btn.onclick = async () => {
 
@@ -277,7 +197,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE
+   RENDER TABLE (ANGKA ALERT SUDAH CANTIK)
 ===================================================== */
 function renderTTRTable() {
 
@@ -304,13 +224,17 @@ function renderTTRTable() {
       ttrHeaders.forEach(h => {
 
         const td = document.createElement('td');
+        let value;
 
-        if (h.includes('%')) td.textContent = fmtPercent(r[h]);
-        else if (h.toLowerCase().includes('tiket')) td.textContent = fmtInt(r[h]);
-        else td.textContent = fmt(r[h]);
+        if (h.includes('%')) value = fmtPercent(r[h]);
+        else if (h.toLowerCase().includes('tiket')) value = fmtInt(r[h]);
+        else value = fmt(r[h]);
 
         if (isAlertCell(currentType, h, r)) {
           td.classList.add('table-danger', 'fw-bold');
+          td.innerHTML = `<span class="alert-pill">${value}</span>`;
+        } else {
+          td.textContent = value;
         }
 
         tr.appendChild(td);
