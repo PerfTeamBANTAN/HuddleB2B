@@ -3,7 +3,6 @@
 ===================================================== */
 let alertRawData = [];
 let alertHeaders = [];
-let currentAlertType = 'alert_sqm_table';
 
 /* =====================================================
    FORMATTER
@@ -22,11 +21,11 @@ function isAlertValue(val) {
 }
 
 /* =====================================================
-   SUMMARY CARD
+   RENDER KPI CARD (TANPA TAB)
 ===================================================== */
 async function renderAlertSummaryCards(API_URL) {
 
-  const row = document.getElementById('alert-row');
+  const row = document.getElementById('alert-kpi-row');
   row.innerHTML = '';
 
   const res = await fetch(API_URL + '?type=alert_sqm_table');
@@ -43,31 +42,42 @@ async function renderAlertSummaryCards(API_URL) {
     let tangerang = 0;
 
     json.data.forEach(r => {
-      if (r.WITEL === 'BANTEN') banten += Number(r[cfg.col]) || 0;
-      if (r.WITEL === 'TANGERANG') tangerang += Number(r[cfg.col]) || 0;
+      if (r.WITEL === 'BANTEN') {
+        banten += Number(r[cfg.col]) || 0;
+      }
+      if (r.WITEL === 'TANGERANG') {
+        tangerang += Number(r[cfg.col]) || 0;
+      }
     });
 
     const district = banten + tangerang;
     const isBad = district > 0;
 
     const card = document.createElement('div');
-    card.className = `badge-card ${isBad ? 'card-bad' : 'card-good'}`;
+    card.className = 'district-kpi-card';
 
     card.innerHTML = `
-      <div class="badge-card-header">${cfg.title}</div>
-      <div class="badge-card-body text-dark">
-        <div class="row-item">
-          <span>District</span>
-          <span class="${isBad ? 'value-bad' : 'value-good'}">${district}</span>
-        </div>
-        <div class="row-item">
-          <span>Banten</span>
-          <span class="${banten > 0 ? 'value-bad' : 'value-good'}">${banten}</span>
-        </div>
-        <div class="row-item">
-          <span>Tangerang</span>
-          <span class="${tangerang > 0 ? 'value-bad' : 'value-good'}">${tangerang}</span>
-        </div>
+      <div class="district-kpi-title">${cfg.title}</div>
+
+      <div class="district-kpi-row">
+        <span class="district-kpi-label">District</span>
+        <span class="val-district ${isBad ? 'val-alert' : ''}">
+          ${district}
+        </span>
+      </div>
+
+      <div class="district-kpi-row">
+        <span class="district-kpi-label">Banten</span>
+        <span class="val-banten ${banten > 0 ? 'val-alert' : ''}">
+          ${banten}
+        </span>
+      </div>
+
+      <div class="district-kpi-row">
+        <span class="district-kpi-label">Tangerang</span>
+        <span class="val-tangerang ${tangerang > 0 ? 'val-alert' : ''}">
+          ${tangerang}
+        </span>
       </div>
     `;
 
@@ -79,6 +89,8 @@ async function renderAlertSummaryCards(API_URL) {
    INIT
 ===================================================== */
 async function initAlertHSI(API_URL) {
+
+  console.log('Alert JS version: CLEAN'); // DEBUG
 
   const overlay = document.getElementById('alert-loading-overlay');
   const lastUpdate = document.getElementById('alert-last-update');
@@ -93,7 +105,7 @@ async function initAlertHSI(API_URL) {
       `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
 
   } catch (err) {
-    console.error(err);
+    console.error('ALERT HSI ERROR:', err);
   } finally {
     overlay.classList.add('d-none');
   }
@@ -105,7 +117,8 @@ async function initAlertHSI(API_URL) {
 async function loadAlertTable(API_URL) {
 
   const body = document.getElementById('alert-table-body');
-  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
+  body.innerHTML =
+    `<tr><td class="text-center text-muted">Loading...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=alert_sqm_table');
   const json = await res.json();
@@ -126,14 +139,12 @@ function initAlertFilter() {
   const sto = document.getElementById('alert-filter-sto');
 
   witel.innerHTML = `<option value="">All Witel</option>`;
-  [...new Set(alertRawData.map(d => d.WITEL))].forEach(v =>
-    witel.innerHTML += `<option>${v}</option>`
-  );
+  [...new Set(alertRawData.map(d => d.WITEL).filter(Boolean))]
+    .forEach(v => witel.innerHTML += `<option>${v}</option>`);
 
   sto.innerHTML = `<option value="">All STO</option>`;
-  [...new Set(alertRawData.map(d => d.STO))].forEach(v =>
-    sto.innerHTML += `<option>${v}</option>`
-  );
+  [...new Set(alertRawData.map(d => d.STO).filter(Boolean))]
+    .forEach(v => sto.innerHTML += `<option>${v}</option>`);
 
   witel.onchange = renderAlertTable;
   sto.onchange = renderAlertTable;
@@ -159,13 +170,15 @@ function renderAlertTable() {
   body.innerHTML = '';
 
   alertRawData
-    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs))
+    .filter(r =>
+      (!fw || r.WITEL === fw) &&
+      (!fs || r.STO === fs)
+    )
     .forEach(r => {
 
       const tr = document.createElement('tr');
 
       alertHeaders.forEach(h => {
-
         const td = document.createElement('td');
         const val = r[h];
 
