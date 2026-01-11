@@ -154,6 +154,18 @@ function loadAsgarHSITable(API_URL) {
     data.forEach(row => {
       const tr = document.createElement('tr');
 
+      /* =================================================
+         🔴 FLAG PRAGNOSA FINAL BI - TIDAK ACH (ROW ANIMASI)
+      ================================================= */
+      if (
+        row['Pragnosa Asgar Final BI'] &&
+        String(row['Pragnosa Asgar Final BI'])
+          .toLowerCase()
+          .includes('tidak')
+      ) {
+        tr.classList.add('tr-pragnosa-bad');
+      }
+
       headers.forEach(h => {
         const td = document.createElement('td');
         const val = row[h];
@@ -185,19 +197,19 @@ function loadAsgarHSITable(API_URL) {
               : (val ?? '-');
 
           if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
-              td.classList.add('text-danger', 'fw-bold');
+            td.classList.add('text-danger', 'fw-bold');
 
-         if (h === 'Budg Asgar BI' && Number(val) <= 0)
-              td.classList.add('text-danger', 'fw-bold');
+          if (h === 'Budg Asgar BI' && Number(val) <= 0)
+            td.classList.add('text-danger', 'fw-bold');
 
-         if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
-              td.classList.add('text-danger', 'fw-bold');
+          if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
+            td.classList.add('text-danger', 'fw-bold');
 
-         if (h === 'Asgar HI' && Number(val) > 0)
-              td.classList.add('text-danger', 'fw-bold');
+          if (h === 'Asgar HI' && Number(val) > 0)
+            td.classList.add('text-danger', 'fw-bold');
 
-         if (h === 'Vol. Tiket %Ach' && Number(val) >= 0)
-              td.classList.add('text-danger', 'fw-bold');
+          if (h === 'Vol. Tiket %Ach' && Number(val) >= 0)
+            td.classList.add('text-danger', 'fw-bold');
         }
 
         tr.appendChild(td);
@@ -213,7 +225,7 @@ function loadAsgarHSITable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL ASGAR HI  (SUDAH SESUAI APPS SCRIPT)
+   MODAL DETAIL ASGAR HI
 ===================================================== */
 function openAsgarHIModal(API_URL, sto, witel) {
   const title = document.getElementById('modalTiketHITitle');
@@ -281,7 +293,7 @@ function openAsgarHIModal(API_URL, sto, witel) {
 }
 
 /* =====================================================
-   MODAL DETAIL TIKET HI (TIDAK DIUBAH)
+   MODAL DETAIL TIKET HI
 ===================================================== */
 function openTiketHIModal(API_URL, sto, witel) {
   const title = document.getElementById('modalTiketHITitle');
