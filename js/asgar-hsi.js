@@ -2,9 +2,9 @@
    INIT KPI ASGAR HSI
 ===================================================== */
 function initAsgarHSI(API_URL) {
-  const container     = document.getElementById('asgar-hsi-row');
-  const loading       = document.getElementById('asgar-loading-overlay');
-  const lastUpdateEl  = document.getElementById('asgar-last-update');
+  const container    = document.getElementById('asgar-hsi-row');
+  const loading      = document.getElementById('asgar-loading-overlay');
+  const lastUpdateEl = document.getElementById('asgar-last-update');
 
   if (!container) return;
 
@@ -31,7 +31,7 @@ function initAsgarHSI(API_URL) {
         })}
       `;
 
-      /* ---------- GROUP DATA ---------- */
+      /* ---------- GROUP KPI DATA ---------- */
       const map = {};
       data.forEach(r => {
         if (!map[r.indikator]) {
@@ -76,7 +76,9 @@ function initAsgarHSI(API_URL) {
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-                ${typeof v.TANGERANG === 'number' ? v.TANGERANG.toFixed(2) : '-'}
+                ${typeof v.TANGERANG === 'number'
+                  ? v.TANGERANG.toFixed(2)
+                  : '-'}
               </span>
             </div>
 
@@ -96,7 +98,8 @@ function initAsgarHSI(API_URL) {
   };
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?callback=${cbKpi}`;
+  const joinChar = API_URL.includes('?') ? '&' : '?';
+  script.src = `${API_URL}${joinChar}callback=${cbKpi}`;
   document.body.appendChild(script);
 }
 
@@ -108,7 +111,7 @@ function loadAsgarHSITable(API_URL) {
   const tbody       = document.getElementById('asgar-hsi-table-body');
   const filterWitel = document.getElementById('asgar-filter-witel');
   const filterSto   = document.getElementById('asgar-filter-sto');
-  const filterPic   = document.getElementById('asgar-filter-pic'); // ★ ADD PIC
+  const filterPic   = document.getElementById('asgar-filter-pic');
 
   let rawData = [];
   let headers = [];
@@ -116,8 +119,8 @@ function loadAsgarHSITable(API_URL) {
   const cbTable = `jsonp_asgar_table_${Date.now()}`;
 
   window[cbTable] = function (res) {
-    headers = res.headers;
-    rawData = res.data;
+    headers = res.headers || [];
+    rawData = res.data || [];
 
     /* ---------- TABLE HEADER ---------- */
     thead.innerHTML = '';
@@ -193,7 +196,6 @@ function loadAsgarHSITable(API_URL) {
         const td  = document.createElement('td');
         const val = row[h];
 
-        /* ---- LINK ACTION ---- */
         if (h === 'Asgar HI' && Number(val) > 0) {
           td.innerHTML = `
             <a href="#" class="text-danger fw-bold text-decoration-none">
@@ -222,7 +224,6 @@ function loadAsgarHSITable(API_URL) {
               ? (Number.isInteger(val) ? val : val.toFixed(2))
               : (val ?? '-');
 
-          /* ---- CONDITIONAL STYLE ---- */
           if (
             (h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') &&
             Number(val) < 92
@@ -251,6 +252,7 @@ function loadAsgarHSITable(API_URL) {
   }
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?type=asgar_table&callback=${cbTable}`;
+  const joinChar = API_URL.includes('?') ? '&' : '?';
+  script.src = `${API_URL}${joinChar}type=asgar_table&callback=${cbTable}`;
   document.body.appendChild(script);
 }
