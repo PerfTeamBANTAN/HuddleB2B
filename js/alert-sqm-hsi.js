@@ -1,8 +1,9 @@
 /* =====================================================
-   GLOBAL STATE
+   GLOBAL
 ===================================================== */
 let alertRawData = [];
 let alertHeaders = [];
+let API_URL = window.API_URL;
 
 /* =====================================================
    FORMATTER
@@ -13,9 +14,6 @@ function fmtAlertInt(val) {
   return parseInt(val, 10);
 }
 
-/* =====================================================
-   ALERT RULE
-===================================================== */
 function isAlertValue(val) {
   return Number(val) > 0;
 }
@@ -23,7 +21,7 @@ function isAlertValue(val) {
 /* =====================================================
    KPI CARD
 ===================================================== */
-async function renderAlertSummaryCards(API_URL) {
+async function renderAlertSummaryCards() {
 
   const row = document.getElementById('alert-kpi-row');
   row.innerHTML = '';
@@ -32,8 +30,7 @@ async function renderAlertSummaryCards(API_URL) {
   const json = await res.json();
 
   const cardConfig = [
-    { title: 'Alert HSI', col: 'ALERT HSI' },
-    { title: 'Alert SQM HSI', col: 'ALERT SQM HSI' }
+    { title: 'Alert SQM HSI', col: 'Tiket SQM HSI' }
   ];
 
   cardConfig.forEach(cfg => {
@@ -47,24 +44,20 @@ async function renderAlertSummaryCards(API_URL) {
     });
 
     const district = banten + tangerang;
-    const isBad = district > 0;
 
     const card = document.createElement('div');
     card.className = 'district-kpi-card';
 
     card.innerHTML = `
       <div class="district-kpi-title">${cfg.title}</div>
-
       <div class="district-kpi-row">
         <span>District</span>
-        <span class="${isBad ? 'val-alert' : ''}">${district}</span>
+        <span class="${district > 0 ? 'val-alert' : ''}">${district}</span>
       </div>
-
       <div class="district-kpi-row">
         <span>Banten</span>
         <span class="${banten > 0 ? 'val-alert' : ''}">${banten}</span>
       </div>
-
       <div class="district-kpi-row">
         <span>Tangerang</span>
         <span class="${tangerang > 0 ? 'val-alert' : ''}">${tangerang}</span>
@@ -78,9 +71,7 @@ async function renderAlertSummaryCards(API_URL) {
 /* =====================================================
    INIT
 ===================================================== */
-async function initAlertHSI(API_URL_PARAM) {
-
-  window.API_URL = API_URL_PARAM; // 🔥 PENTING
+async function initAlertHSI() {
 
   const overlay = document.getElementById('alert-loading-overlay');
   const lastUpdate = document.getElementById('alert-last-update');
@@ -88,14 +79,14 @@ async function initAlertHSI(API_URL_PARAM) {
   overlay.classList.remove('d-none');
 
   try {
-    await renderAlertSummaryCards(API_URL);
-    await loadAlertTable(API_URL);
+    await renderAlertSummaryCards();
+    await loadAlertTable();
 
     lastUpdate.innerHTML =
       `<i class="fa fa-clock me-1"></i> Last update: ${new Date().toLocaleString()}`;
 
   } catch (err) {
-    console.error('ALERT ERROR:', err);
+    console.error(err);
   } finally {
     overlay.classList.add('d-none');
   }
@@ -104,10 +95,10 @@ async function initAlertHSI(API_URL_PARAM) {
 /* =====================================================
    LOAD TABLE
 ===================================================== */
-async function loadAlertTable(API_URL) {
+async function loadAlertTable() {
 
   const body = document.getElementById('alert-table-body');
-  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="20" class="text-center text-muted">Loading...</td></tr>`;
 
   const res = await fetch(API_URL + '?type=alert_sqm_table');
   const json = await res.json();
@@ -170,20 +161,15 @@ function renderAlertTable() {
         const val = r[h];
 
         if (h === 'Tiket SQM HSI' && Number(val) > 0) {
-
           td.innerHTML = `
-            <a href="#" class="fw-bold text-danger"
+            <a href="javascript:void(0)"
+               class="fw-bold text-danger"
                onclick="openSQMDetail('${r.WITEL}','${r.STO}')">
               ${val}
-            </a>
-          `;
-
+            </a>`;
         } else {
-
           td.textContent = fmtAlertInt(val);
-          if (isAlertValue(val)) {
-            td.classList.add('table-danger', 'fw-bold');
-          }
+          if (isAlertValue(val)) td.classList.add('table-danger', 'fw-bold');
         }
 
         tr.appendChild(td);
@@ -194,29 +180,27 @@ function renderAlertTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL SQM MODAL
+   MODAL DETAIL
 ===================================================== */
 async function openSQMDetail(witel, sto) {
-
-  const res = await fetch(
-    `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
-  );
-
-  const json = await res.json();
 
   const modal = document.getElementById('global-modal');
   const title = modal.querySelector('.modal-title');
   const body = modal.querySelector('.modal-body');
 
   title.textContent = `Detail Tiket SQM HSI – ${sto}`;
+  body.innerHTML = `<div class="text-center text-muted">Loading...</div>`;
+
+  const res = await fetch(
+    `${API_URL}?type=sqm_hi_detail&witel=${encodeURIComponent(witel)}&sto=${encodeURIComponent(sto)}`
+  );
+  const json = await res.json();
 
   let html = `
     <div class="table-responsive">
       <table class="table table-sm table-bordered table-dark">
         <thead>
-          <tr>
-            ${json.headers.map(h => `<th>${h}</th>`).join('')}
-          </tr>
+          <tr>${json.headers.map(h => `<th>${h}</th>`).join('')}</tr>
         </thead>
         <tbody>
   `;
@@ -227,13 +211,13 @@ async function openSQMDetail(witel, sto) {
     html += `</tr>`;
   });
 
-  html += `
-        </tbody>
-      </table>
-    </div>
-  `;
-
+  html += `</tbody></table></div>`;
   body.innerHTML = html;
 
   new bootstrap.Modal(modal).show();
 }
+
+/* =====================================================
+   AUTO INIT
+===================================================== */
+document.addEventListener('DOMContentLoaded', initAlertHSI);
