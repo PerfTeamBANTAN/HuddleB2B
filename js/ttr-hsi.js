@@ -197,7 +197,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE (ANGKA ALERT SUDAH CANTIK)
+   RENDER TABLE (FIX: MERAH DI ANGKA SAJA)
 ===================================================== */
 function renderTTRTable() {
 
@@ -231,8 +231,7 @@ function renderTTRTable() {
         else value = fmt(r[h]);
 
         if (isAlertCell(currentType, h, r)) {
-          td.classList.add('table-danger', 'fw-bold');
-          td.innerHTML = `<span class="alert-pill">${value}</span>`;
+          td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
         } else {
           td.textContent = value;
         }
