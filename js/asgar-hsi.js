@@ -11,7 +11,7 @@ function initAsgarHSI(API_URL) {
   container.innerHTML = '';
   loading.classList.remove('d-none');
 
-  const cbKpi = `jsonp_asgar_kpi_${Date.now()}`;
+  const cbKpi = 'jsonp_asgar_kpi_' + Date.now();
 
   window[cbKpi] = function (res) {
     try {
@@ -19,19 +19,18 @@ function initAsgarHSI(API_URL) {
 
       /* ---------- LAST UPDATE ---------- */
       const d = new Date(lastUpdate);
-      lastUpdateEl.innerHTML = `
-        <i class="fa fa-clock me-1"></i>
-        Last update: ${d.toLocaleString('id-ID', {
+      lastUpdateEl.innerHTML =
+        `<i class="fa fa-clock me-1"></i> Last update: ` +
+        d.toLocaleString('id-ID', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
           hour12: false
-        })}
-      `;
+        });
 
-      /* ---------- GROUP KPI DATA ---------- */
+      /* ---------- GROUP KPI ---------- */
       const map = {};
       data.forEach(r => {
         if (!map[r.indikator]) {
@@ -47,15 +46,13 @@ function initAsgarHSI(API_URL) {
       /* ---------- RENDER KPI CARD ---------- */
       Object.entries(map).forEach(([indikator, v]) => {
         const lowerBetter = indikator === 'Q Gangguan HSI';
-
         const isGood = val =>
           typeof val === 'number' &&
           (lowerBetter ? val <= v.target : val >= v.target);
 
         const card = document.createElement('div');
-        card.className = `badge-card ${
-          isGood(v.BANTEN) ? 'card-good' : 'card-bad'
-        }`;
+        card.className =
+          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
 
         card.innerHTML = `
           <div class="badge-card-header">${indikator}</div>
@@ -116,13 +113,13 @@ function loadAsgarHSITable(API_URL) {
   let rawData = [];
   let headers = [];
 
-  const cbTable = `jsonp_asgar_table_${Date.now()}`;
+  const cbTable = 'jsonp_asgar_table_' + Date.now();
 
   window[cbTable] = function (res) {
-    headers = res.headers || [];
-    rawData = res.data || [];
+    headers = res.headers;
+    rawData = res.data;
 
-    /* ---------- TABLE HEADER ---------- */
+    /* ---------- HEADER ---------- */
     thead.innerHTML = '';
     headers.forEach(h => {
       const th = document.createElement('th');
@@ -130,7 +127,7 @@ function loadAsgarHSITable(API_URL) {
       thead.appendChild(th);
     });
 
-    /* ---------- FILTER OPTION ---------- */
+    /* ---------- FILTER DATA ---------- */
     const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet   = new Set(rawData.map(r => r.STO).filter(Boolean));
     const picSet   = new Set(rawData.map(r => r.PIC).filter(Boolean));
@@ -200,8 +197,7 @@ function loadAsgarHSITable(API_URL) {
           td.innerHTML = `
             <a href="#" class="text-danger fw-bold text-decoration-none">
               ${val}
-            </a>
-          `;
+            </a>`;
           td.onclick = e => {
             e.preventDefault();
             openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
@@ -211,8 +207,7 @@ function loadAsgarHSITable(API_URL) {
           td.innerHTML = `
             <a href="#" class="text-info fw-bold text-decoration-none">
               ${val}
-            </a>
-          `;
+            </a>`;
           td.onclick = e => {
             e.preventDefault();
             openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
@@ -224,18 +219,14 @@ function loadAsgarHSITable(API_URL) {
               ? (Number.isInteger(val) ? val : val.toFixed(2))
               : (val ?? '-');
 
-          if (
-            (h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') &&
-            Number(val) < 92
-          ) td.classList.add('text-danger', 'fw-bold');
+          if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
+            td.classList.add('text-danger', 'fw-bold');
 
           if (h === 'Budg Asgar BI' && Number(val) <= 0)
             td.classList.add('text-danger', 'fw-bold');
 
-          if (
-            h === 'Total Tiket Asgar' &&
-            Number(val) > Number(row['Budg Asgar 30D'])
-          ) td.classList.add('text-danger', 'fw-bold');
+          if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
+            td.classList.add('text-danger', 'fw-bold');
 
           if (h === 'Asgar HI' && Number(val) > 0)
             td.classList.add('text-danger', 'fw-bold');
