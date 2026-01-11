@@ -120,23 +120,34 @@ async function loadAlertTable(API_URL) {
 }
 
 /* =====================================================
-   FILTER
+   FILTER (WITEL + STO + PIC)
 ===================================================== */
 function initAlertFilter() {
 
   const witel = document.getElementById('alert-filter-witel');
   const sto = document.getElementById('alert-filter-sto');
+  const pic = document.getElementById('asgar-filter-pic');
 
+  /* === WITEL === */
   witel.innerHTML = `<option value="">All Witel</option>`;
   [...new Set(alertRawData.map(d => d.WITEL).filter(Boolean))]
-    .sort().forEach(v => witel.innerHTML += `<option>${v}</option>`);
+    .sort().forEach(v => witel.innerHTML += `<option value="${v}">${v}</option>`);
 
+  /* === STO === */
   sto.innerHTML = `<option value="">All STO</option>`;
   [...new Set(alertRawData.map(d => d.STO).filter(Boolean))]
-    .sort().forEach(v => sto.innerHTML += `<option>${v}</option>`);
+    .sort().forEach(v => sto.innerHTML += `<option value="${v}">${v}</option>`);
+
+  /* === PIC (AMAN, JIKA KOLOM ADA) === */
+  pic.innerHTML = `<option value="">All PIC</option>`;
+  if (alertRawData.length && 'PIC' in alertRawData[0]) {
+    [...new Set(alertRawData.map(d => d.PIC).filter(Boolean))]
+      .sort().forEach(v => pic.innerHTML += `<option value="${v}">${v}</option>`);
+  }
 
   witel.onchange = renderAlertTable;
   sto.onchange = renderAlertTable;
+  pic.onchange = renderAlertTable;
 }
 
 /* =====================================================
@@ -146,8 +157,10 @@ function renderAlertTable() {
 
   const head = document.getElementById('alert-table-head');
   const body = document.getElementById('alert-table-body');
+
   const fw = document.getElementById('alert-filter-witel').value;
   const fs = document.getElementById('alert-filter-sto').value;
+  const fp = document.getElementById('asgar-filter-pic').value;
 
   head.innerHTML = '';
   alertHeaders.forEach(h => {
@@ -160,7 +173,8 @@ function renderAlertTable() {
 
   const filtered = alertRawData.filter(r =>
     (!fw || r.WITEL === fw) &&
-    (!fs || r.STO === fs)
+    (!fs || r.STO === fs) &&
+    (!fp || r.PIC === fp)
   );
 
   if (!filtered.length) {
@@ -215,7 +229,7 @@ function renderAlertTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL MODAL
+   OPEN DETAIL MODAL (TIDAK DIUBAH)
 ===================================================== */
 async function openSQMDetail(type, sto) {
 
