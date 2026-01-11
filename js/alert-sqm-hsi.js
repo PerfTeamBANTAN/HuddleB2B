@@ -126,7 +126,7 @@ function initAlertFilter() {
 
   const witel = document.getElementById('alert-filter-witel');
   const sto = document.getElementById('alert-filter-sto');
-  const pic = document.getElementById('asgar-filter-pic');
+  const pic = document.getElementById('alert-filter-pic');
 
   /* === WITEL === */
   witel.innerHTML = `<option value="">All Witel</option>`;
@@ -160,7 +160,7 @@ function renderAlertTable() {
 
   const fw = document.getElementById('alert-filter-witel').value;
   const fs = document.getElementById('alert-filter-sto').value;
-  const fp = document.getElementById('asgar-filter-pic').value;
+  const fp = document.getElementById('alert-filter-pic').value;
 
   head.innerHTML = '';
   alertHeaders.forEach(h => {
