@@ -199,7 +199,7 @@ function renderAlertTable() {
           onclick="openSQMDetail('sqm_tiket_datin_detail','${r.STO}')">${val}</a>`;
 
       } else if (h === 'Alert Jadi Tiket' && val > 0) {
-        td.innerHTML = `<a href="#" class="fw-bold text-success"
+        td.innerHTML = `<a href="#" class="fw-bold text-danger"
           onclick="openSQMDetail('alert_jadi_tiket_detail','${r.STO}')">${val}</a>`;
 
       } else {
