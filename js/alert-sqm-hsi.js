@@ -183,7 +183,7 @@ function renderAlertTable() {
       const val = r[h];
 
       if (h === 'Tiket SQM HSI' && val > 0) {
-        td.innerHTML = `<a href="#" class="fw-bold text-danger"
+        td.innerHTML = `<a href="#" class="fw-bold text-warning"
           onclick="openSQMDetail('sqm_hsi_detail','${r.STO}')">${val}</a>`;
 
       } else if (h === 'Tiket SQM DATIN' && val > 0) {
@@ -191,11 +191,11 @@ function renderAlertTable() {
           onclick="openSQMDetail('sqm_datin_detail','${r.STO}')">${val}</a>`;
 
       } else if (h === 'SQM HSI Jadi Tiket' && val > 0) {
-        td.innerHTML = `<a href="#" class="fw-bold text-info"
+        td.innerHTML = `<a href="#" class="fw-bold text-danger"
           onclick="openSQMDetail('sqm_tiket_hsi_detail','${r.STO}')">${val}</a>`;
 
       } else if (h === 'SQM DATIN Jadi Tiket' && val > 0) {
-        td.innerHTML = `<a href="#" class="fw-bold text-primary"
+        td.innerHTML = `<a href="#" class="fw-bold text-danger"
           onclick="openSQMDetail('sqm_tiket_datin_detail','${r.STO}')">${val}</a>`;
 
       } else if (h === 'Alert Jadi Tiket' && val > 0) {
