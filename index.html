@@ -448,6 +448,45 @@ tbody tr.tr-pragnosa-bad:hover td {
     padding: 5px;
   }
 }
+
+  /* =========================================================
+   FORCE OVERRIDE – FIX PARTIAL RED ROW (FINAL)
+   TANPA UBAH STYLE LAMA
+========================================================= */
+
+/* Paksa SEMUA td ikut merah walaupun punya inline style */
+tbody tr.tr-pragnosa-bad td,
+tbody tr.tr-pragnosa-bad td[style],
+tbody tr.tr-pragnosa-bad td[class] {
+  background: linear-gradient(
+    90deg,
+    rgba(120, 0, 0, 0.7),
+    rgba(60, 0, 0, 0.55)
+  ) !important;
+  background-color: transparent !important;
+  color: #fff !important;
+}
+
+/* Kolom STO tetap paling kuat */
+tbody tr.tr-pragnosa-bad td:first-child,
+tbody tr.tr-pragnosa-bad td:first-child[style] {
+  background: linear-gradient(
+    90deg,
+    rgba(180, 0, 0, 0.95),
+    rgba(100, 0, 0, 0.75)
+  ) !important;
+  font-weight: 800;
+}
+
+/* Lindungi dari hover */
+tbody tr.tr-pragnosa-bad:hover td {
+  background: linear-gradient(
+    90deg,
+    rgba(130, 0, 0, 0.75),
+    rgba(70, 0, 0, 0.6)
+  ) !important;
+}
+
 </style>
 
 </head>
