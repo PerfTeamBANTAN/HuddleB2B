@@ -4,13 +4,13 @@
 
 function initDistrictBanten(API_URL) {
   const container = document.getElementById('district-banten-row');
-  const loading = document.getElementById('loading-overlay');
+  const loading = document.getElementById('alert-loading-overlay');
   const lastUpdateEl = document.getElementById('last-update');
 
-  if (!container) return;
+  if (!container || !loading) return;
 
   container.innerHTML = '';
-  loading.style.display = 'flex';
+  loading.classList.remove('d-none');
 
   const cbKpi = 'jsonp_kpi_' + Date.now();
 
@@ -19,17 +19,19 @@ function initDistrictBanten(API_URL) {
       const { data, lastUpdate } = res;
 
       /* ===== LAST UPDATE ===== */
-      const d = new Date(lastUpdate);
-      lastUpdateEl.innerHTML =
-        `<i class="fa fa-clock me-1"></i> Last update: ` +
-        d.toLocaleString('id-ID', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
+      if (lastUpdate && lastUpdateEl) {
+        const d = new Date(lastUpdate);
+        lastUpdateEl.innerHTML =
+          `<i class="fa fa-clock me-1"></i> Last update: ` +
+          d.toLocaleString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+      }
 
       /* ===== KPI ===== */
       const map = {};
@@ -37,12 +39,12 @@ function initDistrictBanten(API_URL) {
       data.forEach(r => {
         if (!map[r.indikator]) {
           map[r.indikator] = {
-            target: r.target,
+            target: Number(r.target),
             BANTEN: null,
             TANGERANG: null
           };
         }
-        map[r.indikator][r.witel] = r.ach;
+        map[r.indikator][r.witel] = Number(r.ach);
       });
 
       Object.entries(map).forEach(([indikator, v]) => {
@@ -60,7 +62,7 @@ function initDistrictBanten(API_URL) {
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${v.target.toFixed(2)}</span>
+              <span>${v.target?.toFixed(2) ?? '-'}</span>
             </div>
             <div class="row-item">
               <span>Banten</span>
@@ -76,13 +78,14 @@ function initDistrictBanten(API_URL) {
             </div>
           </div>
         `;
+
         container.appendChild(card);
       });
 
       loadDistrictBantenTable(API_URL);
 
     } finally {
-      loading.style.display = 'none';
+      loading.classList.add('d-none');
       delete window[cbKpi];
       script.remove();
     }
@@ -102,6 +105,7 @@ function loadDistrictBantenTable(API_URL) {
   const tbody = document.getElementById('district-banten-table-body');
   const filterWitel = document.getElementById('filter-witel');
   const filterSto = document.getElementById('filter-sto');
+  const filterPic = document.getElementById('filter-pic');
 
   let rawData = [];
   let headers = [];
@@ -109,45 +113,66 @@ function loadDistrictBantenTable(API_URL) {
   const cbTable = 'jsonp_table_' + Date.now();
 
   window[cbTable] = function (res) {
-    headers = res.headers;
-    rawData = res.data;
+    try {
+      headers = res.headers || [];
+      rawData = res.data || [];
 
-    /* ===== TABLE HEAD ===== */
-    thead.innerHTML = '';
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      thead.appendChild(th);
-    });
+      /* ===== TABLE HEAD ===== */
+      thead.innerHTML = '';
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        thead.appendChild(th);
+      });
 
-    /* ===== FILTER ===== */
-    const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
-    const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+      /* ===== FILTER ===== */
+      const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
+      const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+      const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
 
-    filterWitel.innerHTML = '<option value="">All WITEL</option>';
-    [...witelSet].sort().forEach(w =>
-      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
-    );
+      filterWitel.innerHTML = '<option value="">All WITEL</option>';
+      [...witelSet].sort().forEach(v =>
+        filterWitel.innerHTML += `<option value="${v}">${v}</option>`
+      );
 
-    filterSto.innerHTML = '<option value="">All STO</option>';
-    [...stoSet].sort().forEach(s =>
-      filterSto.innerHTML += `<option value="${s}">${s}</option>`
-    );
+      filterSto.innerHTML = '<option value="">All STO</option>';
+      [...stoSet].sort().forEach(v =>
+        filterSto.innerHTML += `<option value="${v}">${v}</option>`
+      );
 
-    filterWitel.onchange = filterSto.onchange = applyFilter;
-    renderTable(rawData);
+      filterPic.innerHTML = '<option value="">All PIC</option>';
+      [...picSet].sort().forEach(v =>
+        filterPic.innerHTML += `<option value="${v}">${v}</option>`
+      );
+
+      filterWitel.onchange =
+      filterSto.onchange =
+      filterPic.onchange = applyFilter;
+
+      applyFilter();
+
+    } finally {
+      delete window[cbTable];
+      script.remove();
+    }
   };
 
   function applyFilter() {
     let data = [...rawData];
-    if (filterWitel.value) data = data.filter(r => r.WITEL === filterWitel.value);
-    if (filterSto.value) data = data.filter(r => r.STO === filterSto.value);
+
+    if (filterWitel.value) {
+      data = data.filter(r => r.WITEL === filterWitel.value);
+    }
+    if (filterSto.value) {
+      data = data.filter(r => r.STO === filterSto.value);
+    }
+    if (filterPic.value) {
+      data = data.filter(r => r.PIC === filterPic.value);
+    }
+
     renderTable(data);
   }
 
-  /* =====================================================
-     RENDER TABLE
-  ===================================================== */
   function renderTable(data) {
     tbody.innerHTML = '';
 
