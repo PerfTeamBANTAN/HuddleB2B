@@ -197,7 +197,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE (FIX: MERAH DI ANGKA SAJA)
+   RENDER TABLE (HEADER DIRAPIHKAN)
 ===================================================== */
 function renderTTRTable() {
 
@@ -206,13 +206,27 @@ function renderTTRTable() {
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
 
+  /* ===== HEADER ONLY (FIX) ===== */
   head.innerHTML = '';
   ttrHeaders.forEach(h => {
+
     const th = document.createElement('th');
     th.textContent = h;
+
+    // CLASS HEADER AGAR RAPI
+    if (h === 'STO') th.classList.add('col-sto');
+    else if (h === 'WITEL') th.classList.add('col-witel');
+    else if (h.includes('%')) th.classList.add('col-percent');
+    else if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
+
+    th.style.whiteSpace = 'normal';
+    th.style.textAlign = 'center';
+    th.style.verticalAlign = 'middle';
+
     head.appendChild(th);
   });
 
+  /* ===== BODY (ASLI – TIDAK DIUBAH) ===== */
   body.innerHTML = '';
 
   ttrRawData
