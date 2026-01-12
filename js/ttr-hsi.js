@@ -206,8 +206,11 @@ function renderTTRTable() {
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
 
-  /* ===== HEADER ONLY (FIX) ===== */
+  /* ===== HEADER (FIX HTML VALID) ===== */
   head.innerHTML = '';
+
+  const trHead = document.createElement('tr'); // ✅ WAJIB ADA <tr>
+
   ttrHeaders.forEach(h => {
 
     const th = document.createElement('th');
@@ -219,12 +222,15 @@ function renderTTRTable() {
     else if (h.includes('%')) th.classList.add('col-percent');
     else if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
 
+    // STYLE AMAN (INLINE)
     th.style.whiteSpace = 'normal';
     th.style.textAlign = 'center';
     th.style.verticalAlign = 'middle';
 
-    head.appendChild(th);
+    trHead.appendChild(th);
   });
+
+  head.appendChild(trHead); // ✅ th → tr → thead
 
   /* ===== BODY (ASLI – TIDAK DIUBAH) ===== */
   body.innerHTML = '';
@@ -256,3 +262,4 @@ function renderTTRTable() {
       body.appendChild(tr);
     });
 }
+
