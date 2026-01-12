@@ -1,5 +1,5 @@
 /* =====================================================
-   DASHBOARD B2B – FINAL FIX
+   DASHBOARD B2B – FINAL FIX (TYPE MATCH)
 ===================================================== */
 
 let dashboardRawData = [];
@@ -8,15 +8,18 @@ let dashboardRawData = [];
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
-  fetch(`${API_URL}?type=dashboard_b2b`)
+  fetch(`${API_URL}?type=b2b_dashboard`)
     .then(res => res.json())
     .then(res => {
+
+      console.log('B2B DASHBOARD RESPONSE', res);
+
       dashboardRawData = res.data || [];
       renderDashboard();
       initDashboardFilter();
 
       const lu = document.getElementById('dashboard-b2b-last-update');
-      if (lu) lu.textContent = res.lastUpdate || '-';
+      if (lu) lu.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${res.lastUpdate || '-'}`;
     })
     .catch(err => console.error(err));
 }
@@ -35,10 +38,12 @@ function renderDashboard() {
 ===================================================== */
 function renderKPI(data) {
   setText('kpi-total', data.length);
+
   setText(
     'kpi-achieve',
     data.filter(r => r['Status Ach HI'] === '✅').length
   );
+
   setText(
     'kpi-not-achieve',
     data.filter(r => r['Status Ach HI'] === '❌').length
@@ -63,7 +68,9 @@ function renderTable(data) {
   if (!data.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center text-muted">Tidak ada data</td>
+        <td colspan="7" class="text-center text-muted">
+          Tidak ada data
+        </td>
       </tr>`;
     return;
   }
