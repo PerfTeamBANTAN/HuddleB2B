@@ -9,12 +9,14 @@ let dashboardHeaders = [];
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
+  const loading = document.getElementById('dashboard-b2b-loading-overlay');
   const tableBody = document.getElementById('dashboard-b2b-table-body');
+
   if (!tableBody) return;
 
   showLoading(true);
 
-  fetch(`${API_URL}?type=b2b_dashboard`)
+  fetch(`${API_URL}?type=dashboard_b2b`)
     .then(res => res.json())
     .then(res => {
       dashboardHeaders = res.headers || [];
@@ -51,9 +53,7 @@ function initDashboardFilter() {
 
   witelEl?.addEventListener('change', renderDashboard);
   kategoriEl?.addEventListener('change', renderDashboard);
-
-  document
-    .getElementById('table-search')
+  document.getElementById('table-search')
     ?.addEventListener('input', renderDashboard);
 }
 
@@ -62,7 +62,6 @@ function initDashboardFilter() {
 ===================================================== */
 function renderDashboard() {
   const filtered = applyDashboardFilter();
-
   renderKPI(filtered);
   renderTable(filtered);
   prepareChartData(filtered);
@@ -85,23 +84,20 @@ function applyDashboardFilter() {
 }
 
 /* =====================================================
-   KPI SUMMARY
+   KPI SUMMARY (FIXED)
 ===================================================== */
 function renderKPI(data) {
   const total = data.length;
 
-  const achieve = data.filter(r =>
-    String(r['Status HI']).toUpperCase() === 'HI'
-  ).length;
-
-  const notAchieve = total - achieve;
+  const achieve = data.filter(r => r['Status HI'] === '✅').length;
+  const notAchieve = data.filter(r => r['Status HI'] === '❌').length;
 
   const avgHI =
     data
       .map(r => num(r['Ach HI']))
       .filter(v => !isNaN(v))
       .reduce((a, b) => a + b, 0) /
-    (total || 1);
+    (data.length || 1);
 
   setText('kpi-total', total);
   setText('kpi-achieve', achieve);
@@ -110,7 +106,7 @@ function renderKPI(data) {
 }
 
 /* =====================================================
-   TABLE
+   TABLE (FIXED)
 ===================================================== */
 function renderTable(data) {
   const tbody = document.getElementById('dashboard-b2b-table-body');
@@ -129,20 +125,17 @@ function renderTable(data) {
   data.forEach(r => {
     const tr = document.createElement('tr');
 
-    const statusHI = String(r['Status HI']).toUpperCase();
-    const statusKm = String(r['Status Kemarin']).toUpperCase();
-
     tr.innerHTML = `
-      <td>${r.Indikator ?? '-'}</td>
+      <td>${r.Indikator}</td>
       <td class="text-end">${fmt(r.Target)}</td>
       <td class="text-end fw-bold">${fmt(r['Ach HI'])}</td>
-      <td class="text-center">${badgeStatus(statusHI)}</td>
+      <td class="text-center">${badge(r['Status HI'])}</td>
       <td class="text-end">${fmt(r['Ach Kemarin'])}</td>
-      <td class="text-center">${badgeStatus(statusKm)}</td>
-      <td class="small">${r['Kategori KPI'] ?? '-'}</td>
+      <td class="text-center">${badge(r['Status Kemarin'])}</td>
+      <td class="small">${r['Kategori KPI']}</td>
     `;
 
-    if (statusHI !== 'HI') {
+    if (r['Status HI'] === '❌') {
       tr.classList.add('table-danger');
     }
 
@@ -154,6 +147,7 @@ function renderTable(data) {
    CHART PREP (HOOK)
 ===================================================== */
 function prepareChartData(data) {
+  // data siap untuk chart
   // labels: data.map(r => r.Indikator)
   // hi: data.map(r => num(r['Ach HI']))
   // kemarin: data.map(r => num(r['Ach Kemarin']))
@@ -170,9 +164,8 @@ function showLoading(show) {
 
 function fillSelect(el, arr) {
   if (!el) return;
-  el.innerHTML =
-    `<option value="">All</option>` +
-    arr.map(v => `<option>${v}</option>`).join('');
+  el.innerHTML = `<option value="">All</option>` +
+    arr.map(v => `<option value="${v}">${v}</option>`).join('');
 }
 
 function uniq(arr) {
@@ -188,26 +181,27 @@ function setText(id, v) {
   if (el) el.textContent = v;
 }
 
+/* === FIX PARSE ANGKA KOMA === */
 function num(v) {
+  if (v === null || v === undefined || v === '-') return NaN;
   return parseFloat(String(v).replace(',', '.'));
 }
 
 function fmt(v) {
-  if (v === '-' || v === '' || v === null || isNaN(v)) return '-';
-  return num(v).toLocaleString('id-ID');
+  if (v === null || v === undefined || v === '-') return '-';
+  const n = num(v);
+  return isNaN(n) ? '-' : n.toLocaleString('id-ID');
 }
 
-function badgeStatus(v) {
-  if (v === 'HI') return `<span class="badge bg-success">Achieve</span>`;
-  return `<span class="badge bg-danger">Not Achieve</span>`;
+function badge(v) {
+  if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
+  if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
+  return '-';
 }
 
 function updateLastUpdate(ts) {
   const el = document.getElementById('dashboard-b2b-last-update');
-  if (!el) return;
-
-  const d = ts ? new Date(ts) : null;
-  el.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${
-    d ? d.toLocaleString() : '-'
-  }`;
+  if (el) {
+    el.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${ts || '-'}`;
+  }
 }
