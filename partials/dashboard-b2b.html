@@ -1,0 +1,127 @@
+<div id="dashboard-b2b-wrapper" class="dashboard-dark px-3 pb-4">
+
+  <!-- ================= KPI SUMMARY ================= -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+      <div class="kpi-card">
+        <div class="kpi-title">Total KPI</div>
+        <div class="kpi-value" id="kpi-total">-</div>
+        <div class="kpi-sub">Indikator</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card success">
+        <div class="kpi-title">Achieve (HI)</div>
+        <div class="kpi-value" id="kpi-achieve">-</div>
+        <div class="kpi-sub">Status ✅</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card danger">
+        <div class="kpi-title">Not Achieve (HI)</div>
+        <div class="kpi-value" id="kpi-not-achieve">-</div>
+        <div class="kpi-sub">Status ❌</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card info">
+        <div class="kpi-title">Achievement HI</div>
+        <div class="kpi-value" id="kpi-achievement-hi">-%</div>
+        <div class="kpi-sub">Rata-rata</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= CHART ================= -->
+  <div class="row g-3 mb-4">
+
+    <!-- ACHIEVEMENT TREND -->
+    <div class="col-lg-8">
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>Achievement HI vs Kemarin</span>
+          <select
+            id="dashboard-filter-witel"
+            class="form-select form-select-sm w-auto">
+            <option value="">All Witel</option>
+          </select>
+        </div>
+        <div class="panel-body">
+          <div id="achievement-chart" class="chart-placeholder">
+            ACHIEVEMENT CHART
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS KPI -->
+    <div class="col-lg-4">
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>Status KPI (HI)</span>
+        </div>
+        <div class="panel-body">
+          <div id="status-chart" class="chart-placeholder">
+            STATUS KPI
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <div class="panel-card">
+
+    <div class="panel-header">
+      <span>Detail KPI B2B</span>
+
+      <div class="d-flex gap-2">
+        <select
+          id="table-filter-kategori"
+          class="form-select form-select-sm">
+          <option value="">All Kategori</option>
+        </select>
+
+        <input
+          type="text"
+          id="table-search"
+          class="form-control form-control-sm search-dark"
+          placeholder="Cari indikator...">
+      </div>
+    </div>
+
+    <div class="panel-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover table-bordered table-sm mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Indikator</th>
+              <th>Target</th>
+              <th>Ach HI</th>
+              <th>Status HI</th>
+              <th>Ach Kemarin</th>
+              <th>Status Kemarin</th>
+              <th>Kategori KPI</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-b2b-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= LAST UPDATE ================= -->
+  <div
+    id="dashboard-b2b-last-update"
+    class="last-update text-end px-2 mt-2">
+    <i class="fa fa-clock me-1"></i> Last update: -
+  </div>
+
+</div>
