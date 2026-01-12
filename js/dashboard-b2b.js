@@ -9,9 +9,7 @@ let dashboardHeaders = [];
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
-  const loading = document.getElementById('dashboard-b2b-loading-overlay');
   const tableBody = document.getElementById('dashboard-b2b-table-body');
-
   if (!tableBody) return;
 
   showLoading(true);
@@ -19,12 +17,12 @@ function initDashboardB2B(API_URL) {
   fetch(`${API_URL}?type=b2b_dashboard`)
     .then(res => res.json())
     .then(res => {
-      dashboardHeaders = res.headers;
+      dashboardHeaders = res.headers || [];
       dashboardRawData = res.data || [];
 
       initDashboardFilter();
       renderDashboard();
-      updateLastUpdate(res.last_update);
+      updateLastUpdate(res.lastUpdate);
     })
     .catch(err => {
       console.error('Dashboard B2B error:', err);
@@ -46,7 +44,7 @@ function initDashboardFilter() {
   const kategoriEl = document.getElementById('table-filter-kategori');
 
   const witels = uniq(dashboardRawData.map(r => r.Witel));
-  const kategori = uniq(dashboardRawData.map(r => r['Katagori KPI']));
+  const kategori = uniq(dashboardRawData.map(r => r['Kategori KPI']));
 
   fillSelect(witelEl, witels);
   fillSelect(kategoriEl, kategori);
@@ -80,8 +78,8 @@ function applyDashboardFilter() {
 
   return dashboardRawData.filter(r => {
     if (witel && r.Witel !== witel) return false;
-    if (kategori && r['Katagori KPI'] !== kategori) return false;
-    if (keyword && !r.Indikator.toLowerCase().includes(keyword)) return false;
+    if (kategori && r['Kategori KPI'] !== kategori) return false;
+    if (keyword && !String(r.Indikator).toLowerCase().includes(keyword)) return false;
     return true;
   });
 }
@@ -92,15 +90,18 @@ function applyDashboardFilter() {
 function renderKPI(data) {
   const total = data.length;
 
-  const achieve = data.filter(r => r['Status Ach HI'] === '✅').length;
-  const notAchieve = data.filter(r => r['Status Ach HI'] === '❌').length;
+  const achieve = data.filter(r =>
+    String(r['Status HI']).toUpperCase() === 'HI'
+  ).length;
+
+  const notAchieve = total - achieve;
 
   const avgHI =
     data
-      .map(r => num(r['Achievement HI']))
+      .map(r => num(r['Ach HI']))
       .filter(v => !isNaN(v))
       .reduce((a, b) => a + b, 0) /
-    (data.length || 1);
+    (total || 1);
 
   setText('kpi-total', total);
   setText('kpi-achieve', achieve);
@@ -128,17 +129,20 @@ function renderTable(data) {
   data.forEach(r => {
     const tr = document.createElement('tr');
 
+    const statusHI = String(r['Status HI']).toUpperCase();
+    const statusKm = String(r['Status Kemarin']).toUpperCase();
+
     tr.innerHTML = `
-      <td>${r.Indikator}</td>
+      <td>${r.Indikator ?? '-'}</td>
       <td class="text-end">${fmt(r.Target)}</td>
-      <td class="text-end fw-bold">${fmt(r['Achievement HI'])}</td>
-      <td class="text-center">${badge(r['Status Ach HI'])}</td>
-      <td class="text-end">${fmt(r['Achievement Kemarin'])}</td>
-      <td class="text-center">${badge(r['Status Ach Kemarin'])}</td>
-      <td class="small">${r['Katagori KPI']}</td>
+      <td class="text-end fw-bold">${fmt(r['Ach HI'])}</td>
+      <td class="text-center">${badgeStatus(statusHI)}</td>
+      <td class="text-end">${fmt(r['Ach Kemarin'])}</td>
+      <td class="text-center">${badgeStatus(statusKm)}</td>
+      <td class="small">${r['Kategori KPI'] ?? '-'}</td>
     `;
 
-    if (r['Status Ach HI'] === '❌') {
+    if (statusHI !== 'HI') {
       tr.classList.add('table-danger');
     }
 
@@ -150,10 +154,9 @@ function renderTable(data) {
    CHART PREP (HOOK)
 ===================================================== */
 function prepareChartData(data) {
-  // Data sudah siap untuk Chart.js / Apex
   // labels: data.map(r => r.Indikator)
-  // hi: data.map(r => num(r['Achievement HI']))
-  // kemarin: data.map(r => num(r['Achievement Kemarin']))
+  // hi: data.map(r => num(r['Ach HI']))
+  // kemarin: data.map(r => num(r['Ach Kemarin']))
 }
 
 /* =====================================================
@@ -167,7 +170,9 @@ function showLoading(show) {
 
 function fillSelect(el, arr) {
   if (!el) return;
-  el.innerHTML += arr.map(v => `<option>${v}</option>`).join('');
+  el.innerHTML =
+    `<option value="">All</option>` +
+    arr.map(v => `<option>${v}</option>`).join('');
 }
 
 function uniq(arr) {
@@ -188,17 +193,21 @@ function num(v) {
 }
 
 function fmt(v) {
-  if (v === '-' || v === '' || v === null) return '-';
+  if (v === '-' || v === '' || v === null || isNaN(v)) return '-';
   return num(v).toLocaleString('id-ID');
 }
 
-function badge(v) {
-  if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
-  if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
-  return '-';
+function badgeStatus(v) {
+  if (v === 'HI') return `<span class="badge bg-success">Achieve</span>`;
+  return `<span class="badge bg-danger">Not Achieve</span>`;
 }
 
 function updateLastUpdate(ts) {
   const el = document.getElementById('dashboard-b2b-last-update');
-  if (el) el.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${ts || '-'}`;
+  if (!el) return;
+
+  const d = ts ? new Date(ts) : null;
+  el.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${
+    d ? d.toLocaleString() : '-'
+  }`;
 }
