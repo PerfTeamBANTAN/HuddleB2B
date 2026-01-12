@@ -90,14 +90,14 @@ function initAsgarHSI(API_URL) {
 }
 
 /* =====================================================
-   TABLE ASGAR HSI ( + FILTER PIC )
+   TABLE ASGAR HSI (+ FILTER PIC)
 ===================================================== */
 function loadAsgarHSITable(API_URL) {
   const thead = document.getElementById('asgar-hsi-table-head');
   const tbody = document.getElementById('asgar-hsi-table-body');
   const filterWitel = document.getElementById('asgar-filter-witel');
   const filterSto = document.getElementById('asgar-filter-sto');
-  const filterPic = document.getElementById('asgar-filter-pic'); // ✅ PIC
+  const filterPic = document.getElementById('asgar-filter-pic');
 
   let rawData = [];
   let headers = [];
@@ -117,7 +117,7 @@ function loadAsgarHSITable(API_URL) {
 
     const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
     const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
-    const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean)); // ✅ PIC
+    const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
 
     filterWitel.innerHTML = '<option value="">All Witel</option>';
     [...witelSet].sort().forEach(w =>
@@ -172,12 +172,9 @@ function loadAsgarHSITable(API_URL) {
     data.forEach(row => {
       const tr = document.createElement('tr');
 
-      // 🔴 PRAGNOSA FINAL BI - TIDAK ACH
       if (
         row['Pragnosa Asgar Final BI'] &&
-        String(row['Pragnosa Asgar Final BI'])
-          .toLowerCase()
-          .includes('tidak')
+        String(row['Pragnosa Asgar Final BI']).toLowerCase().includes('tidak')
       ) {
         tr.classList.add('tr-pragnosa-bad');
       }
@@ -187,20 +184,14 @@ function loadAsgarHSITable(API_URL) {
         const val = row[h];
 
         if (h === 'Asgar HI' && Number(val) > 0) {
-          td.innerHTML = `
-            <a href="#" class="text-danger fw-bold text-decoration-none">
-              ${val}
-            </a>`;
+          td.innerHTML = `<a href="#" class="text-danger fw-bold text-decoration-none">${val}</a>`;
           td.onclick = e => {
             e.preventDefault();
             openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
           };
 
         } else if (h === 'Tiket HI' && Number(val) > 0) {
-          td.innerHTML = `
-            <a href="#" class="text-info fw-bold text-decoration-none">
-              ${val}
-            </a>`;
+          td.innerHTML = `<a href="#" class="text-info fw-bold text-decoration-none">${val}</a>`;
           td.onclick = e => {
             e.preventDefault();
             openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
@@ -211,15 +202,6 @@ function loadAsgarHSITable(API_URL) {
             typeof val === 'number'
               ? (Number.isInteger(val) ? val : val.toFixed(2))
               : (val ?? '-');
-
-          if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
-            td.classList.add('text-danger', 'fw-bold');
-
-          if (h === 'Budg Asgar BI' && Number(val) <= 0)
-            td.classList.add('text-danger', 'fw-bold');
-
-          if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
-            td.classList.add('text-danger', 'fw-bold');
         }
 
         tr.appendChild(td);
@@ -232,4 +214,115 @@ function loadAsgarHSITable(API_URL) {
   const script = document.createElement('script');
   script.src = `${API_URL}?type=asgar_table&callback=${cbTable}`;
   document.body.appendChild(script);
+}
+
+/* =====================================================
+   MODAL DETAIL ASGAR HI
+===================================================== */
+function openAsgarHIModal(API_URL, sto, witel) {
+  const title = document.getElementById('modalTiketHITitle');
+  const head = document.getElementById('tiket-hi-head');
+  const body = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail Asgar HI – ${witel} / ${sto}`;
+
+  const cols = [
+    'INCIDENT','SUMMARY','CUSTOMER SEGMENT','SERVICE TYPE',
+    'STATUS','SERVICE ID','TECHNICIAN','GAUL HSI','IN LAMA HSI'
+  ];
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td colspan="${cols.length}">Loading...</td></tr>`;
+
+  const cb = 'jsonp_asgar_hi_' + Date.now();
+
+  window[cb] = function (res) {
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    cols.forEach(c => {
+      const th = document.createElement('th');
+      th.textContent = c;
+      head.appendChild(th);
+    });
+
+    if (!res.data || !res.data.length) {
+      body.innerHTML = `<tr><td colspan="${cols.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+    } else {
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          td.textContent = r[c] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    delete window[cb];
+    script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?type=asgar_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+  document.body.appendChild(script);
+
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
+}
+
+/* =====================================================
+   MODAL DETAIL TIKET HI
+===================================================== */
+function openTiketHIModal(API_URL, sto, witel) {
+  const title = document.getElementById('modalTiketHITitle');
+  const head = document.getElementById('tiket-hi-head');
+  const body = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
+
+  const cols = [
+    'Incident','Summary','Report Date','Service Type',
+    'WITEL','LABOR TEKNISI',
+    'TTR (Report Date s/d Resolved Date)','Flag GAUL','Old Tiket'
+  ];
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td colspan="${cols.length}">Loading...</td></tr>`;
+
+  const cb = 'jsonp_tiket_hi_' + Date.now();
+
+  window[cb] = function (res) {
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    cols.forEach(c => {
+      const th = document.createElement('th');
+      th.textContent = c;
+      head.appendChild(th);
+    });
+
+    if (!res.data || !res.data.length) {
+      body.innerHTML = `<tr><td colspan="${cols.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+    } else {
+      res.data.forEach(r => {
+        const tr = document.createElement('tr');
+        cols.forEach(c => {
+          const td = document.createElement('td');
+          td.textContent = r[c] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    delete window[cb];
+    script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+  document.body.appendChild(script);
+
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
