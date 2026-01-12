@@ -508,39 +508,43 @@ tr.tr-pragnosa-bad td::before {
 }
 
   /* =====================================================
-   FIX HEADER TABLE – HIGH CONTRAST & PREMIUM
+   TABLE HEADER – CLEAN & PROFESSIONAL
 ===================================================== */
 
 .table-dark thead th {
-  background: linear-gradient(180deg, #0d6efd, #084298) !important;
-  color: #ffffff !important;
-  font-weight: 800;
+  background: linear-gradient(
+    180deg,
+    #1b2430,
+    #151c26
+  ) !important;
+
+  color: #e6edf3 !important;
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.25px;
   text-align: center;
-  font-size: 13px;
-  letter-spacing: 0.4px;
   white-space: nowrap;
 
-  border-bottom: 3px solid #0dcaf0 !important;
-  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  border-top: 1px solid rgba(255,255,255,0.06);
 
-  box-shadow:
-    inset 0 -2px 0 rgba(0,220,255,0.35),
-    0 4px 12px rgba(0,0,0,0.85);
+  box-shadow: none;
 
   position: sticky;
   top: 0;
   z-index: 6;
 }
 
-/* hover halus biar interaktif */
-.table-dark thead th:hover {
-  background: linear-gradient(180deg, #0b5ed7, #06357a) !important;
+/* pemisah kolom halus */
+.table-dark thead th + th {
+  border-left: 1px solid rgba(255,255,255,0.08);
 }
 
-/* garis pemisah antar header */
-.table-dark thead th + th {
-  border-left: 1px solid rgba(255,255,255,0.12);
+/* hover lembut (opsional) */
+.table-dark thead th:hover {
+  background: #202a38 !important;
 }
+
 </style>
 
 </head>
