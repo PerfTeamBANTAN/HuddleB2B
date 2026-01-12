@@ -1,8 +1,10 @@
 /* =====================================================
-   DASHBOARD B2B – FINAL FIX (TYPE MATCH)
+   DASHBOARD B2B – FINAL FIX (GRAPH + KPI LOGIC)
 ===================================================== */
 
 let dashboardRawData = [];
+let achievementChartInstance = null;
+let statusChartInstance = null;
 
 /* =====================================================
    INIT
@@ -11,17 +13,17 @@ function initDashboardB2B(API_URL) {
   fetch(`${API_URL}?type=b2b_dashboard`)
     .then(res => res.json())
     .then(res => {
-
       console.log('B2B DASHBOARD RESPONSE', res);
-
       dashboardRawData = res.data || [];
       renderDashboard();
       initDashboardFilter();
 
-      const lu = document.getElementById('dashboard-b2b-last-update');
-      if (lu) lu.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${res.lastUpdate || '-'}`;
+      setText(
+        'dashboard-b2b-last-update',
+        `Last update: ${res.lastUpdate || '-'}`
+      );
     })
-    .catch(err => console.error(err));
+    .catch(console.error);
 }
 
 /* =====================================================
@@ -31,33 +33,49 @@ function renderDashboard() {
   const filtered = applyDashboardFilter();
   renderKPI(filtered);
   renderTable(filtered);
+  renderAchievementChart(filtered);
+  renderStatusChart(filtered);
 }
 
 /* =====================================================
-   KPI
+   KPI (FIXED LOGIC)
 ===================================================== */
 function renderKPI(data) {
-  setText('kpi-total', data.length);
 
+  /* TOTAL KPI */
+  setText('kpi-total', uniq(data.map(d => d.Indikator)).length);
+
+  /* STATUS COUNT */
   setText(
     'kpi-achieve',
-    data.filter(r => r['Status Ach HI'] === '✅').length
+    data.filter(d => d['Status Ach HI'] === '✅').length
   );
 
   setText(
     'kpi-not-achieve',
-    data.filter(r => r['Status Ach HI'] === '❌').length
+    data.filter(d => d['Status Ach HI'] === '❌').length
   );
 
-  const avg =
-    data.reduce((a, b) => a + num(b['Achievement HI']), 0) /
-    (data.length || 1);
+  /* ACHIEVEMENT HI (PER WITEL AVERAGE) */
+  const witelMap = {};
 
-  setText('kpi-achievement-hi', avg.toFixed(2) + '%');
+  data.forEach(d => {
+    if (!witelMap[d.Witel]) witelMap[d.Witel] = [];
+    witelMap[d.Witel].push(num(d['Achievement HI']));
+  });
+
+  const witelAverages = Object.values(witelMap)
+    .map(arr => arr.reduce((a, b) => a + b, 0) / arr.length);
+
+  const finalAvg =
+    witelAverages.reduce((a, b) => a + b, 0) /
+    (witelAverages.length || 1);
+
+  setText('kpi-achievement-hi', finalAvg.toFixed(2) + '%');
 }
 
 /* =====================================================
-   TABLE
+   TABLE (UNCHANGED)
 ===================================================== */
 function renderTable(data) {
   const tbody = document.getElementById('dashboard-b2b-table-body');
@@ -66,18 +84,12 @@ function renderTable(data) {
   tbody.innerHTML = '';
 
   if (!data.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="text-center text-muted">
-          Tidak ada data
-        </td>
-      </tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center">Tidak ada data</td></tr>`;
     return;
   }
 
   data.forEach(r => {
     const tr = document.createElement('tr');
-
     tr.innerHTML = `
       <td>${r.Indikator}</td>
       <td class="text-end">${fmt(r.Target)}</td>
@@ -87,39 +99,88 @@ function renderTable(data) {
       <td class="text-center">${badge(r['Status Ach Kemarin'])}</td>
       <td>${r['Katagori KPI']}</td>
     `;
-
-    if (r['Status Ach HI'] === '❌') {
-      tr.classList.add('table-danger');
-    }
-
+    if (r['Status Ach HI'] === '❌') tr.classList.add('table-danger');
     tbody.appendChild(tr);
   });
 }
 
 /* =====================================================
-   FILTER
+   CHART : ACH HI vs KEMARIN (FIX HEIGHT)
 ===================================================== */
-function initDashboardFilter() {
-  fillSelect(
-    document.getElementById('dashboard-filter-witel'),
-    uniq(dashboardRawData.map(r => r.Witel))
-  );
+function renderAchievementChart(data) {
+  const box = document.getElementById('achievement-chart');
+  if (!box) return;
 
-  fillSelect(
-    document.getElementById('table-filter-kategori'),
-    uniq(dashboardRawData.map(r => r['Katagori KPI']))
-  );
+  box.style.height = '280px';
+  box.innerHTML = `<canvas id="achChart"></canvas>`;
 
-  document.getElementById('dashboard-filter-witel')
-    ?.addEventListener('change', renderDashboard);
+  const ctx = document.getElementById('achChart');
 
-  document.getElementById('table-filter-kategori')
-    ?.addEventListener('change', renderDashboard);
+  if (achievementChartInstance) achievementChartInstance.destroy();
 
-  document.getElementById('table-search')
-    ?.addEventListener('input', renderDashboard);
+  achievementChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.Indikator),
+      datasets: [
+        {
+          label: 'Achievement HI',
+          data: data.map(d => num(d['Achievement HI'])),
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Kemarin',
+          data: data.map(d => num(d['Achievement Kemarin'])),
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
 }
 
+/* =====================================================
+   CHART : STATUS KPI
+===================================================== */
+function renderStatusChart(data) {
+  const box = document.getElementById('status-chart');
+  if (!box) return;
+
+  box.style.height = '280px';
+  box.innerHTML = `<canvas id="statusChart"></canvas>`;
+
+  const ctx = document.getElementById('statusChart');
+
+  if (statusChartInstance) statusChartInstance.destroy();
+
+  statusChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Achieve', 'Not Achieve'],
+      datasets: [{
+        data: [
+          data.filter(d => d['Status Ach HI'] === '✅').length,
+          data.filter(d => d['Status Ach HI'] === '❌').length
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
+
+/* =====================================================
+   FILTER + UTIL
+===================================================== */
 function applyDashboardFilter() {
   const witel = val('dashboard-filter-witel');
   const kat = val('table-filter-kategori');
@@ -133,40 +194,16 @@ function applyDashboardFilter() {
   });
 }
 
-/* =====================================================
-   UTIL
-===================================================== */
 function num(v) {
   const n = parseFloat(String(v).replace(',', '.'));
   return isNaN(n) ? 0 : n;
 }
-
-function fmt(v) {
-  if (v === null || v === '') return '-';
-  return num(v).toLocaleString('id-ID');
-}
-
+function fmt(v) { return v ? num(v).toLocaleString('id-ID') : '-'; }
 function badge(v) {
   if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
   if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
   return '-';
 }
-
-function uniq(arr) {
-  return [...new Set(arr.filter(Boolean))];
-}
-
-function fillSelect(el, arr) {
-  if (!el) return;
-  el.innerHTML = `<option value="">All</option>`;
-  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-}
-
-function val(id) {
-  return document.getElementById(id)?.value || '';
-}
-
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
+function uniq(arr) { return [...new Set(arr.filter(Boolean))]; }
+function val(id) { return document.getElementById(id)?.value || ''; }
+function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
