@@ -180,38 +180,32 @@ function loadAsgarHSITable(API_URL) {
       }
 
       headers.forEach(h => {
-  const td = document.createElement('td');
-  let val = row[h];
+        const td = document.createElement('td');
+        const val = row[h];
 
-  // 🔧 FIX NILAI TOTAL TIKET s/d HI
-  if (h === 'Total Tiket s/d HI') {
-    val = Number(val) || 0;
-  }
+        if (h === 'Asgar HI' && Number(val) > 0) {
+          td.innerHTML = `<a href="#" class="text-danger fw-bold text-decoration-none">${val}</a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-  if (h === 'Asgar HI' && Number(val) > 0) {
-    td.innerHTML = `<a href="#" class="text-danger fw-bold text-decoration-none">${val}</a>`;
-    td.onclick = e => {
-      e.preventDefault();
-      openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
-    };
+        } else if (h === 'Tiket HI' && Number(val) > 0) {
+          td.innerHTML = `<a href="#" class="text-info fw-bold text-decoration-none">${val}</a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-  } else if (h === 'Tiket HI' && Number(val) > 0) {
-    td.innerHTML = `<a href="#" class="text-info fw-bold text-decoration-none">${val}</a>`;
-    td.onclick = e => {
-      e.preventDefault();
-      openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
-    };
+        } else {
+          td.textContent =
+            typeof val === 'number'
+              ? (Number.isInteger(val) ? val : val.toFixed(2))
+              : (val ?? '-');
+        }
 
-  } else {
-    td.textContent =
-      typeof val === 'number'
-        ? (Number.isInteger(val) ? val : val.toFixed(2))
-        : (val ?? '-');
-  }
-
-  tr.appendChild(td);
-});
-
+        tr.appendChild(td);
+      });
 
       tbody.appendChild(tr);
     });
