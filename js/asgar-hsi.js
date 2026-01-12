@@ -1,280 +1,235 @@
 /* =====================================================
-   DASHBOARD B2B – FINAL (WITH CHART)
+   INIT KPI ASGAR HSI
 ===================================================== */
+function initAsgarHSI(API_URL) {
+  const container = document.getElementById('asgar-hsi-row');
+  const loading = document.getElementById('asgar-loading-overlay');
+  const lastUpdateEl = document.getElementById('asgar-last-update');
 
-let dashboardRawData = [];
-let achievementChartInstance = null;
-let statusChartInstance = null;
+  if (!container) return;
 
-/* =====================================================
-   INIT
-===================================================== */
-function initDashboardB2B(API_URL) {
-  fetch(`${API_URL}?type=b2b_dashboard`)
-    .then(res => res.json())
-    .then(res => {
-      console.log('B2B DASHBOARD RESPONSE', res);
+  container.innerHTML = '';
+  loading.classList.remove('d-none');
 
-      dashboardRawData = res.data || [];
-      renderDashboard();
-      initDashboardFilter();
+  const cbKpi = 'jsonp_asgar_kpi_' + Date.now();
 
-      const lu = document.getElementById('dashboard-b2b-last-update');
-      if (lu) {
-        lu.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${res.lastUpdate || '-'}`;
-      }
-    })
-    .catch(err => console.error(err));
+  window[cbKpi] = function (res) {
+    try {
+      const { data, lastUpdate } = res;
+
+      const d = new Date(lastUpdate);
+      lastUpdateEl.innerHTML =
+        `<i class="fa fa-clock me-1"></i> Last update: ` +
+        d.toLocaleString('id-ID', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+
+      const map = {};
+      data.forEach(r => {
+        if (!map[r.indikator]) {
+          map[r.indikator] = {
+            target: r.target,
+            BANTEN: null,
+            TANGERANG: null
+          };
+        }
+        map[r.indikator][r.witel] = r.ach;
+      });
+
+      Object.entries(map).forEach(([indikator, v]) => {
+        const lowerBetter = indikator === 'Q Gangguan HSI';
+        const isGood = val =>
+          typeof val === 'number' &&
+          (lowerBetter ? val <= v.target : val >= v.target);
+
+        const card = document.createElement('div');
+        card.className =
+          `badge-card ${isGood(v.BANTEN) ? 'card-good' : 'card-bad'}`;
+
+        card.innerHTML = `
+          <div class="badge-card-header">${indikator}</div>
+          <div class="badge-card-body">
+            <div class="row-item">
+              <span>Target</span>
+              <span>${v.target.toFixed(2)}</span>
+            </div>
+            <div class="row-item">
+              <span>Banten</span>
+              <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
+                ${typeof v.BANTEN === 'number' ? v.BANTEN.toFixed(2) : '-'}
+              </span>
+            </div>
+            <div class="row-item">
+              <span>Tangerang</span>
+              <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
+                ${typeof v.TANGERANG === 'number' ? v.TANGERANG.toFixed(2) : '-'}
+              </span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      loadAsgarHSITable(API_URL);
+
+    } finally {
+      loading.classList.add('d-none');
+      delete window[cbKpi];
+      script.remove();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src = `${API_URL}?callback=${cbKpi}`;
+  document.body.appendChild(script);
 }
 
 /* =====================================================
-   RENDER
+   TABLE ASGAR HSI ( + FILTER PIC )
 ===================================================== */
-function renderDashboard() {
-  const filtered = applyDashboardFilter();
-  renderKPI(filtered);
-  renderTable(filtered);
-  renderAchievementChart(filtered);
-  renderStatusChart(filtered);
-}
+function loadAsgarHSITable(API_URL) {
+  const thead = document.getElementById('asgar-hsi-table-head');
+  const tbody = document.getElementById('asgar-hsi-table-body');
+  const filterWitel = document.getElementById('asgar-filter-witel');
+  const filterSto = document.getElementById('asgar-filter-sto');
+  const filterPic = document.getElementById('asgar-filter-pic'); // ✅ PIC
 
-/* =====================================================
-   KPI
-===================================================== */
-function renderKPI(data) {
-  setText('kpi-total', data.length);
+  let rawData = [];
+  let headers = [];
 
-  setText(
-    'kpi-achieve',
-    data.filter(r => r['Status Ach HI'] === '✅').length
-  );
+  const cbTable = 'jsonp_asgar_table_' + Date.now();
 
-  setText(
-    'kpi-not-achieve',
-    data.filter(r => r['Status Ach HI'] === '❌').length
-  );
+  window[cbTable] = function (res) {
+    headers = res.headers;
+    rawData = res.data;
 
-  const avg =
-    data.reduce((a, b) => a + num(b['Achievement HI']), 0) /
-    (data.length || 1);
+    thead.innerHTML = '';
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      thead.appendChild(th);
+    });
 
-  setText('kpi-achievement-hi', avg.toFixed(2) + '%');
-}
+    const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
+    const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
+    const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean)); // ✅ PIC
 
-/* =====================================================
-   TABLE
-===================================================== */
-function renderTable(data) {
-  const tbody = document.getElementById('dashboard-b2b-table-body');
-  if (!tbody) return;
+    filterWitel.innerHTML = '<option value="">All Witel</option>';
+    [...witelSet].sort().forEach(w =>
+      filterWitel.innerHTML += `<option value="${w}">${w}</option>`
+    );
 
-  tbody.innerHTML = '';
+    filterSto.innerHTML = '<option value="">All STO</option>';
+    [...stoSet].sort().forEach(s =>
+      filterSto.innerHTML += `<option value="${s}">${s}</option>`
+    );
 
-  if (!data.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="text-center text-muted">
-          Tidak ada data
-        </td>
-      </tr>`;
-    return;
+    filterPic.innerHTML = '<option value="">All PIC</option>';
+    [...picSet].sort().forEach(p =>
+      filterPic.innerHTML += `<option value="${p}">${p}</option>`
+    );
+
+    filterWitel.onchange =
+    filterSto.onchange =
+    filterPic.onchange = applyFilter;
+
+    renderTable(rawData);
+  };
+
+  function applyFilter() {
+    let data = [...rawData];
+
+    if (filterWitel.value)
+      data = data.filter(r => r.WITEL === filterWitel.value);
+
+    if (filterSto.value)
+      data = data.filter(r => r.STO === filterSto.value);
+
+    if (filterPic.value)
+      data = data.filter(r => r.PIC === filterPic.value);
+
+    renderTable(data);
   }
 
-  data.forEach(r => {
-    const tr = document.createElement('tr');
+  function renderTable(data) {
+    tbody.innerHTML = '';
 
-    tr.innerHTML = `
-      <td>${r.Indikator}</td>
-      <td class="text-end">${fmt(r.Target)}</td>
-      <td class="text-end fw-bold">${fmt(r['Achievement HI'])}</td>
-      <td class="text-center">${badge(r['Status Ach HI'])}</td>
-      <td class="text-end">${fmt(r['Achievement Kemarin'])}</td>
-      <td class="text-center">${badge(r['Status Ach Kemarin'])}</td>
-      <td>${r['Katagori KPI']}</td>
-    `;
-
-    if (r['Status Ach HI'] === '❌') {
-      tr.classList.add('table-danger');
+    if (!data.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+      return;
     }
 
-    tbody.appendChild(tr);
-  });
-}
+    data.forEach(row => {
+      const tr = document.createElement('tr');
 
-/* =====================================================
-   FILTER
-===================================================== */
-function initDashboardFilter() {
-  fillSelect(
-    document.getElementById('dashboard-filter-witel'),
-    uniq(dashboardRawData.map(r => r.Witel))
-  );
+      // 🔴 PRAGNOSA FINAL BI - TIDAK ACH
+      if (
+        row['Pragnosa Asgar Final BI'] &&
+        String(row['Pragnosa Asgar Final BI'])
+          .toLowerCase()
+          .includes('tidak')
+      ) {
+        tr.classList.add('tr-pragnosa-bad');
+      }
 
-  fillSelect(
-    document.getElementById('table-filter-kategori'),
-    uniq(dashboardRawData.map(r => r['Katagori KPI']))
-  );
+      headers.forEach(h => {
+        const td = document.createElement('td');
+        const val = row[h];
 
-  document.getElementById('dashboard-filter-witel')
-    ?.addEventListener('change', renderDashboard);
+        if (h === 'Asgar HI' && Number(val) > 0) {
+          td.innerHTML = `
+            <a href="#" class="text-danger fw-bold text-decoration-none">
+              ${val}
+            </a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-  document.getElementById('table-filter-kategori')
-    ?.addEventListener('change', renderDashboard);
+        } else if (h === 'Tiket HI' && Number(val) > 0) {
+          td.innerHTML = `
+            <a href="#" class="text-info fw-bold text-decoration-none">
+              ${val}
+            </a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-  document.getElementById('table-search')
-    ?.addEventListener('input', renderDashboard);
-}
+        } else {
+          td.textContent =
+            typeof val === 'number'
+              ? (Number.isInteger(val) ? val : val.toFixed(2))
+              : (val ?? '-');
 
-function applyDashboardFilter() {
-  const witel = val('dashboard-filter-witel');
-  const kat = val('table-filter-kategori');
-  const key = val('table-search').toLowerCase();
+          if ((h === 'Asgar s/d HI' || h === 'Pragnosa Asgar') && Number(val) < 92)
+            td.classList.add('text-danger', 'fw-bold');
 
-  return dashboardRawData.filter(r => {
-    if (witel && r.Witel !== witel) return false;
-    if (kat && r['Katagori KPI'] !== kat) return false;
-    if (key && !r.Indikator.toLowerCase().includes(key)) return false;
-    return true;
-  });
-}
+          if (h === 'Budg Asgar BI' && Number(val) <= 0)
+            td.classList.add('text-danger', 'fw-bold');
 
-/* =====================================================
-   CHART : ACHIEVEMENT HI vs KEMARIN
-===================================================== */
-function renderAchievementChart(data) {
-  const box = document.getElementById('achievement-chart');
-  if (!box) return;
-
-  box.innerHTML = '<canvas id="achievementChartCanvas"></canvas>';
-  const ctx = document.getElementById('achievementChartCanvas').getContext('2d');
-
-  const labels = data.map(d => d.Indikator);
-  const hi = data.map(d => num(d['Achievement HI']));
-  const kemarin = data.map(d => num(d['Achievement Kemarin']));
-
-  if (achievementChartInstance) achievementChartInstance.destroy();
-
-  const gradHI = ctx.createLinearGradient(0, 0, 0, 220);
-  gradHI.addColorStop(0, 'rgba(59,130,246,0.45)');
-  gradHI.addColorStop(1, 'rgba(59,130,246,0.05)');
-
-  const gradKem = ctx.createLinearGradient(0, 0, 0, 220);
-  gradKem.addColorStop(0, 'rgba(34,197,94,0.4)');
-  gradKem.addColorStop(1, 'rgba(34,197,94,0.05)');
-
-  achievementChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Achievement HI',
-          data: hi,
-          borderColor: '#3b82f6',
-          backgroundColor: gradHI,
-          fill: true,
-          tension: 0.45,
-          borderWidth: 2.5,
-          pointRadius: 3
-        },
-        {
-          label: 'Kemarin',
-          data: kemarin,
-          borderColor: '#22c55e',
-          backgroundColor: gradKem,
-          fill: true,
-          tension: 0.45,
-          borderWidth: 2,
-          pointRadius: 3
+          if (h === 'Total Tiket Asgar' && Number(val) > Number(row['Budg Asgar 30D']))
+            td.classList.add('text-danger', 'fw-bold');
         }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: '#cbd5e1' } }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
-      }
-    }
-  });
-}
 
-/* =====================================================
-   CHART : STATUS KPI (HI)
-===================================================== */
-function renderStatusChart(data) {
-  const box = document.getElementById('status-chart');
-  if (!box) return;
+        tr.appendChild(td);
+      });
 
-  box.innerHTML = '<canvas id="statusChartCanvas"></canvas>';
-  const ctx = document.getElementById('statusChartCanvas').getContext('2d');
+      tbody.appendChild(tr);
+    });
+  }
 
-  const achieve = data.filter(r => r['Status Ach HI'] === '✅').length;
-  const notAchieve = data.filter(r => r['Status Ach HI'] === '❌').length;
-
-  if (statusChartInstance) statusChartInstance.destroy();
-
-  statusChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Achieve', 'Not Achieve'],
-      datasets: [{
-        data: [achieve, notAchieve],
-        backgroundColor: ['#22c55e', '#ef4444'],
-        borderRadius: 14,
-        barThickness: 48
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#cbd5e1' } },
-        y: { beginAtZero: true, ticks: { color: '#94a3b8' } }
-      }
-    }
-  });
-}
-
-/* =====================================================
-   UTIL
-===================================================== */
-function num(v) {
-  const n = parseFloat(String(v).replace(',', '.'));
-  return isNaN(n) ? 0 : n;
-}
-
-function fmt(v) {
-  if (v === null || v === '') return '-';
-  return num(v).toLocaleString('id-ID');
-}
-
-function badge(v) {
-  if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
-  if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
-  return '-';
-}
-
-function uniq(arr) {
-  return [...new Set(arr.filter(Boolean))];
-}
-
-function fillSelect(el, arr) {
-  if (!el) return;
-  el.innerHTML = `<option value="">All</option>`;
-  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-}
-
-function val(id) {
-  return document.getElementById(id)?.value || '';
-}
-
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
+  const script = document.createElement('script');
+  script.src = `${API_URL}?type=asgar_table&callback=${cbTable}`;
+  document.body.appendChild(script);
 }
