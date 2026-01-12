@@ -184,29 +184,25 @@ function loadAsgarHSITable(API_URL) {
         const val = row[h];
 
         if (h === 'Asgar HI' && Number(val) > 0) {
-  td.innerHTML = `<a href="#" class="text-danger fw-bold text-decoration-none">${val}</a>`;
-  td.onclick = e => {
-    e.preventDefault();
-    openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
-  };
+          td.innerHTML = `<a href="#" class="text-danger fw-bold text-decoration-none">${val}</a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openAsgarHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-} else if (h === 'Tiket HI' && Number(val) > 0) {
-  td.innerHTML = `<a href="#" class="text-info fw-bold text-decoration-none">${val}</a>`;
-  td.onclick = e => {
-    e.preventDefault();
-    openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
-  };
+        } else if (h === 'Tiket HI' && Number(val) > 0) {
+          td.innerHTML = `<a href="#" class="text-info fw-bold text-decoration-none">${val}</a>`;
+          td.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-} else if (h === 'Total Tiket s/d HI') {
-  td.textContent = Number(val) || 0;
-
-} else {
-  td.textContent =
-    typeof val === 'number'
-      ? (Number.isInteger(val) ? val : val.toFixed(2))
-      : (val ?? '-');
-}
-
+        } else {
+          td.textContent =
+            typeof val === 'number'
+              ? (Number.isInteger(val) ? val : val.toFixed(2))
+              : (val ?? '-');
+        }
 
         tr.appendChild(td);
       });
