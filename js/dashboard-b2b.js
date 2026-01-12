@@ -51,7 +51,7 @@ function renderKPI(filteredData) {
     setText('kpi-total', KPI_PER_WITEL);
   }
 
-  /* ===== STATUS COUNT (TABLE BASED) ===== */
+  /* ===== STATUS COUNT ===== */
   setText(
     'kpi-achieve',
     filteredData.filter(r => r['Status Ach HI'] === '✅').length
@@ -62,36 +62,32 @@ function renderKPI(filteredData) {
     filteredData.filter(r => r['Status Ach HI'] === '❌').length
   );
 
-  /* ===== ACHIEVEMENT HI (FIXED RULE) ===== */
-let finalAchievement = 0;
+  /* ===== ACHIEVEMENT HI (LOCKED RULE) ===== */
+  let finalAchievement = 0;
 
-// ambil baris indikator "Achievement"
-const achievementRows = dashboardRawData.filter(
-  r => String(r.Indikator).toLowerCase() === 'achievement'
-);
+  const achievementRows = dashboardRawData.filter(
+    r => String(r.Indikator).toLowerCase() === 'achievement'
+  );
 
-// mapping nilai per witel
-const achByWitel = {};
-achievementRows.forEach(r => {
-  achByWitel[r.Witel] = num(r['Achievement HI']);
-});
+  const achByWitel = {};
+  achievementRows.forEach(r => {
+    achByWitel[r.Witel] = num(r['Achievement HI']);
+  });
 
-if (selectedWitel) {
-  // TANGERANG / BANTEN → nilai pasti
-  finalAchievement = achByWitel[selectedWitel] || 0;
-} else {
-  // ALL → AVG antar witel
-  const values = Object.values(achByWitel);
-  finalAchievement = avg(values);
+  if (selectedWitel) {
+    finalAchievement = achByWitel[selectedWitel] || 0;
+  } else {
+    finalAchievement = avg(Object.values(achByWitel));
+  }
+
+  setText(
+    'kpi-achievement-hi',
+    finalAchievement ? finalAchievement.toFixed(2) + '%' : '-'
+  );
 }
 
-setText(
-  'kpi-achievement-hi',
-  finalAchievement ? finalAchievement.toFixed(2) + '%' : '-'
-);
-
 /* =====================================================
-   TABLE (UNCHANGED)
+   TABLE
 ===================================================== */
 function renderTable(data) {
   const tbody = document.getElementById('dashboard-b2b-table-body');
@@ -130,30 +126,27 @@ function renderAchievementChart(data) {
   el.innerHTML = `<canvas id="achChartCanvas"></canvas>`;
   if (achChart) achChart.destroy();
 
-  achChart = new Chart(
-    document.getElementById('achChartCanvas'),
-    {
-      type: 'line',
-      data: {
-        labels: data.map(d => d.Indikator),
-        datasets: [
-          {
-            label: 'Achievement HI',
-            data: data.map(d => num(d['Achievement HI'])),
-            tension: 0.4,
-            fill: true
-          },
-          {
-            label: 'Kemarin',
-            data: data.map(d => num(d['Achievement Kemarin'])),
-            tension: 0.4,
-            fill: true
-          }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false }
-    }
-  );
+  achChart = new Chart(document.getElementById('achChartCanvas'), {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.Indikator),
+      datasets: [
+        {
+          label: 'Achievement HI',
+          data: data.map(d => num(d['Achievement HI'])),
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Kemarin',
+          data: data.map(d => num(d['Achievement Kemarin'])),
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
 
 /* =====================================================
@@ -166,22 +159,19 @@ function renderStatusChart(data) {
   el.innerHTML = `<canvas id="statusChartCanvas"></canvas>`;
   if (statusChart) statusChart.destroy();
 
-  statusChart = new Chart(
-    document.getElementById('statusChartCanvas'),
-    {
-      type: 'bar',
-      data: {
-        labels: ['Achieve', 'Not Achieve'],
-        datasets: [{
-          data: [
-            data.filter(d => d['Status Ach HI'] === '✅').length,
-            data.filter(d => d['Status Ach HI'] === '❌').length
-          ]
-        }]
-      },
-      options: { responsive: true, maintainAspectRatio: false }
-    }
-  );
+  statusChart = new Chart(document.getElementById('statusChartCanvas'), {
+    type: 'bar',
+    data: {
+      labels: ['Achieve', 'Not Achieve'],
+      datasets: [{
+        data: [
+          data.filter(d => d['Status Ach HI'] === '✅').length,
+          data.filter(d => d['Status Ach HI'] === '❌').length
+        ]
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
 
 /* =====================================================
