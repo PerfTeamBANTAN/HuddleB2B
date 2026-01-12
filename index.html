@@ -61,16 +61,6 @@ html, body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.7);
 }
 
-.dropdown-item {
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.dropdown-item:hover {
-  background: rgba(255,255,255,0.1);
-}
-
 /* ================= HOME ================= */
 .home-fullscreen {
   width: 100%;
@@ -552,6 +542,35 @@ tr.tr-pragnosa-bad td::before {
   background: #202a38 !important;
 }
 
+/* === FIX DROPDOWN TEXT (ANTI ABU-ABU) === */
+.navbar .dropdown-menu {
+  background: #0b0f14;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+
+.navbar .dropdown-menu .dropdown-item {
+  color: #f1f1f1 !important;
+  font-weight: 500;
+}
+
+/* hover lembut, bukan norak */
+.navbar .dropdown-menu .dropdown-item:hover {
+  background: rgba(220,53,69,.22);
+  color: #ffffff !important;
+}
+
+/* menu aktif */
+.navbar .dropdown-menu .dropdown-item.active,
+.navbar .dropdown-menu .dropdown-item:active {
+  background: rgba(220,53,69,.38);
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.navbar .dropdown-menu .dropdown-item {
+  transition: background-color .15s ease, color .15s ease;
+}
 </style>
 
 </head>
