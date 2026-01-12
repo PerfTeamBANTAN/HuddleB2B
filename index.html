@@ -572,7 +572,13 @@ tr.tr-pragnosa-bad td::before {
   transition: background-color .15s ease, color .15s ease;
 }
 
-  /* ===== TTR TABLE HEADER FIX (ONLY THIS MENU) ===== */
+  /* ===== TTR TABLE GLOBAL FIX ===== */
+.ttr-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Header */
 .ttr-table thead th {
   vertical-align: middle;
   text-align: center;
@@ -580,33 +586,53 @@ tr.tr-pragnosa-bad td::before {
   line-height: 1.2;
   font-size: 12px;
   padding: 8px 6px;
-}
-
-/* Kolom identitas */
-.ttr-table thead th.col-sto,
-.ttr-table thead th.col-witel {
-  min-width: 90px;
-  font-weight: 600;
-}
-
-/* Kolom persen */
-.ttr-table thead th.col-percent {
-  min-width: 95px;
-}
-
-/* Kolom tiket */
-#ttr-table thead th.col-ticket {
-  min-width: 85px;
-}
-
-/* Sticky header */
-.ttr-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   background: #1f2428;
 }
-  
+
+/* Body */
+.ttr-table tbody td {
+  text-align: center;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 6px 6px;
+}
+
+/* STO & WITEL */
+.ttr-table th.col-sto,
+.ttr-table td.col-sto,
+.ttr-table th.col-witel,
+.ttr-table td.col-witel {
+  width: 90px;
+  min-width: 90px;
+  font-weight: 600;
+}
+
+/* Percent */
+.ttr-table th.col-percent,
+.ttr-table td.col-percent {
+  width: 95px;
+  min-width: 95px;
+}
+
+/* Ticket */
+.ttr-table th.col-ticket,
+.ttr-table td.col-ticket {
+  width: 85px;
+  min-width: 85px;
+}
+
+/* PIC */
+.ttr-table th.col-pic,
+.ttr-table td.col-pic {
+  width: 220px;
+  min-width: 220px;
+  white-space: normal;
+  text-align: left;
+}
+
 </style>
 
 </head>
