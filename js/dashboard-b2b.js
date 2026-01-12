@@ -1,22 +1,23 @@
 /* =====================================================
-   DASHBOARD B2B – FINAL FIX (GRAPH + KPI LOGIC)
+   DASHBOARD B2B – FINAL STABLE VERSION
 ===================================================== */
 
 let dashboardRawData = [];
-let achievementChartInstance = null;
-let statusChartInstance = null;
+let achChart = null;
+let statusChart = null;
 
 /* =====================================================
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
   fetch(`${API_URL}?type=b2b_dashboard`)
-    .then(res => res.json())
+    .then(r => r.json())
     .then(res => {
       console.log('B2B DASHBOARD RESPONSE', res);
+
       dashboardRawData = res.data || [];
-      renderDashboard();
       initDashboardFilter();
+      renderDashboard();
 
       setText(
         'dashboard-b2b-last-update',
@@ -27,7 +28,7 @@ function initDashboardB2B(API_URL) {
 }
 
 /* =====================================================
-   RENDER
+   RENDER MASTER
 ===================================================== */
 function renderDashboard() {
   const filtered = applyDashboardFilter();
@@ -38,38 +39,31 @@ function renderDashboard() {
 }
 
 /* =====================================================
-   KPI (FIXED LOGIC)
+   KPI (FIXED 100%)
 ===================================================== */
 function renderKPI(data) {
 
-  /* TOTAL KPI */
+  /* TOTAL KPI = indikator unik */
   setText('kpi-total', uniq(data.map(d => d.Indikator)).length);
 
   /* STATUS COUNT */
-  setText(
-    'kpi-achieve',
-    data.filter(d => d['Status Ach HI'] === '✅').length
-  );
-
-  setText(
-    'kpi-not-achieve',
-    data.filter(d => d['Status Ach HI'] === '❌').length
-  );
+  setText('kpi-achieve', data.filter(d => d['Status Ach HI'] === '✅').length);
+  setText('kpi-not-achieve', data.filter(d => d['Status Ach HI'] === '❌').length);
 
   /* ACHIEVEMENT HI (PER WITEL AVERAGE) */
-  const witelMap = {};
+  const witelGroup = {};
 
   data.forEach(d => {
-    if (!witelMap[d.Witel]) witelMap[d.Witel] = [];
-    witelMap[d.Witel].push(num(d['Achievement HI']));
+    if (!witelGroup[d.Witel]) witelGroup[d.Witel] = [];
+    witelGroup[d.Witel].push(num(d['Achievement HI']));
   });
 
-  const witelAverages = Object.values(witelMap)
+  const witelAvg = Object.values(witelGroup)
     .map(arr => arr.reduce((a, b) => a + b, 0) / arr.length);
 
   const finalAvg =
-    witelAverages.reduce((a, b) => a + b, 0) /
-    (witelAverages.length || 1);
+    witelAvg.reduce((a, b) => a + b, 0) /
+    (witelAvg.length || 1);
 
   setText('kpi-achievement-hi', finalAvg.toFixed(2) + '%');
 }
@@ -105,20 +99,20 @@ function renderTable(data) {
 }
 
 /* =====================================================
-   CHART : ACH HI vs KEMARIN (FIX HEIGHT)
+   CHART – ACH HI vs KEMARIN
 ===================================================== */
 function renderAchievementChart(data) {
   const box = document.getElementById('achievement-chart');
   if (!box) return;
 
-  box.style.height = '280px';
-  box.innerHTML = `<canvas id="achChart"></canvas>`;
+  box.style.height = '300px';
+  box.innerHTML = `<canvas id="achChartCanvas"></canvas>`;
 
-  const ctx = document.getElementById('achChart');
+  const ctx = document.getElementById('achChartCanvas');
 
-  if (achievementChartInstance) achievementChartInstance.destroy();
+  if (achChart) achChart.destroy();
 
-  achievementChartInstance = new Chart(ctx, {
+  achChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: data.map(d => d.Indikator),
@@ -126,14 +120,12 @@ function renderAchievementChart(data) {
         {
           label: 'Achievement HI',
           data: data.map(d => num(d['Achievement HI'])),
-          borderWidth: 2,
           tension: 0.4,
           fill: true
         },
         {
           label: 'Kemarin',
           data: data.map(d => num(d['Achievement Kemarin'])),
-          borderWidth: 2,
           tension: 0.4,
           fill: true
         }
@@ -141,26 +133,31 @@ function renderAchievementChart(data) {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#fff' } } },
+      scales: {
+        x: { ticks: { color: '#aaa' } },
+        y: { ticks: { color: '#aaa' } }
+      }
     }
   });
 }
 
 /* =====================================================
-   CHART : STATUS KPI
+   CHART – STATUS KPI
 ===================================================== */
 function renderStatusChart(data) {
   const box = document.getElementById('status-chart');
   if (!box) return;
 
-  box.style.height = '280px';
-  box.innerHTML = `<canvas id="statusChart"></canvas>`;
+  box.style.height = '300px';
+  box.innerHTML = `<canvas id="statusChartCanvas"></canvas>`;
 
-  const ctx = document.getElementById('statusChart');
+  const ctx = document.getElementById('statusChartCanvas');
 
-  if (statusChartInstance) statusChartInstance.destroy();
+  if (statusChart) statusChart.destroy();
 
-  statusChartInstance = new Chart(ctx, {
+  statusChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Achieve', 'Not Achieve'],
@@ -179,8 +176,23 @@ function renderStatusChart(data) {
 }
 
 /* =====================================================
-   FILTER + UTIL
+   FILTER
 ===================================================== */
+function initDashboardFilter() {
+  fillSelect(
+    document.getElementById('dashboard-filter-witel'),
+    uniq(dashboardRawData.map(d => d.Witel))
+  );
+
+  fillSelect(
+    document.getElementById('table-filter-kategori'),
+    uniq(dashboardRawData.map(d => d['Katagori KPI']))
+  );
+
+  ['dashboard-filter-witel', 'table-filter-kategori', 'table-search']
+    .forEach(id => document.getElementById(id)?.addEventListener('input', renderDashboard));
+}
+
 function applyDashboardFilter() {
   const witel = val('dashboard-filter-witel');
   const kat = val('table-filter-kategori');
@@ -194,16 +206,24 @@ function applyDashboardFilter() {
   });
 }
 
+/* =====================================================
+   UTIL
+===================================================== */
 function num(v) {
   const n = parseFloat(String(v).replace(',', '.'));
   return isNaN(n) ? 0 : n;
 }
-function fmt(v) { return v ? num(v).toLocaleString('id-ID') : '-'; }
+function fmt(v) { return v !== null ? num(v).toLocaleString('id-ID') : '-'; }
 function badge(v) {
   if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
   if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
   return '-';
 }
 function uniq(arr) { return [...new Set(arr.filter(Boolean))]; }
+function fillSelect(el, arr) {
+  if (!el) return;
+  el.innerHTML = `<option value="">All</option>`;
+  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+}
 function val(id) { return document.getElementById(id)?.value || ''; }
-function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
