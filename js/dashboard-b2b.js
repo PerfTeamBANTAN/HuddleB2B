@@ -1,5 +1,5 @@
 /* =====================================================
-   DASHBOARD B2B – FULL JS
+   DASHBOARD B2B – FINAL FIX
 ===================================================== */
 
 let dashboardRawData = [];
@@ -8,33 +8,21 @@ let dashboardRawData = [];
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
-  const loading = document.getElementById('loading-overlay');
-  const lastUpdateEl = document.getElementById('last-update');
-
-  loading?.classList.remove('d-none');
-
   fetch(`${API_URL}?type=dashboard_b2b`)
     .then(res => res.json())
-    .then(json => {
-      dashboardRawData = json.data || [];
-
+    .then(res => {
+      dashboardRawData = res.data || [];
       renderDashboard();
       initDashboardFilter();
 
-      if (lastUpdateEl) {
-        lastUpdateEl.textContent = formatDate(json.lastUpdate);
-      }
+      const lu = document.getElementById('dashboard-b2b-last-update');
+      if (lu) lu.textContent = res.lastUpdate || '-';
     })
-    .catch(err => {
-      console.error('Dashboard B2B Error:', err);
-    })
-    .finally(() => {
-      loading?.classList.add('d-none');
-    });
+    .catch(err => console.error(err));
 }
 
 /* =====================================================
-   RENDER MAIN
+   RENDER
 ===================================================== */
 function renderDashboard() {
   const filtered = applyDashboardFilter();
@@ -46,20 +34,21 @@ function renderDashboard() {
    KPI
 ===================================================== */
 function renderKPI(data) {
-  const total = data.length;
-  const achieve = data.filter(r => r['Status Ach HI'] === '✅').length;
-  const notAchieve = data.filter(r => r['Status Ach HI'] === '❌').length;
+  setText('kpi-total', data.length);
+  setText(
+    'kpi-achieve',
+    data.filter(r => r['Status Ach HI'] === '✅').length
+  );
+  setText(
+    'kpi-not-achieve',
+    data.filter(r => r['Status Ach HI'] === '❌').length
+  );
 
-  const avgHI =
-    data
-      .map(r => num(r['Achievement HI']))
-      .filter(v => !isNaN(v))
-      .reduce((a, b) => a + b, 0) / (data.length || 1);
+  const avg =
+    data.reduce((a, b) => a + num(b['Achievement HI']), 0) /
+    (data.length || 1);
 
-  setText('kpi-total', total);
-  setText('kpi-achieve', achieve);
-  setText('kpi-not-achieve', notAchieve);
-  setText('kpi-achievement-hi', avgHI.toFixed(2) + '%');
+  setText('kpi-achievement-hi', avg.toFixed(2) + '%');
 }
 
 /* =====================================================
@@ -74,9 +63,7 @@ function renderTable(data) {
   if (!data.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center text-muted">
-          Tidak ada data
-        </td>
+        <td colspan="7" class="text-center text-muted">Tidak ada data</td>
       </tr>`;
     return;
   }
@@ -86,7 +73,6 @@ function renderTable(data) {
 
     tr.innerHTML = `
       <td>${r.Indikator}</td>
-      <td>${r.Witel}</td>
       <td class="text-end">${fmt(r.Target)}</td>
       <td class="text-end fw-bold">${fmt(r['Achievement HI'])}</td>
       <td class="text-center">${badge(r['Status Ach HI'])}</td>
@@ -107,43 +93,50 @@ function renderTable(data) {
    FILTER
 ===================================================== */
 function initDashboardFilter() {
-  const witelEl = document.getElementById('dashboard-filter-witel');
-  const kategoriEl = document.getElementById('table-filter-kategori');
+  fillSelect(
+    document.getElementById('dashboard-filter-witel'),
+    uniq(dashboardRawData.map(r => r.Witel))
+  );
 
-  fillSelect(witelEl, uniq(dashboardRawData.map(r => r.Witel)));
-  fillSelect(kategoriEl, uniq(dashboardRawData.map(r => r['Katagori KPI'])));
+  fillSelect(
+    document.getElementById('table-filter-kategori'),
+    uniq(dashboardRawData.map(r => r['Katagori KPI']))
+  );
 
-  witelEl?.addEventListener('change', renderDashboard);
-  kategoriEl?.addEventListener('change', renderDashboard);
+  document.getElementById('dashboard-filter-witel')
+    ?.addEventListener('change', renderDashboard);
+
+  document.getElementById('table-filter-kategori')
+    ?.addEventListener('change', renderDashboard);
+
   document.getElementById('table-search')
     ?.addEventListener('input', renderDashboard);
 }
 
 function applyDashboardFilter() {
   const witel = val('dashboard-filter-witel');
-  const kategori = val('table-filter-kategori');
-  const keyword = val('table-search').toLowerCase();
+  const kat = val('table-filter-kategori');
+  const key = val('table-search').toLowerCase();
 
   return dashboardRawData.filter(r => {
     if (witel && r.Witel !== witel) return false;
-    if (kategori && r['Katagori KPI'] !== kategori) return false;
-    if (keyword && !String(r.Indikator).toLowerCase().includes(keyword)) return false;
+    if (kat && r['Katagori KPI'] !== kat) return false;
+    if (key && !r.Indikator.toLowerCase().includes(key)) return false;
     return true;
   });
 }
 
 /* =====================================================
-   UTILITIES
+   UTIL
 ===================================================== */
-function fmt(v) {
-  if (v === null || v === undefined || v === '') return '-';
-  if (isNaN(v)) return v;
-  return Number(v).toLocaleString('id-ID');
+function num(v) {
+  const n = parseFloat(String(v).replace(',', '.'));
+  return isNaN(n) ? 0 : n;
 }
 
-function num(v) {
-  const n = parseFloat(v);
-  return isNaN(n) ? 0 : n;
+function fmt(v) {
+  if (v === null || v === '') return '-';
+  return num(v).toLocaleString('id-ID');
 }
 
 function badge(v) {
@@ -156,25 +149,17 @@ function uniq(arr) {
   return [...new Set(arr.filter(Boolean))];
 }
 
-function fillSelect(el, data) {
+function fillSelect(el, arr) {
   if (!el) return;
   el.innerHTML = `<option value="">All</option>`;
-  data.forEach(v => {
-    el.innerHTML += `<option value="${v}">${v}</option>`;
-  });
+  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
 function val(id) {
-  const el = document.getElementById(id);
-  return el ? el.value : '';
+  return document.getElementById(id)?.value || '';
 }
 
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
-}
-
-function formatDate(dt) {
-  if (!dt) return '-';
-  return new Date(dt).toLocaleString('id-ID');
 }
