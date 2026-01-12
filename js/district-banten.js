@@ -33,7 +33,7 @@ function initDistrictBanten(API_URL) {
           });
       }
 
-      /* ===== KPI ===== */
+      /* ===== KPI CARD ===== */
       const map = {};
 
       data.forEach(r => {
@@ -125,7 +125,7 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      /* ===== FILTER ===== */
+      /* ===== FILTER OPTION ===== */
       const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
       const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
       const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
@@ -189,6 +189,15 @@ function loadDistrictBantenTable(API_URL) {
     data.forEach(row => {
       const tr = document.createElement('tr');
 
+      /* =================================================
+         🔴 RULE UTAMA:
+         Budg Q BI < 0 → FULL ROW RED
+      ================================================= */
+      const budgVal = Number(row['Budg Q BI']);
+      if (!isNaN(budgVal) && budgVal < 0) {
+        tr.classList.add('tr-pragnosa-bad');
+      }
+
       headers.forEach(h => {
         const td = document.createElement('td');
 
@@ -211,11 +220,11 @@ function loadDistrictBantenTable(API_URL) {
             td.classList.add('text-danger', 'fw-bold');
           }
 
-        /* ===== Budg Q BI ≤ 0 ===== */
+        /* ===== Budg Q BI < 0 ===== */
         } else if (h === 'Budg Q BI') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val <= 0) {
+          if (!isNaN(val) && val < 0) {
             td.classList.add('text-danger', 'fw-bold');
           }
 
