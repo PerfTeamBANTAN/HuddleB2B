@@ -62,28 +62,33 @@ function renderKPI(filteredData) {
     filteredData.filter(r => r['Status Ach HI'] === '❌').length
   );
 
-  /* ===== ACHIEVEMENT HI ===== */
-  let finalAchievement = 0;
+  /* ===== ACHIEVEMENT HI (FIXED RULE) ===== */
+let finalAchievement = 0;
 
-  if (selectedWitel) {
-    // satu witel → AVG langsung
-    finalAchievement =
-      avg(filteredData.map(r => num(r['Achievement HI'])));
-  } else {
-    // ALL → avg per witel dulu
-    const group = {};
+// ambil baris indikator "Achievement"
+const achievementRows = dashboardRawData.filter(
+  r => String(r.Indikator).toLowerCase() === 'achievement'
+);
 
-    dashboardRawData.forEach(r => {
-      if (!group[r.Witel]) group[r.Witel] = [];
-      group[r.Witel].push(num(r['Achievement HI']));
-    });
+// mapping nilai per witel
+const achByWitel = {};
+achievementRows.forEach(r => {
+  achByWitel[r.Witel] = num(r['Achievement HI']);
+});
 
-    const perWitelAvg = Object.values(group).map(v => avg(v));
-    finalAchievement = avg(perWitelAvg);
-  }
-
-  setText('kpi-achievement-hi', finalAchievement.toFixed(2) + '%');
+if (selectedWitel) {
+  // TANGERANG / BANTEN → nilai pasti
+  finalAchievement = achByWitel[selectedWitel] || 0;
+} else {
+  // ALL → AVG antar witel
+  const values = Object.values(achByWitel);
+  finalAchievement = avg(values);
 }
+
+setText(
+  'kpi-achievement-hi',
+  finalAchievement ? finalAchievement.toFixed(2) + '%' : '-'
+);
 
 /* =====================================================
    TABLE (UNCHANGED)
