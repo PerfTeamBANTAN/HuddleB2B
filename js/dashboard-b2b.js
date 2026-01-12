@@ -1,60 +1,36 @@
 /* =====================================================
-   DASHBOARD B2B
+   DASHBOARD B2B – FULL JS
 ===================================================== */
 
 let dashboardRawData = [];
-let dashboardHeaders = [];
 
 /* =====================================================
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
-  const loading = document.getElementById('dashboard-b2b-loading-overlay');
-  const tableBody = document.getElementById('dashboard-b2b-table-body');
+  const loading = document.getElementById('loading-overlay');
+  const lastUpdateEl = document.getElementById('last-update');
 
-  if (!tableBody) return;
-
-  showLoading(true);
+  loading?.classList.remove('d-none');
 
   fetch(`${API_URL}?type=dashboard_b2b`)
     .then(res => res.json())
-    .then(res => {
-      dashboardHeaders = res.headers || [];
-      dashboardRawData = res.data || [];
+    .then(json => {
+      dashboardRawData = json.data || [];
 
-      initDashboardFilter();
       renderDashboard();
-      updateLastUpdate(res.lastUpdate);
+      initDashboardFilter();
+
+      if (lastUpdateEl) {
+        lastUpdateEl.textContent = formatDate(json.lastUpdate);
+      }
     })
     .catch(err => {
-      console.error('Dashboard B2B error:', err);
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="7" class="text-center text-danger">
-            Gagal memuat data
-          </td>
-        </tr>`;
+      console.error('Dashboard B2B Error:', err);
     })
-    .finally(() => showLoading(false));
-}
-
-/* =====================================================
-   FILTER INIT
-===================================================== */
-function initDashboardFilter() {
-  const witelEl = document.getElementById('dashboard-filter-witel');
-  const kategoriEl = document.getElementById('table-filter-kategori');
-
-  const witels = uniq(dashboardRawData.map(r => r.Witel));
-  const kategori = uniq(dashboardRawData.map(r => r['Kategori KPI']));
-
-  fillSelect(witelEl, witels);
-  fillSelect(kategoriEl, kategori);
-
-  witelEl?.addEventListener('change', renderDashboard);
-  kategoriEl?.addEventListener('change', renderDashboard);
-  document.getElementById('table-search')
-    ?.addEventListener('input', renderDashboard);
+    .finally(() => {
+      loading?.classList.add('d-none');
+    });
 }
 
 /* =====================================================
@@ -64,40 +40,21 @@ function renderDashboard() {
   const filtered = applyDashboardFilter();
   renderKPI(filtered);
   renderTable(filtered);
-  prepareChartData(filtered);
 }
 
 /* =====================================================
-   FILTER LOGIC
-===================================================== */
-function applyDashboardFilter() {
-  const witel = val('dashboard-filter-witel');
-  const kategori = val('table-filter-kategori');
-  const keyword = val('table-search').toLowerCase();
-
-  return dashboardRawData.filter(r => {
-    if (witel && r.Witel !== witel) return false;
-    if (kategori && r['Kategori KPI'] !== kategori) return false;
-    if (keyword && !String(r.Indikator).toLowerCase().includes(keyword)) return false;
-    return true;
-  });
-}
-
-/* =====================================================
-   KPI SUMMARY (FIXED)
+   KPI
 ===================================================== */
 function renderKPI(data) {
   const total = data.length;
-
-  const achieve = data.filter(r => r['Status HI'] === '✅').length;
-  const notAchieve = data.filter(r => r['Status HI'] === '❌').length;
+  const achieve = data.filter(r => r['Status Ach HI'] === '✅').length;
+  const notAchieve = data.filter(r => r['Status Ach HI'] === '❌').length;
 
   const avgHI =
     data
-      .map(r => num(r['Ach HI']))
+      .map(r => num(r['Achievement HI']))
       .filter(v => !isNaN(v))
-      .reduce((a, b) => a + b, 0) /
-    (data.length || 1);
+      .reduce((a, b) => a + b, 0) / (data.length || 1);
 
   setText('kpi-total', total);
   setText('kpi-achieve', achieve);
@@ -106,10 +63,12 @@ function renderKPI(data) {
 }
 
 /* =====================================================
-   TABLE (FIXED)
+   TABLE
 ===================================================== */
 function renderTable(data) {
   const tbody = document.getElementById('dashboard-b2b-table-body');
+  if (!tbody) return;
+
   tbody.innerHTML = '';
 
   if (!data.length) {
@@ -127,15 +86,16 @@ function renderTable(data) {
 
     tr.innerHTML = `
       <td>${r.Indikator}</td>
+      <td>${r.Witel}</td>
       <td class="text-end">${fmt(r.Target)}</td>
-      <td class="text-end fw-bold">${fmt(r['Ach HI'])}</td>
-      <td class="text-center">${badge(r['Status HI'])}</td>
-      <td class="text-end">${fmt(r['Ach Kemarin'])}</td>
-      <td class="text-center">${badge(r['Status Kemarin'])}</td>
-      <td class="small">${r['Kategori KPI']}</td>
+      <td class="text-end fw-bold">${fmt(r['Achievement HI'])}</td>
+      <td class="text-center">${badge(r['Status Ach HI'])}</td>
+      <td class="text-end">${fmt(r['Achievement Kemarin'])}</td>
+      <td class="text-center">${badge(r['Status Ach Kemarin'])}</td>
+      <td>${r['Katagori KPI']}</td>
     `;
 
-    if (r['Status HI'] === '❌') {
+    if (r['Status Ach HI'] === '❌') {
       tr.classList.add('table-danger');
     }
 
@@ -144,53 +104,46 @@ function renderTable(data) {
 }
 
 /* =====================================================
-   CHART PREP (HOOK)
+   FILTER
 ===================================================== */
-function prepareChartData(data) {
-  // data siap untuk chart
-  // labels: data.map(r => r.Indikator)
-  // hi: data.map(r => num(r['Ach HI']))
-  // kemarin: data.map(r => num(r['Ach Kemarin']))
+function initDashboardFilter() {
+  const witelEl = document.getElementById('dashboard-filter-witel');
+  const kategoriEl = document.getElementById('table-filter-kategori');
+
+  fillSelect(witelEl, uniq(dashboardRawData.map(r => r.Witel)));
+  fillSelect(kategoriEl, uniq(dashboardRawData.map(r => r['Katagori KPI'])));
+
+  witelEl?.addEventListener('change', renderDashboard);
+  kategoriEl?.addEventListener('change', renderDashboard);
+  document.getElementById('table-search')
+    ?.addEventListener('input', renderDashboard);
+}
+
+function applyDashboardFilter() {
+  const witel = val('dashboard-filter-witel');
+  const kategori = val('table-filter-kategori');
+  const keyword = val('table-search').toLowerCase();
+
+  return dashboardRawData.filter(r => {
+    if (witel && r.Witel !== witel) return false;
+    if (kategori && r['Katagori KPI'] !== kategori) return false;
+    if (keyword && !String(r.Indikator).toLowerCase().includes(keyword)) return false;
+    return true;
+  });
 }
 
 /* =====================================================
-   UTIL
+   UTILITIES
 ===================================================== */
-function showLoading(show) {
-  document
-    .getElementById('dashboard-b2b-loading-overlay')
-    ?.classList.toggle('d-none', !show);
-}
-
-function fillSelect(el, arr) {
-  if (!el) return;
-  el.innerHTML = `<option value="">All</option>` +
-    arr.map(v => `<option value="${v}">${v}</option>`).join('');
-}
-
-function uniq(arr) {
-  return [...new Set(arr.filter(Boolean))].sort();
-}
-
-function val(id) {
-  return document.getElementById(id)?.value || '';
-}
-
-function setText(id, v) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = v;
-}
-
-/* === FIX PARSE ANGKA KOMA === */
-function num(v) {
-  if (v === null || v === undefined || v === '-') return NaN;
-  return parseFloat(String(v).replace(',', '.'));
-}
-
 function fmt(v) {
-  if (v === null || v === undefined || v === '-') return '-';
-  const n = num(v);
-  return isNaN(n) ? '-' : n.toLocaleString('id-ID');
+  if (v === null || v === undefined || v === '') return '-';
+  if (isNaN(v)) return v;
+  return Number(v).toLocaleString('id-ID');
+}
+
+function num(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
 }
 
 function badge(v) {
@@ -199,9 +152,29 @@ function badge(v) {
   return '-';
 }
 
-function updateLastUpdate(ts) {
-  const el = document.getElementById('dashboard-b2b-last-update');
-  if (el) {
-    el.innerHTML = `<i class="fa fa-clock me-1"></i> Last update: ${ts || '-'}`;
-  }
+function uniq(arr) {
+  return [...new Set(arr.filter(Boolean))];
+}
+
+function fillSelect(el, data) {
+  if (!el) return;
+  el.innerHTML = `<option value="">All</option>`;
+  data.forEach(v => {
+    el.innerHTML += `<option value="${v}">${v}</option>`;
+  });
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function formatDate(dt) {
+  if (!dt) return '-';
+  return new Date(dt).toLocaleString('id-ID');
 }
