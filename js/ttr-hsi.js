@@ -197,7 +197,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE (HEADER DIRAPIHKAN)
+   RENDER TABLE (FIX: MERAH DI ANGKA SAJA)
 ===================================================== */
 function renderTTRTable() {
 
@@ -206,33 +206,13 @@ function renderTTRTable() {
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
 
-  /* ===== HEADER (FIX HTML VALID) ===== */
   head.innerHTML = '';
-
-  const trHead = document.createElement('tr'); // ✅ WAJIB ADA <tr>
-
   ttrHeaders.forEach(h => {
-
     const th = document.createElement('th');
     th.textContent = h;
-
-    // CLASS HEADER AGAR RAPI
-    if (h === 'STO') th.classList.add('col-sto');
-    else if (h === 'WITEL') th.classList.add('col-witel');
-    else if (h.includes('%')) th.classList.add('col-percent');
-    else if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
-
-    // STYLE AMAN (INLINE)
-    th.style.whiteSpace = 'normal';
-    th.style.textAlign = 'center';
-    th.style.verticalAlign = 'middle';
-
-    trHead.appendChild(th);
+    head.appendChild(th);
   });
 
-  head.appendChild(trHead); // ✅ th → tr → thead
-
-  /* ===== BODY (ASLI – TIDAK DIUBAH) ===== */
   body.innerHTML = '';
 
   ttrRawData
@@ -262,4 +242,3 @@ function renderTTRTable() {
       body.appendChild(tr);
     });
 }
-
