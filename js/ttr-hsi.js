@@ -84,7 +84,7 @@ function getTTRDetailType(type, header) {
   /* ================= HSI ================= */
   if (type === 'ttr_hsi_table') {
 
-    // INDIBIZ
+    
     if (header === 'Tot Tiket INDIBIZ 4H')
       return 'ttr_hsi_indibiz_4h_detail';
 
