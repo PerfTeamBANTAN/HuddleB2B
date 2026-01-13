@@ -197,12 +197,29 @@ function loadAsgarHSITable(API_URL) {
             openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
           };
 
-        } else {
-          td.textContent =
-            typeof val === 'number'
-              ? (Number.isInteger(val) ? val : val.toFixed(2))
-              : (val ?? '-');
-        }
+        } else if (h === 'Total Tiket s/d HI' && Number(val) > 0) {
+
+  td.innerHTML = `<a href="#" class="text-primary fw-bold text-decoration-none">${val}</a>`;
+  td.onclick = e => {
+    e.preventDefault();
+    openTotalSdHIModal(API_URL, row.STO, row.WITEL || '-');
+  };
+
+        } else if (h === 'Total Tiket Asgar' && Number(val) > 0) {
+
+  td.innerHTML = `<a href="#" class="text-primary fw-bold text-decoration-none">${val}</a>`;
+  td.onclick = e => {
+    e.preventDefault();
+    openTotalTiketAsgarModal(API_URL, row.STO, row.WITEL || '-');
+  };
+
+} else {
+  td.textContent =
+    typeof val === 'number'
+      ? (Number.isInteger(val) ? val : val.toFixed(2))
+      : (val ?? '-');
+}
+
 
         tr.appendChild(td);
       });
@@ -270,6 +287,131 @@ function openAsgarHIModal(API_URL, sto, witel) {
 
   new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
+
+/* =====================================================
+   MODAL DETAIL TOTAL TIKET s/d HI (FULL DATA)
+===================================================== */
+function openTotalSdHIModal(API_URL, sto, witel) {
+  const title = document.getElementById('modalTiketHITitle');
+  const head  = document.getElementById('tiket-hi-head');
+  const body  = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail Total Tiket s/d HI – ${witel} / ${sto}`;
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td>Loading...</td></tr>`;
+
+  const cb = 'jsonp_total_sd_hi_' + Date.now();
+
+  window[cb] = function (res) {
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    const headers = res.headers || [];
+    const data = res.data || [];
+
+    if (!headers.length) {
+      body.innerHTML = `<tr><td class="text-center text-muted">Tidak ada data</td></tr>`;
+      return;
+    }
+
+    /* ===== HEADER TABLE ===== */
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      head.appendChild(th);
+    });
+
+    /* ===== BODY ===== */
+    if (!data.length) {
+      body.innerHTML =
+        `<tr><td colspan="${headers.length}" class="text-center text-muted">
+          Tidak ada data
+        </td></tr>`;
+    } else {
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          td.textContent = r[h] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    delete window[cb];
+    script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${API_URL}?type=total_sd_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+  document.body.appendChild(script);
+
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
+}
+   
+/* =====================================================
+   MODAL DETAIL TOTAL ASGAR TIKET s/d HI (FULL DATA)
+===================================================== */
+   function openTotalTiketAsgarModal(API_URL, sto, witel) {
+
+  const title = document.getElementById('modalTiketHITitle');
+  const head  = document.getElementById('tiket-hi-head');
+  const body  = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail Total Tiket Asgar – ${witel} / ${sto}`;
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td>Loading...</td></tr>`;
+
+  const cb = 'jsonp_asgar_' + Date.now();
+
+  window[cb] = function (res) {
+
+    head.innerHTML = '';
+    body.innerHTML = '';
+
+    const headers = res.headers || [];
+    const data = res.data || [];
+
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      head.appendChild(th);
+    });
+
+    if (!data.length) {
+      body.innerHTML =
+        `<tr><td colspan="${headers.length}" class="text-center text-muted">
+          Tidak ada data
+        </td></tr>`;
+    } else {
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          td.textContent = r[h] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+    delete window[cb];
+    script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${API_URL}?type=total_tiket_asgar_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+
+  document.body.appendChild(script);
+
+  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
+}
+
 
 /* =====================================================
    MODAL DETAIL TIKET HI
