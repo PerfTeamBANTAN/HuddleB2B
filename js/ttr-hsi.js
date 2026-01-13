@@ -301,84 +301,67 @@ function renderTTRTable() {
     });
 }
 
-/* =====================================================
-   OPEN DETAIL TTR → GLOBAL MODAL (AMAN & KONSISTEN)
-===================================================== */
-async function openTTRDetail(type, sto, witel) {
+async function openTTRDetail(ctx) {
 
-  const modalEl  = document.getElementById('global-modal');
-  const titleEl  = modalEl?.querySelector('.modal-title');
-  const bodyEl   = modalEl?.querySelector('.modal-body');
+  const modalEl = document.getElementById('global-modal');
+  const titleEl = modalEl.querySelector('.modal-title');
+  const bodyEl  = modalEl.querySelector('.modal-body');
 
-  if (!modalEl || !titleEl || !bodyEl) {
-    console.error('Global modal tidak ditemukan');
-    return;
-  }
-
-  /* ===== TITLE ===== */
   titleEl.textContent =
-    `Detail ${type.replace(/_/g, ' ').toUpperCase()} – ${witel} / ${sto}`;
+    `Detail ${ctx.label} – ${ctx.witel} / ${ctx.sto}`;
 
   bodyEl.innerHTML = `
-    <div class="text-center text-muted py-4">
-      <div class="spinner-border text-light mb-2"></div><br>
-      Memuat data...
+    <div class="text-center py-4">
+      <div class="spinner-border text-light"></div>
     </div>`;
 
-  try {
+  /* ===== BUILD QUERY ===== */
+  const params = new URLSearchParams({
+    sto: ctx.sto,
+    witel: ctx.witel,
+    kategori: ctx.kategori
+  });
 
-    const res = await fetch(
-      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
-    );
-
-    const json = await res.json();
-    const headers = json.headers || [];
-    const data    = json.data || [];
-
-    /* ===== BUILD TABLE ===== */
-    let html = `
-      <div class="table-responsive">
-        <table class="table table-dark table-striped table-bordered table-sm align-middle">
-          <thead class="table-secondary text-dark">
-            <tr>`;
-
-    headers.forEach(h => {
-      html += `<th>${h}</th>`;
-    });
-
-    html += `</tr></thead><tbody>`;
-
-    if (!data.length) {
-      html += `
-        <tr>
-          <td colspan="${headers.length}"
-              class="text-center text-muted">
-            Tidak ada data
-          </td>
-        </tr>`;
-    } else {
-      data.forEach(r => {
-        html += `<tr>`;
-        headers.forEach(h => {
-          html += `<td>${r[h] ?? '-'}</td>`;
-        });
-        html += `</tr>`;
-      });
-    }
-
-    html += `</tbody></table></div>`;
-
-    bodyEl.innerHTML = html;
-
-    /* ===== SHOW MODAL ===== */
-    new bootstrap.Modal(modalEl).show();
-
-  } catch (err) {
-    console.error(err);
-    bodyEl.innerHTML = `
-      <div class="text-danger text-center py-3">
-        Gagal memuat data
-      </div>`;
+  if (ctx.compliance) {
+    params.append('compliance', ctx.compliance);
   }
+
+  const res  = await fetch(`${API_URL}/detail?${params}`);
+  const json = await res.json();
+
+  /* ===== BUILD TABLE ===== */
+  let html = `
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-bordered table-sm">
+        <thead class="table-secondary text-dark">
+          <tr>`;
+
+  json.headers.forEach(h => html += `<th>${h}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  if (!json.data.length) {
+    html += `
+      <tr>
+        <td colspan="${json.headers.length}"
+            class="text-center text-muted">
+          Tidak ada data
+        </td>
+      </tr>`;
+  } else {
+    json.data.forEach(r => {
+      html += '<tr>';
+      json.headers.forEach(h => {
+        html += `<td>${r[h] ?? '-'}</td>`;
+      });
+      html += '</tr>';
+    });
+  }
+
+  html += '</tbody></table></div>';
+
+  bodyEl.innerHTML = html;
+
+  new bootstrap.Modal(modalEl).show();
 }
+
 
