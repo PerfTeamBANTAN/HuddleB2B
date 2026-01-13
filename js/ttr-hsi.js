@@ -72,16 +72,36 @@ function isAlertCell(type, header, row) {
 ===================================================== */
 function getTTRDetailType(type, header) {
 
-  if (type !== 'ttr_datin_table') return null;
+  /* ================= DATIN ================= */
+  if (type === 'ttr_datin_table') {
+    if (header === 'Tot Tiket K2') return 'tot_tiket_k2_detail';
+    if (header === 'Tot Tiket K3') return 'tot_tiket_k3_detail';
 
-  if (header === 'Tot Tiket K2') return 'tot_tiket_k2_detail';
-  if (header === 'Tot Tiket K3') return 'tot_tiket_k3_detail';
+    if (header === 'Tiket Not Ach K2') return 'tiket_not_ach_k2_detail';
+    if (header === 'Tiket Not Ach K3') return 'tiket_not_ach_k3_detail';
+  }
 
-  if (header === 'Tiket Not Ach K2') return 'tiket_not_ach_k2_detail';
-  if (header === 'Tiket Not Ach K3') return 'tiket_not_ach_k3_detail';
+  /* ================= HSI ================= */
+  if (type === 'ttr_hsi_table') {
+
+    // INDIBIZ
+    if (header === 'Tot Tiket INDIBIZ 4H') return 'tot_indibiz_4h_detail';
+    if (header === 'Tiket Not Ach INDIBIZ 4H') return 'tiket_not_ach_indibiz_4h_detail';
+
+    if (header === 'Tot Tiket INDIBIZ 24H') return 'tot_indibiz_24h_detail';
+    if (header === 'Tiket Not Ach INDIBIZ 24H') return 'tiket_not_ach_indibiz_24h_detail';
+
+    // RESELLER
+    if (header === 'Tot Tiket RESELLER 6H') return 'tot_reseller_6h_detail';
+    if (header === 'Tiket Not Ach RESELLER 6H') return 'tiket_not_ach_reseller_6h_detail';
+
+    if (header === 'Tot Tiket RESELLER 36H') return 'tot_reseller_36h_detail';
+    if (header === 'Tiket Not Ach RESELLER 36H') return 'tiket_not_ach_reseller_36h_detail';
+  }
 
   return null;
 }
+
 
 /* =====================================================
    HEADER FORMATTER (VISUAL ONLY)
@@ -311,11 +331,28 @@ async function openTTRDetail(type, sto, witel) {
   const body  = modal.querySelector('.modal-body');
 
   const titleMap = {
+
+  /* DATIN */
   tot_tiket_k2_detail:        'Detail Tot Tiket K2',
   tot_tiket_k3_detail:        'Detail Tot Tiket K3',
   tiket_not_ach_k2_detail:    'Detail Tiket Not Ach K2',
-  tiket_not_ach_k3_detail:    'Detail Tiket Not Ach K3'
+  tiket_not_ach_k3_detail:    'Detail Tiket Not Ach K3',
+
+  /* INDIBIZ */
+  tot_indibiz_4h_detail:      'Detail Tot Tiket INDIBIZ 4H',
+  tiket_not_ach_indibiz_4h_detail: 'Detail Tiket Not Ach INDIBIZ 4H',
+
+  tot_indibiz_24h_detail:     'Detail Tot Tiket INDIBIZ 24H',
+  tiket_not_ach_indibiz_24h_detail: 'Detail Tiket Not Ach INDIBIZ 24H',
+
+  /* RESELLER */
+  tot_reseller_6h_detail:     'Detail Tot Tiket RESELLER 6H',
+  tiket_not_ach_reseller_6h_detail: 'Detail Tiket Not Ach RESELLER 6H',
+
+  tot_reseller_36h_detail:    'Detail Tot Tiket RESELLER 36H',
+  tiket_not_ach_reseller_36h_detail: 'Detail Tiket Not Ach RESELLER 36H'
 };
+
 
 
   title.textContent =
