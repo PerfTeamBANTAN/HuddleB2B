@@ -109,7 +109,7 @@ function renderTable(data) {
       <td class="text-center">${badge(r['Status Ach HI'])}</td>
       <td class="text-end">${fmt(r['Achievement Kemarin'])}</td>
       <td class="text-center">${badge(r['Status Ach Kemarin'])}</td>
-      <td>${r['Katagori KPI']}</td>
+      <td>${r['Kategori KPI']}</td>
     `;
     if (r['Status Ach HI'] === '❌') tr.classList.add('table-danger');
     tbody.appendChild(tr);
@@ -185,7 +185,7 @@ function initDashboardFilter() {
 
   fillSelect(
     document.getElementById('table-filter-kategori'),
-    uniq(dashboardRawData.map(d => d['Katagori KPI']))
+    uniq(dashboardRawData.map(d => d['Kategori KPI']))
   );
 
   ['dashboard-filter-witel', 'table-filter-kategori', 'table-search']
@@ -201,7 +201,7 @@ function applyDashboardFilter() {
 
   return dashboardRawData.filter(r => {
     if (witel && r.Witel !== witel) return false;
-    if (kat && r['Katagori KPI'] !== kat) return false;
+    if (kat && r['Kategori KPI'] !== kat) return false;
     if (key && !r.Indikator.toLowerCase().includes(key)) return false;
     return true;
   });
