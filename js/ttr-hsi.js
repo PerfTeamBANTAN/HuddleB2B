@@ -68,6 +68,36 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
+   HEADER FORMATTER (ONLY VISUAL)
+===================================================== */
+function formatHeaderLabel(h) {
+
+  if (h === 'STO' || h === 'WITEL') return h;
+
+  let label = h;
+
+  label = label.replace('% ', '%<br>');
+  label = label.replace(/TTR/g, '<strong>TTR</strong>');
+
+  label = label.replace(
+    /Tiket Not Ach/i,
+    '<small>Tiket</small><br><strong>Not Ach</strong>'
+  );
+
+  label = label.replace(
+    /Tiket (K\d) HI/i,
+    '<small>Tiket</small><br><strong>$1 HI</strong>'
+  );
+
+  label = label.replace(
+    /(\d+H)/g,
+    '<br><small>$1</small>'
+  );
+
+  return label;
+}
+
+/* =====================================================
    KPI SUMMARY CARD
 ===================================================== */
 async function renderSummaryCards(API_URL) {
@@ -197,7 +227,7 @@ function initTTRFilter() {
 }
 
 /* =====================================================
-   RENDER TABLE (HEADER DIRAPIHKAN)
+   RENDER TABLE
 ===================================================== */
 function renderTTRTable() {
 
@@ -206,18 +236,13 @@ function renderTTRTable() {
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
 
-  /* ===== HEADER ONLY (FIX) ===== */
+  /* ===== HEADER (RAPI, UI TETAP) ===== */
   head.innerHTML = '';
+
   ttrHeaders.forEach(h => {
 
     const th = document.createElement('th');
-    th.textContent = h;
-
-    // CLASS HEADER AGAR RAPI
-    if (h === 'STO') th.classList.add('col-sto');
-    else if (h === 'WITEL') th.classList.add('col-witel');
-    else if (h.includes('%')) th.classList.add('col-percent');
-    else if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
+    th.innerHTML = formatHeaderLabel(h);
 
     th.style.whiteSpace = 'normal';
     th.style.textAlign = 'center';
@@ -226,7 +251,7 @@ function renderTTRTable() {
     head.appendChild(th);
   });
 
-  /* ===== BODY (ASLI – TIDAK DIUBAH) ===== */
+  /* ===== BODY (ASLI) ===== */
   body.innerHTML = '';
 
   ttrRawData
