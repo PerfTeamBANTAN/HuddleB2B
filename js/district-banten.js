@@ -17,7 +17,7 @@ function initDistrictBanten(API_URL) {
   window[cbKpi] = function (res) {
     try {
 
-      const { data, lastUpdate } = res;
+      const { data = [], lastUpdate } = res;
 
       if (lastUpdate && lastUpdateEl) {
         const d = new Date(lastUpdate);
@@ -62,18 +62,18 @@ function initDistrictBanten(API_URL) {
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${v.target?.toFixed(2) ?? '-'}</span>
+              <span>${Number.isFinite(v.target) ? v.target.toFixed(2) : '-'}</span>
             </div>
             <div class="row-item">
               <span>Banten</span>
               <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-                ${v.BANTEN?.toFixed(2) ?? '-'}
+                ${Number.isFinite(v.BANTEN) ? v.BANTEN.toFixed(2) : '-'}
               </span>
             </div>
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-                ${v.TANGERANG?.toFixed(2) ?? '-'}
+                ${Number.isFinite(v.TANGERANG) ? v.TANGERANG.toFixed(2) : '-'}
               </span>
             </div>
           </div>
@@ -125,24 +125,15 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
-      const stoSet   = new Set(rawData.map(r => r.STO).filter(Boolean));
-      const picSet   = new Set(rawData.map(r => r.PIC).filter(Boolean));
+      const buildOptions = (el, values, label) => {
+        el.innerHTML = `<option value="">${label}</option>`;
+        [...new Set(values.filter(Boolean))].sort()
+          .forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+      };
 
-      filterWitel.innerHTML = '<option value="">All WITEL</option>';
-      [...witelSet].sort().forEach(v =>
-        filterWitel.innerHTML += `<option value="${v}">${v}</option>`
-      );
-
-      filterSto.innerHTML = '<option value="">All STO</option>';
-      [...stoSet].sort().forEach(v =>
-        filterSto.innerHTML += `<option value="${v}">${v}</option>`
-      );
-
-      filterPic.innerHTML = '<option value="">All PIC</option>';
-      [...picSet].sort().forEach(v =>
-        filterPic.innerHTML += `<option value="${v}">${v}</option>`
-      );
+      buildOptions(filterWitel, rawData.map(r => r.WITEL), 'All WITEL');
+      buildOptions(filterSto, rawData.map(r => r.STO), 'All STO');
+      buildOptions(filterPic, rawData.map(r => r.PIC), 'All PIC');
 
       filterWitel.onchange =
       filterSto.onchange =
@@ -194,19 +185,17 @@ function loadDistrictBantenTable(API_URL) {
         const td = document.createElement('td');
 
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
+          const a = document.createElement('a');
+          a.href = '#';
+          a.className = 'text-warning fw-bold text-decoration-none';
+          a.textContent = row[h];
 
-          td.innerHTML = `
-            <a href="#" class="text-warning fw-bold text-decoration-none tiket-hi-link">
-              ${row[h]}
-            </a>
-          `;
+          a.onclick = e => {
+            e.preventDefault();
+            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+          };
 
-          td.querySelector('.tiket-hi-link')
-            .addEventListener('click', e => {
-              e.preventDefault();
-              openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
-            });
-
+          td.appendChild(a);
         } else {
           td.textContent = row[h] ?? '-';
         }
@@ -227,8 +216,8 @@ function loadDistrictBantenTable(API_URL) {
    GLOBAL MODAL HELPER (AUTO CREATE – AMAN)
 ===================================================== */
 function getOrCreateGlobalModal() {
-  let modal = document.getElementById('global-modal');
 
+  let modal = document.getElementById('global-modal');
   if (modal) return modal;
 
   modal = document.createElement('div');
@@ -243,8 +232,7 @@ function getOrCreateGlobalModal() {
           <h5 class="modal-title"></h5>
           <button type="button"
             class="btn-close btn-close-white"
-            data-bs-dismiss="modal">
-          </button>
+            data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body"></div>
       </div>
@@ -256,7 +244,7 @@ function getOrCreateGlobalModal() {
 }
 
 /* =====================================================
-   OPEN DETAIL MODAL – TIKET HI (PAKAI TITLE MAP)
+   OPEN DETAIL MODAL – TIKET HI (FIXED TYPE)
 ===================================================== */
 async function openTiketHIModal(API_URL, sto, witel) {
 
@@ -264,15 +252,14 @@ async function openTiketHIModal(API_URL, sto, witel) {
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
-  /* === TITLE MAP (KONSISTEN DENGAN TTR) === */
   const titleMap = {
-    total_sd_hi_detail: 'Detail Tiket HI'
+    tiket_hi_detail: 'Detail Tiket HI'
   };
 
-  const type = 'total_sd_hi_detail';
+  const type = 'tiket_hi_detail';
 
   title.textContent =
-    `${titleMap[type] || 'Detail Tiket'} – ${witel} / ${sto}`;
+    `${titleMap[type]} – ${witel} / ${sto}`;
 
   body.innerHTML = `
     <div class="text-center py-5">
@@ -308,7 +295,7 @@ async function openTiketHIModal(API_URL, sto, witel) {
           <tbody>
             ${json.data.map(r => `
               <tr>
-                ${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}
+                ${json.headers.map(h => `<td>${r[h] ?? '-'}</td>`).join('')}
               </tr>
             `).join('')}
           </tbody>
