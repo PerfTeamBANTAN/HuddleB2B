@@ -222,22 +222,60 @@ async function initTTRHSI(API_URL) {
 }
 
 /* =====================================================
-   LOAD TABLE
+   LOAD TABLE (IMPROVED LOADING UX – SAFE)
 ===================================================== */
 async function loadTTRTable(API_URL, type) {
 
   const body = document.getElementById('ttr-table-body');
-  body.innerHTML = `<tr><td class="text-center text-muted">Loading...</td></tr>`;
 
-  const res = await fetch(API_URL + '?type=' + type);
-  const json = await res.json();
+  /* === LOADING STATE (VISIBLE ON DARK UI) === */
+  body.innerHTML = `
+    <tr>
+      <td colspan="30" class="text-center py-4">
+        <div class="d-flex flex-column align-items-center gap-2">
+          <span class="spinner-border text-light"></span>
+          <span class="text-light fw-semibold">Loading data...</span>
+        </div>
+      </td>
+    </tr>
+  `;
 
-  ttrHeaders = json.headers;
-  ttrRawData = json.data;
+  try {
 
-  initTTRFilter();
-  renderTTRTable();
+    const res = await fetch(API_URL + '?type=' + type);
+    const json = await res.json();
+
+    /* === SAFETY CHECK === */
+    if (!json || !Array.isArray(json.data)) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="30" class="text-center text-danger py-4">
+            Gagal memuat data
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    ttrHeaders = json.headers || [];
+    ttrRawData = json.data || [];
+
+    initTTRFilter();
+    renderTTRTable();
+
+  } catch (err) {
+
+    console.error(err);
+    body.innerHTML = `
+      <tr>
+        <td colspan="30" class="text-center text-danger py-4">
+          Error saat mengambil data
+        </td>
+      </tr>
+    `;
+  }
 }
+
 
 /* =====================================================
    FILTER
