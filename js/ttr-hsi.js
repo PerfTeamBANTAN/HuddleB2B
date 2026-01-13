@@ -301,67 +301,66 @@ function renderTTRTable() {
     });
 }
 
-async function openTTRDetail(ctx) {
+/* =====================================================
+   OPEN DETAIL MODAL TTR (IKUT POLA SQM - STABIL)
+===================================================== */
+async function openTTRDetail(type, sto, witel) {
 
-  const modalEl = document.getElementById('global-modal');
-  const titleEl = modalEl.querySelector('.modal-title');
-  const bodyEl  = modalEl.querySelector('.modal-body');
+  const modal = document.getElementById('global-modal');
+  const title = modal.querySelector('.modal-title');
+  const body  = modal.querySelector('.modal-body');
 
-  titleEl.textContent =
-    `Detail ${ctx.label} – ${ctx.witel} / ${ctx.sto}`;
+  const titleMap = {
+    ttr_datin_k2_detail:        'Detail TOT Tiket K2',
+    ttr_datin_k3_detail:        'Detail TOT Tiket K3',
+    ttr_datin_k2_notach_detail: 'Detail Tiket NOT ACH K2',
+    ttr_datin_k3_notach_detail: 'Detail Tiket NOT ACH K3'
+  };
 
-  bodyEl.innerHTML = `
-    <div class="text-center py-4">
-      <div class="spinner-border text-light"></div>
-    </div>`;
+  title.textContent =
+    `${titleMap[type] || 'Detail TTR'} – ${witel} / ${sto}`;
 
-  /* ===== BUILD QUERY ===== */
-  const params = new URLSearchParams({
-    sto: ctx.sto,
-    witel: ctx.witel,
-    kategori: ctx.kategori
-  });
+  body.innerHTML = `
+    <div class="text-center py-5">
+      <span class="spinner-border"></span>
+    </div>
+  `;
 
-  if (ctx.compliance) {
-    params.append('compliance', ctx.compliance);
-  }
+  new bootstrap.Modal(modal).show();
 
-  const res  = await fetch(`${API_URL}/detail?${params}`);
+  /* === FETCH (SAMA PERSIS SEPERTI SQM) === */
+  const res = await fetch(
+    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}&witel=${encodeURIComponent(witel)}`
+  );
+
   const json = await res.json();
 
-  /* ===== BUILD TABLE ===== */
-  let html = `
-    <div class="table-responsive">
-      <table class="table table-dark table-striped table-bordered table-sm">
-        <thead class="table-secondary text-dark">
-          <tr>`;
-
-  json.headers.forEach(h => html += `<th>${h}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  if (!json.data.length) {
-    html += `
-      <tr>
-        <td colspan="${json.headers.length}"
-            class="text-center text-muted">
-          Tidak ada data
-        </td>
-      </tr>`;
-  } else {
-    json.data.forEach(r => {
-      html += '<tr>';
-      json.headers.forEach(h => {
-        html += `<td>${r[h] ?? '-'}</td>`;
-      });
-      html += '</tr>';
-    });
+  if (!json.data || !json.data.length) {
+    body.innerHTML = `
+      <div class="text-center py-4 text-muted">
+        Tidak ada data
+      </div>`;
+    return;
   }
 
-  html += '</tbody></table></div>';
-
-  bodyEl.innerHTML = html;
-
-  new bootstrap.Modal(modalEl).show();
+  body.innerHTML = `
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-dark align-middle">
+        <thead class="table-secondary text-dark">
+          <tr>
+            ${json.headers.map(h => `<th>${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${json.data.map(r => `
+            <tr>
+              ${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 
