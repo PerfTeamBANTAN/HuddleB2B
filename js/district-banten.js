@@ -248,16 +248,32 @@ function loadDistrictBantenTable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL – TIKET HI (IKUT POLA TTR / SQM)
+   MODAL DETAIL – TIKET HI (VERSI AMAN)
 ===================================================== */
 async function openTiketHIModal(API_URL, sto, witel) {
 
   const modal = document.getElementById('global-modal');
+
+  /* ===== GUARD WAJIB ===== */
+  if (!modal) {
+    console.error('❌ #global-modal tidak ditemukan di DOM');
+    alert(`Detail Tiket HI\nSTO: ${sto}\nWITEL: ${witel}`);
+    return;
+  }
+
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
+  if (!title || !body) {
+    console.error('❌ Struktur modal tidak lengkap (.modal-title / .modal-body)');
+    alert(`Detail Tiket HI\nSTO: ${sto}\nWITEL: ${witel}`);
+    return;
+  }
+
+  /* ===== TITLE ===== */
   title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
+  /* ===== LOADING ===== */
   body.innerHTML = `
     <div class="text-center py-5">
       <span class="spinner-border"></span>
@@ -302,7 +318,6 @@ async function openTiketHIModal(API_URL, sto, witel) {
     `;
 
   } catch (err) {
-
     console.error(err);
     body.innerHTML = `
       <div class="text-center py-4 text-danger">
@@ -311,3 +326,4 @@ async function openTiketHIModal(API_URL, sto, witel) {
     `;
   }
 }
+
