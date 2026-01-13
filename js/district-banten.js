@@ -244,22 +244,17 @@ function getOrCreateGlobalModal() {
 }
 
 /* =====================================================
-   OPEN DETAIL MODAL – TIKET HI (FIXED TYPE)
+   OPEN DETAIL MODAL – TIKET HI (JSONP – CORS SAFE)
 ===================================================== */
-async function openTiketHIModal(API_URL, sto, witel) {
+function openTiketHIModal(API_URL, sto, witel) {
 
   const modal = getOrCreateGlobalModal();
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
-  const titleMap = {
-    tiket_hi_detail: 'Detail Tiket HI'
-  };
-
   const type = 'tiket_hi_detail';
 
-  title.textContent =
-    `${titleMap[type]} – ${witel} / ${sto}`;
+  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
   body.innerHTML = `
     <div class="text-center py-5">
@@ -269,45 +264,57 @@ async function openTiketHIModal(API_URL, sto, witel) {
 
   new bootstrap.Modal(modal).show();
 
-  try {
-    const res = await fetch(
-      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
-    );
+  const cb = 'jsonp_hi_' + Date.now();
 
-    const json = await res.json();
+  window[cb] = function (json) {
+    try {
 
-    if (!json.data || !json.data.length) {
+      if (!json.data || !json.data.length) {
+        body.innerHTML = `
+          <div class="text-center py-4 text-muted">
+            Tidak ada data
+          </div>`;
+        return;
+      }
+
       body.innerHTML = `
-        <div class="text-center py-4 text-muted">
-          Tidak ada data
-        </div>`;
-      return;
-    }
-
-    body.innerHTML = `
-      <div class="table-responsive">
-        <table class="table table-sm table-bordered table-dark align-middle">
-          <thead class="table-secondary text-dark">
-            <tr>
-              ${json.headers.map(h => `<th>${h}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${json.data.map(r => `
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered table-dark align-middle">
+            <thead class="table-secondary text-dark">
               <tr>
-                ${json.headers.map(h => `<td>${r[h] ?? '-'}</td>`).join('')}
+                ${json.headers.map(h => `<th>${h}</th>`).join('')}
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  } catch (err) {
-    console.error(err);
-    body.innerHTML = `
-      <div class="text-center py-4 text-danger">
-        Gagal memuat data
-      </div>
-    `;
-  }
+            </thead>
+            <tbody>
+              ${json.data.map(r => `
+                <tr>
+                  ${json.headers.map(h => `<td>${r[h] ?? '-'}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+    } catch (err) {
+      console.error(err);
+      body.innerHTML = `
+        <div class="text-center py-4 text-danger">
+          Gagal memuat data
+        </div>
+      `;
+    } finally {
+      delete window[cb];
+      script.remove();
+    }
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${API_URL}?type=${type}` +
+    `&sto=${encodeURIComponent(sto)}` +
+    `&callback=${cb}`;
+
+  document.body.appendChild(script);
 }
+
