@@ -68,6 +68,22 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
+   DETAIL TYPE MAPPER (TTR DATIN)
+===================================================== */
+function getTTRDetailType(type, header) {
+
+  if (type !== 'ttr_datin_table') return null;
+
+  if (header === 'Tot Tiket K2') return 'tot_tiket_k2_detail';
+  if (header === 'Tot Tiket K3') return 'tot_tiket_k3_detail';
+
+  if (header === 'Tiket Not Ach K2') return 'tiket_not_ach_k2_detail';
+  if (header === 'Tiket Not Ach K3') return 'tiket_not_ach_k3_detail';
+
+  return null;
+}
+
+/* =====================================================
    HEADER FORMATTER (ONLY VISUAL)
 ===================================================== */
 function formatHeaderLabel(h) {
@@ -151,6 +167,8 @@ async function renderSummaryCards(API_URL) {
    INIT
 ===================================================== */
 async function initTTRHSI(API_URL) {
+
+  window.API_URL = API_URL; // <-- supaya bisa dipakai detail
 
   const overlay = document.getElementById('ttr-loading-overlay');
   const lastUpdate = document.getElementById('ttr-last-update');
@@ -236,22 +254,17 @@ function renderTTRTable() {
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
 
-  /* ===== HEADER (RAPI, UI TETAP) ===== */
   head.innerHTML = '';
 
   ttrHeaders.forEach(h => {
-
     const th = document.createElement('th');
     th.innerHTML = formatHeaderLabel(h);
-
     th.style.whiteSpace = 'normal';
     th.style.textAlign = 'center';
     th.style.verticalAlign = 'middle';
-
     head.appendChild(th);
   });
 
-  /* ===== BODY (ASLI) ===== */
   body.innerHTML = '';
 
   ttrRawData
@@ -269,9 +282,20 @@ function renderTTRTable() {
         else if (h.toLowerCase().includes('tiket')) value = fmtInt(r[h]);
         else value = fmt(r[h]);
 
-        if (isAlertCell(currentType, h, r)) {
+        const detailType = getTTRDetailType(currentType, h);
+
+        if (detailType && Number(r[h]) > 0) {
+          td.innerHTML = `
+            <span
+              class="${isAlertCell(currentType, h, r) ? 'text-danger fw-bold' : 'text-primary fw-bold'}"
+              style="cursor:pointer;text-decoration:underline"
+              onclick="openTTRDetail('${detailType}', '${r.STO}', '${r.WITEL}')"
+            >${value}</span>`;
+        }
+        else if (isAlertCell(currentType, h, r)) {
           td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
-        } else {
+        }
+        else {
           td.textContent = value;
         }
 
@@ -281,3 +305,86 @@ function renderTTRTable() {
       body.appendChild(tr);
     });
 }
+
+/* =====================================================
+   OPEN DETAIL (FULL DATA, NO FILTER)
+===================================================== */
+async function openTTRDetail(type, sto, witel) {
+
+  const res = await fetch(
+    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
+  );
+
+  const json = await res.json();
+
+  console.log('DETAIL DATA:', type, json);
+
+  /* =====================================================
+   OPEN DETAIL TTR (FULL DATA – NO FILTER)
+===================================================== */
+async function openTTRDetail(type, sto, witel) {
+
+  const title = document.getElementById('modalTiketHITitle');
+  const head  = document.getElementById('tiket-hi-head');
+  const body  = document.getElementById('tiket-hi-body');
+
+  title.textContent = `Detail ${type.replace(/_/g,' ').toUpperCase()} – ${witel} / ${sto}`;
+
+  head.innerHTML = '';
+  body.innerHTML = `<tr><td class="text-center">Loading...</td></tr>`;
+
+  try {
+
+    const res = await fetch(
+      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
+    );
+
+    const json = await res.json();
+
+    const headers = json.headers || [];
+    const data    = json.data || [];
+
+    /* ===== HEADER ===== */
+    head.innerHTML = '';
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      head.appendChild(th);
+    });
+
+    /* ===== BODY ===== */
+    body.innerHTML = '';
+
+    if (!data.length) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+    } else {
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          td.textContent = r[h] ?? '-';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+
+  } catch (err) {
+    body.innerHTML = `
+      <tr>
+        <td class="text-danger text-center">Gagal memuat data</td>
+      </tr>`;
+    console.error(err);
+  }
+
+  new bootstrap.Modal(
+    document.getElementById('modalTiketHI')
+  ).show();
+}
+
+
