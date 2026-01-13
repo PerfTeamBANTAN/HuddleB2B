@@ -302,61 +302,53 @@ function renderTTRTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL (FULL DATA, NO FILTER)
+   OPEN DETAIL DATIN (RENDER KE TABLE EXISTING)
 ===================================================== */
 async function openTTRDetail(type, sto, witel) {
 
-  const title = document.getElementById('modalTiketHITitle');
-  const head  = document.getElementById('tiket-hi-head');
-  const body  = document.getElementById('tiket-hi-body');
+  const body = document.getElementById('ttr-table-body');
 
-  title.textContent = `Detail ${type.replace(/_/g,' ').toUpperCase()} – ${witel} / ${sto}`;
-  head.innerHTML = '';
-  body.innerHTML = `<tr><td class="text-center">Loading...</td></tr>`;
+  if (!body) {
+    console.error('Table body tidak ditemukan');
+    return;
+  }
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="${ttrHeaders.length}" class="text-center text-muted">
+        Loading detail...
+      </td>
+    </tr>`;
 
   try {
 
-    const res = await fetch(`${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`);
+    const res = await fetch(
+      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
+    );
+
     const json = await res.json();
 
     const headers = json.headers || [];
     const data    = json.data || [];
 
-    head.innerHTML = '';
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      head.appendChild(th);
-    });
+    /* === GUNAKAN HEADER EXISTING === */
+    ttrHeaders = headers;
+    ttrRawData = data;
 
-    body.innerHTML = '';
+    /* === RE-RENDER TABLE TANPA FILTER TAMBAHAN === */
+    document.getElementById('ttr-filter-witel').value = '';
+    document.getElementById('ttr-filter-sto').value = '';
 
-    if (!data.length) {
-      body.innerHTML = `
-        <tr>
-          <td colspan="${headers.length}" class="text-center text-muted">
-            Tidak ada data
-          </td>
-        </tr>`;
-    } else {
-      data.forEach(r => {
-        const tr = document.createElement('tr');
-        headers.forEach(h => {
-          const td = document.createElement('td');
-          td.textContent = r[h] ?? '-';
-          tr.appendChild(td);
-        });
-        body.appendChild(tr);
-      });
-    }
+    renderTTRTable();
 
   } catch (err) {
+
     console.error(err);
     body.innerHTML = `
       <tr>
-        <td class="text-danger text-center">Gagal memuat data</td>
+        <td colspan="${ttrHeaders.length}" class="text-danger text-center">
+          Gagal memuat detail
+        </td>
       </tr>`;
   }
-
-  new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
