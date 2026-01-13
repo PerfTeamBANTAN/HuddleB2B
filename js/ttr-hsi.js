@@ -302,17 +302,16 @@ function renderTTRTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL (POPUP MODAL – SAME AS MENU LAIN)
+   OPEN DETAIL TTR → GLOBAL MODAL (AMAN & KONSISTEN)
 ===================================================== */
 async function openTTRDetail(type, sto, witel) {
 
-  const modalEl = document.getElementById('modalTiketHI');
-  const titleEl = document.getElementById('modalTiketHITitle');
-  const headEl  = document.getElementById('tiket-hi-head');
-  const bodyEl  = document.getElementById('tiket-hi-body');
+  const modalEl  = document.getElementById('global-modal');
+  const titleEl  = modalEl?.querySelector('.modal-title');
+  const bodyEl   = modalEl?.querySelector('.modal-body');
 
-  if (!modalEl || !titleEl || !headEl || !bodyEl) {
-    console.error('Modal element tidak ditemukan');
+  if (!modalEl || !titleEl || !bodyEl) {
+    console.error('Global modal tidak ditemukan');
     return;
   }
 
@@ -320,11 +319,11 @@ async function openTTRDetail(type, sto, witel) {
   titleEl.textContent =
     `Detail ${type.replace(/_/g, ' ').toUpperCase()} – ${witel} / ${sto}`;
 
-  headEl.innerHTML = '';
   bodyEl.innerHTML = `
-    <tr>
-      <td class="text-center">Loading...</td>
-    </tr>`;
+    <div class="text-center text-muted py-4">
+      <div class="spinner-border text-light mb-2"></div><br>
+      Memuat data...
+    </div>`;
 
   try {
 
@@ -336,35 +335,40 @@ async function openTTRDetail(type, sto, witel) {
     const headers = json.headers || [];
     const data    = json.data || [];
 
-    /* ===== HEADER ===== */
-    headEl.innerHTML = '';
+    /* ===== BUILD TABLE ===== */
+    let html = `
+      <div class="table-responsive">
+        <table class="table table-dark table-striped table-bordered table-sm align-middle">
+          <thead class="table-secondary text-dark">
+            <tr>`;
+
     headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      headEl.appendChild(th);
+      html += `<th>${h}</th>`;
     });
 
-    /* ===== BODY ===== */
-    bodyEl.innerHTML = '';
+    html += `</tr></thead><tbody>`;
 
     if (!data.length) {
-      bodyEl.innerHTML = `
+      html += `
         <tr>
-          <td colspan="${headers.length}" class="text-center text-muted">
+          <td colspan="${headers.length}"
+              class="text-center text-muted">
             Tidak ada data
           </td>
         </tr>`;
     } else {
       data.forEach(r => {
-        const tr = document.createElement('tr');
+        html += `<tr>`;
         headers.forEach(h => {
-          const td = document.createElement('td');
-          td.textContent = r[h] ?? '-';
-          tr.appendChild(td);
+          html += `<td>${r[h] ?? '-'}</td>`;
         });
-        bodyEl.appendChild(tr);
+        html += `</tr>`;
       });
     }
+
+    html += `</tbody></table></div>`;
+
+    bodyEl.innerHTML = html;
 
     /* ===== SHOW MODAL ===== */
     new bootstrap.Modal(modalEl).show();
@@ -372,11 +376,9 @@ async function openTTRDetail(type, sto, witel) {
   } catch (err) {
     console.error(err);
     bodyEl.innerHTML = `
-      <tr>
-        <td class="text-danger text-center">
-          Gagal memuat data
-        </td>
-      </tr>`;
+      <div class="text-danger text-center py-3">
+        Gagal memuat data
+      </div>`;
   }
 }
 
