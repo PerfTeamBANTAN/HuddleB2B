@@ -302,22 +302,28 @@ function renderTTRTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL DATIN (RENDER KE TABLE EXISTING)
+   OPEN DETAIL (POPUP MODAL – SAME AS MENU LAIN)
 ===================================================== */
 async function openTTRDetail(type, sto, witel) {
 
-  const body = document.getElementById('ttr-table-body');
+  const modalEl = document.getElementById('modalTiketHI');
+  const titleEl = document.getElementById('modalTiketHITitle');
+  const headEl  = document.getElementById('tiket-hi-head');
+  const bodyEl  = document.getElementById('tiket-hi-body');
 
-  if (!body) {
-    console.error('Table body tidak ditemukan');
+  if (!modalEl || !titleEl || !headEl || !bodyEl) {
+    console.error('Modal element tidak ditemukan');
     return;
   }
 
-  body.innerHTML = `
+  /* ===== TITLE ===== */
+  titleEl.textContent =
+    `Detail ${type.replace(/_/g, ' ').toUpperCase()} – ${witel} / ${sto}`;
+
+  headEl.innerHTML = '';
+  bodyEl.innerHTML = `
     <tr>
-      <td colspan="${ttrHeaders.length}" class="text-center text-muted">
-        Loading detail...
-      </td>
+      <td class="text-center">Loading...</td>
     </tr>`;
 
   try {
@@ -327,28 +333,50 @@ async function openTTRDetail(type, sto, witel) {
     );
 
     const json = await res.json();
-
     const headers = json.headers || [];
     const data    = json.data || [];
 
-    /* === GUNAKAN HEADER EXISTING === */
-    ttrHeaders = headers;
-    ttrRawData = data;
+    /* ===== HEADER ===== */
+    headEl.innerHTML = '';
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headEl.appendChild(th);
+    });
 
-    /* === RE-RENDER TABLE TANPA FILTER TAMBAHAN === */
-    document.getElementById('ttr-filter-witel').value = '';
-    document.getElementById('ttr-filter-sto').value = '';
+    /* ===== BODY ===== */
+    bodyEl.innerHTML = '';
 
-    renderTTRTable();
+    if (!data.length) {
+      bodyEl.innerHTML = `
+        <tr>
+          <td colspan="${headers.length}" class="text-center text-muted">
+            Tidak ada data
+          </td>
+        </tr>`;
+    } else {
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          td.textContent = r[h] ?? '-';
+          tr.appendChild(td);
+        });
+        bodyEl.appendChild(tr);
+      });
+    }
+
+    /* ===== SHOW MODAL ===== */
+    new bootstrap.Modal(modalEl).show();
 
   } catch (err) {
-
     console.error(err);
-    body.innerHTML = `
+    bodyEl.innerHTML = `
       <tr>
-        <td colspan="${ttrHeaders.length}" class="text-danger text-center">
-          Gagal memuat detail
+        <td class="text-danger text-center">
+          Gagal memuat data
         </td>
       </tr>`;
   }
 }
+
