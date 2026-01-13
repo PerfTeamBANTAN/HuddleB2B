@@ -248,32 +248,48 @@ function loadDistrictBantenTable(API_URL) {
 }
 
 /* =====================================================
-   MODAL DETAIL – TIKET HI (VERSI AMAN)
+   GLOBAL MODAL HELPER (AUTO CREATE – AMAN)
+===================================================== */
+function getOrCreateGlobalModal() {
+  let modal = document.getElementById('global-modal');
+
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'global-modal';
+  modal.className = 'modal fade';
+  modal.tabIndex = -1;
+
+  modal.innerHTML = `
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal">
+          </button>
+        </div>
+        <div class="modal-body"></div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  return modal;
+}
+
+/* =====================================================
+   OPEN DETAIL MODAL – TIKET HI (STABIL)
 ===================================================== */
 async function openTiketHIModal(API_URL, sto, witel) {
 
-  const modal = document.getElementById('global-modal');
-
-  /* ===== GUARD WAJIB ===== */
-  if (!modal) {
-    console.error('❌ #global-modal tidak ditemukan di DOM');
-    alert(`Detail Tiket HI\nSTO: ${sto}\nWITEL: ${witel}`);
-    return;
-  }
-
+  const modal = getOrCreateGlobalModal();
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
-  if (!title || !body) {
-    console.error('❌ Struktur modal tidak lengkap (.modal-title / .modal-body)');
-    alert(`Detail Tiket HI\nSTO: ${sto}\nWITEL: ${witel}`);
-    return;
-  }
-
-  /* ===== TITLE ===== */
   title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
 
-  /* ===== LOADING ===== */
   body.innerHTML = `
     <div class="text-center py-5">
       <span class="spinner-border"></span>
@@ -283,9 +299,8 @@ async function openTiketHIModal(API_URL, sto, witel) {
   new bootstrap.Modal(modal).show();
 
   try {
-
     const res = await fetch(
-      `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&witel=${encodeURIComponent(witel)}`
+      `${API_URL}?type=total_sd_hi_detail&sto=${encodeURIComponent(sto)}`
     );
 
     const json = await res.json();
@@ -316,7 +331,6 @@ async function openTiketHIModal(API_URL, sto, witel) {
         </table>
       </div>
     `;
-
   } catch (err) {
     console.error(err);
     body.innerHTML = `
