@@ -237,9 +237,10 @@ function loadAsgarHSITable(API_URL) {
    MODAL DETAIL ASGAR HI
 ===================================================== */
 function openAsgarHIModal(API_URL, sto, witel) {
+
   const title = document.getElementById('modalTiketHITitle');
-  const head = document.getElementById('tiket-hi-head');
-  const body = document.getElementById('tiket-hi-body');
+  const head  = document.getElementById('tiket-hi-head');
+  const body  = document.getElementById('tiket-hi-body');
 
   title.textContent = `Detail Asgar HI – ${witel} / ${sto}`;
 
@@ -249,11 +250,12 @@ function openAsgarHIModal(API_URL, sto, witel) {
   ];
 
   head.innerHTML = '';
-  body.innerHTML = `<tr><td colspan="${cols.length}">Loading...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="${cols.length}" class="text-center">Loading...</td></tr>`;
 
   const cb = 'jsonp_asgar_hi_' + Date.now();
 
   window[cb] = function (res) {
+
     head.innerHTML = '';
     body.innerHTML = '';
 
@@ -264,7 +266,10 @@ function openAsgarHIModal(API_URL, sto, witel) {
     });
 
     if (!res.data || !res.data.length) {
-      body.innerHTML = `<tr><td colspan="${cols.length}" class="text-center text-muted">Tidak ada data</td></tr>`;
+      body.innerHTML =
+        `<tr><td colspan="${cols.length}" class="text-center text-muted">
+          Tidak ada data
+        </td></tr>`;
     } else {
       res.data.forEach(r => {
         const tr = document.createElement('tr');
@@ -282,7 +287,12 @@ function openAsgarHIModal(API_URL, sto, witel) {
   };
 
   const script = document.createElement('script');
-  script.src = `${API_URL}?type=asgar_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+  script.src =
+    `${API_URL}?type=asgar_hi_detail`
+    + `&sto=${encodeURIComponent(sto)}`
+    + `&witel=${encodeURIComponent(witel)}`
+    + `&callback=${cb}`;
+
   document.body.appendChild(script);
 
   new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
@@ -292,6 +302,7 @@ function openAsgarHIModal(API_URL, sto, witel) {
    MODAL DETAIL TOTAL TIKET s/d HI (FULL DATA)
 ===================================================== */
 function openTotalSdHIModal(API_URL, sto, witel) {
+
   const title = document.getElementById('modalTiketHITitle');
   const head  = document.getElementById('tiket-hi-head');
   const body  = document.getElementById('tiket-hi-body');
@@ -299,30 +310,24 @@ function openTotalSdHIModal(API_URL, sto, witel) {
   title.textContent = `Detail Total Tiket s/d HI – ${witel} / ${sto}`;
 
   head.innerHTML = '';
-  body.innerHTML = `<tr><td>Loading...</td></tr>`;
+  body.innerHTML = `<tr><td class="text-center">Loading...</td></tr>`;
 
   const cb = 'jsonp_total_sd_hi_' + Date.now();
 
   window[cb] = function (res) {
+
     head.innerHTML = '';
     body.innerHTML = '';
 
     const headers = res.headers || [];
-    const data = res.data || [];
+    const data    = res.data || [];
 
-    if (!headers.length) {
-      body.innerHTML = `<tr><td class="text-center text-muted">Tidak ada data</td></tr>`;
-      return;
-    }
-
-    /* ===== HEADER TABLE ===== */
     headers.forEach(h => {
       const th = document.createElement('th');
       th.textContent = h;
       head.appendChild(th);
     });
 
-    /* ===== BODY ===== */
     if (!data.length) {
       body.innerHTML =
         `<tr><td colspan="${headers.length}" class="text-center text-muted">
@@ -346,11 +351,16 @@ function openTotalSdHIModal(API_URL, sto, witel) {
 
   const script = document.createElement('script');
   script.src =
-    `${API_URL}?type=total_sd_hi_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+    `${API_URL}?type=total_sd_hi_detail`
+    + `&sto=${encodeURIComponent(sto)}`
+    + `&witel=${encodeURIComponent(witel)}`
+    + `&callback=${cb}`;
+
   document.body.appendChild(script);
 
   new bootstrap.Modal(document.getElementById('modalTiketHI')).show();
 }
+
    
 /* =====================================================
    MODAL DETAIL TOTAL ASGAR TIKET s/d HI (FULL DATA)
@@ -364,7 +374,7 @@ function openTotalSdHIModal(API_URL, sto, witel) {
   title.textContent = `Detail Total Tiket Asgar – ${witel} / ${sto}`;
 
   head.innerHTML = '';
-  body.innerHTML = `<tr><td>Loading...</td></tr>`;
+  body.innerHTML = `<tr><td class="text-center">Loading...</td></tr>`;
 
   const cb = 'jsonp_asgar_' + Date.now();
 
@@ -374,7 +384,7 @@ function openTotalSdHIModal(API_URL, sto, witel) {
     body.innerHTML = '';
 
     const headers = res.headers || [];
-    const data = res.data || [];
+    const data    = res.data || [];
 
     headers.forEach(h => {
       const th = document.createElement('th');
@@ -405,7 +415,10 @@ function openTotalSdHIModal(API_URL, sto, witel) {
 
   const script = document.createElement('script');
   script.src =
-    `${API_URL}?type=total_tiket_asgar_detail&sto=${encodeURIComponent(sto)}&callback=${cb}`;
+    `${API_URL}?type=total_tiket_asgar_detail`
+    + `&sto=${encodeURIComponent(sto)}`
+    + `&witel=${encodeURIComponent(witel)}`
+    + `&callback=${cb}`;
 
   document.body.appendChild(script);
 
