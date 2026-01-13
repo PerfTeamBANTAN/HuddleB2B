@@ -311,11 +311,12 @@ async function openTTRDetail(type, sto, witel) {
   const body  = modal.querySelector('.modal-body');
 
   const titleMap = {
-    ttr_datin_k2_detail:        'Detail TOT Tiket K2',
-    ttr_datin_k3_detail:        'Detail TOT Tiket K3',
-    ttr_datin_k2_notach_detail: 'Detail Tiket NOT ACH K2',
-    ttr_datin_k3_notach_detail: 'Detail Tiket NOT ACH K3'
-  };
+  tot_tiket_k2_detail:        'Detail Tot Tiket K2',
+  tot_tiket_k3_detail:        'Detail Tot Tiket K3',
+  tiket_not_ach_k2_detail:    'Detail Tiket Not Ach K2',
+  tiket_not_ach_k3_detail:    'Detail Tiket Not Ach K3'
+};
+
 
   title.textContent =
     `${titleMap[type] || 'Detail TTR'} – ${witel} / ${sto}`;
