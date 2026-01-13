@@ -19,7 +19,6 @@ function initDistrictBanten(API_URL) {
 
       const { data, lastUpdate } = res;
 
-      /* ===== LAST UPDATE ===== */
       if (lastUpdate && lastUpdateEl) {
         const d = new Date(lastUpdate);
         lastUpdateEl.innerHTML =
@@ -34,7 +33,6 @@ function initDistrictBanten(API_URL) {
           });
       }
 
-      /* ===== KPI CARD ===== */
       const map = {};
 
       data.forEach(r => {
@@ -120,7 +118,6 @@ function loadDistrictBantenTable(API_URL) {
       headers = res.headers || [];
       rawData = res.data || [];
 
-      /* ===== TABLE HEAD ===== */
       thead.innerHTML = '';
       headers.forEach(h => {
         const th = document.createElement('th');
@@ -128,10 +125,9 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      /* ===== FILTER ===== */
       const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
-      const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
-      const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
+      const stoSet   = new Set(rawData.map(r => r.STO).filter(Boolean));
+      const picSet   = new Set(rawData.map(r => r.PIC).filter(Boolean));
 
       filterWitel.innerHTML = '<option value="">All WITEL</option>';
       [...witelSet].sort().forEach(v =>
@@ -188,7 +184,6 @@ function loadDistrictBantenTable(API_URL) {
 
       const tr = document.createElement('tr');
 
-      /* ===== RULE UTAMA ===== */
       const budgVal = Number(row['Budg Q BI']);
       if (!isNaN(budgVal) && budgVal < 0) {
         tr.classList.add('tr-pragnosa-bad');
@@ -198,7 +193,6 @@ function loadDistrictBantenTable(API_URL) {
 
         const td = document.createElement('td');
 
-        /* ===== TIKET HI (CLICKABLE) ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
 
           td.innerHTML = `
@@ -212,24 +206,6 @@ function loadDistrictBantenTable(API_URL) {
               e.preventDefault();
               openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
             });
-
-        /* ===== %Q s/d HI ===== */
-        } else if (h === '%Q s/d HI') {
-          const val = Number(row[h]);
-          td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) td.classList.add('text-danger','fw-bold');
-
-        /* ===== BUDG Q BI ===== */
-        } else if (h === 'Budg Q BI') {
-          const val = Number(row[h]);
-          td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val < 0) td.classList.add('text-danger','fw-bold');
-
-        /* ===== PRAGN Q BI ===== */
-        } else if (h === 'Pragn Q BI') {
-          const val = Number(row[h]);
-          td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) td.classList.add('text-danger','fw-bold');
 
         } else {
           td.textContent = row[h] ?? '-';
@@ -280,7 +256,7 @@ function getOrCreateGlobalModal() {
 }
 
 /* =====================================================
-   OPEN DETAIL MODAL – TIKET HI (STABIL)
+   OPEN DETAIL MODAL – TIKET HI (PAKAI TITLE MAP)
 ===================================================== */
 async function openTiketHIModal(API_URL, sto, witel) {
 
@@ -288,7 +264,15 @@ async function openTiketHIModal(API_URL, sto, witel) {
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
-  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
+  /* === TITLE MAP (KONSISTEN DENGAN TTR) === */
+  const titleMap = {
+    total_sd_hi_detail: 'Detail Tiket HI'
+  };
+
+  const type = 'total_sd_hi_detail';
+
+  title.textContent =
+    `${titleMap[type] || 'Detail Tiket'} – ${witel} / ${sto}`;
 
   body.innerHTML = `
     <div class="text-center py-5">
@@ -300,7 +284,7 @@ async function openTiketHIModal(API_URL, sto, witel) {
 
   try {
     const res = await fetch(
-      `${API_URL}?type=total_sd_hi_detail&sto=${encodeURIComponent(sto)}`
+      `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}`
     );
 
     const json = await res.json();
@@ -340,4 +324,3 @@ async function openTiketHIModal(API_URL, sto, witel) {
     `;
   }
 }
-
