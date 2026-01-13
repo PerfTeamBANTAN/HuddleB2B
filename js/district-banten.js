@@ -1,8 +1,8 @@
 /* =====================================================
-   INIT KPI
+   INIT KPI – DISTRICT BANTEN
 ===================================================== */
-
 function initDistrictBanten(API_URL) {
+
   const container = document.getElementById('district-banten-row');
   const loading = document.getElementById('alert-loading-overlay');
   const lastUpdateEl = document.getElementById('last-update');
@@ -16,6 +16,7 @@ function initDistrictBanten(API_URL) {
 
   window[cbKpi] = function (res) {
     try {
+
       const { data, lastUpdate } = res;
 
       /* ===== LAST UPDATE ===== */
@@ -48,6 +49,7 @@ function initDistrictBanten(API_URL) {
       });
 
       Object.entries(map).forEach(([indikator, v]) => {
+
         const lowerBetter = indikator === 'Q Gangguan HSI';
         const isGood = val =>
           typeof val === 'number' &&
@@ -97,10 +99,10 @@ function initDistrictBanten(API_URL) {
 }
 
 /* =====================================================
-   TABLE
+   TABLE + FILTER
 ===================================================== */
-
 function loadDistrictBantenTable(API_URL) {
+
   const thead = document.getElementById('district-banten-table-head');
   const tbody = document.getElementById('district-banten-table-body');
   const filterWitel = document.getElementById('filter-witel');
@@ -114,6 +116,7 @@ function loadDistrictBantenTable(API_URL) {
 
   window[cbTable] = function (res) {
     try {
+
       headers = res.headers || [];
       rawData = res.data || [];
 
@@ -125,7 +128,7 @@ function loadDistrictBantenTable(API_URL) {
         thead.appendChild(th);
       });
 
-      /* ===== FILTER OPTION ===== */
+      /* ===== FILTER ===== */
       const witelSet = new Set(rawData.map(r => r.WITEL).filter(Boolean));
       const stoSet = new Set(rawData.map(r => r.STO).filter(Boolean));
       const picSet = new Set(rawData.map(r => r.PIC).filter(Boolean));
@@ -160,20 +163,15 @@ function loadDistrictBantenTable(API_URL) {
   function applyFilter() {
     let data = [...rawData];
 
-    if (filterWitel.value) {
-      data = data.filter(r => r.WITEL === filterWitel.value);
-    }
-    if (filterSto.value) {
-      data = data.filter(r => r.STO === filterSto.value);
-    }
-    if (filterPic.value) {
-      data = data.filter(r => r.PIC === filterPic.value);
-    }
+    if (filterWitel.value) data = data.filter(r => r.WITEL === filterWitel.value);
+    if (filterSto.value)   data = data.filter(r => r.STO === filterSto.value);
+    if (filterPic.value)   data = data.filter(r => r.PIC === filterPic.value);
 
     renderTable(data);
   }
 
   function renderTable(data) {
+
     tbody.innerHTML = '';
 
     if (!data.length) {
@@ -187,54 +185,51 @@ function loadDistrictBantenTable(API_URL) {
     }
 
     data.forEach(row => {
+
       const tr = document.createElement('tr');
 
-      /* =================================================
-         🔴 RULE UTAMA:
-         Budg Q BI < 0 → FULL ROW RED
-      ================================================= */
+      /* ===== RULE UTAMA ===== */
       const budgVal = Number(row['Budg Q BI']);
       if (!isNaN(budgVal) && budgVal < 0) {
         tr.classList.add('tr-pragnosa-bad');
       }
 
       headers.forEach(h => {
+
         const td = document.createElement('td');
 
-        /* ===== Tiket HI ===== */
+        /* ===== TIKET HI (CLICKABLE) ===== */
         if (h === 'Tiket HI' && Number(row[h]) > 0) {
-          td.innerHTML = `
-            <a href="#" class="text-warning fw-bold text-decoration-none">
-              ${row[h]}
-            </a>`;
-          td.onclick = e => {
-            e.preventDefault();
-            openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
-          };
 
-        /* ===== %Q s/d HI > 2 ===== */
+          td.innerHTML = `
+            <a href="#" class="text-warning fw-bold text-decoration-none tiket-hi-link">
+              ${row[h]}
+            </a>
+          `;
+
+          td.querySelector('.tiket-hi-link')
+            .addEventListener('click', e => {
+              e.preventDefault();
+              openTiketHIModal(API_URL, row.STO, row.WITEL || '-');
+            });
+
+        /* ===== %Q s/d HI ===== */
         } else if (h === '%Q s/d HI') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
+          if (!isNaN(val) && val > 2) td.classList.add('text-danger','fw-bold');
 
-        /* ===== Budg Q BI < 0 ===== */
+        /* ===== BUDG Q BI ===== */
         } else if (h === 'Budg Q BI') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val < 0) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
+          if (!isNaN(val) && val < 0) td.classList.add('text-danger','fw-bold');
 
-        /* ===== Pragn Q BI > 2 ===== */
+        /* ===== PRAGN Q BI ===== */
         } else if (h === 'Pragn Q BI') {
           const val = Number(row[h]);
           td.textContent = row[h] ?? '-';
-          if (!isNaN(val) && val > 2) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
+          if (!isNaN(val) && val > 2) td.classList.add('text-danger','fw-bold');
 
         } else {
           td.textContent = row[h] ?? '-';
@@ -250,4 +245,69 @@ function loadDistrictBantenTable(API_URL) {
   const script = document.createElement('script');
   script.src = `${API_URL}?type=table&callback=${cbTable}`;
   document.body.appendChild(script);
+}
+
+/* =====================================================
+   MODAL DETAIL – TIKET HI (IKUT POLA TTR / SQM)
+===================================================== */
+async function openTiketHIModal(API_URL, sto, witel) {
+
+  const modal = document.getElementById('global-modal');
+  const title = modal.querySelector('.modal-title');
+  const body  = modal.querySelector('.modal-body');
+
+  title.textContent = `Detail Tiket HI – ${witel} / ${sto}`;
+
+  body.innerHTML = `
+    <div class="text-center py-5">
+      <span class="spinner-border"></span>
+    </div>
+  `;
+
+  new bootstrap.Modal(modal).show();
+
+  try {
+
+    const res = await fetch(
+      `${API_URL}?type=tiket_hi_detail&sto=${encodeURIComponent(sto)}&witel=${encodeURIComponent(witel)}`
+    );
+
+    const json = await res.json();
+
+    if (!json.data || !json.data.length) {
+      body.innerHTML = `
+        <div class="text-center py-4 text-muted">
+          Tidak ada data
+        </div>`;
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered table-dark align-middle">
+          <thead class="table-secondary text-dark">
+            <tr>
+              ${json.headers.map(h => `<th>${h}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${json.data.map(r => `
+              <tr>
+                ${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+  } catch (err) {
+
+    console.error(err);
+    body.innerHTML = `
+      <div class="text-center py-4 text-danger">
+        Gagal memuat data
+      </div>
+    `;
+  }
 }
