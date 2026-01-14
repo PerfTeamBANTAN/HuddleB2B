@@ -231,18 +231,37 @@ function renderStatusChart(data) {
   el.innerHTML = `<canvas id="statusChartCanvas"></canvas>`;
   statusChart?.destroy();
 
+  const achieveCount = data.filter(d => d['Status Ach HI'] === '✅').length;
+  const notAchieveCount = data.filter(d => d['Status Ach HI'] === '❌').length;
+
   statusChart = new Chart(document.getElementById('statusChartCanvas'), {
     type: 'bar',
     data: {
       labels: ['Achieve', 'Not Achieve'],
       datasets: [{
-        data: [
-          data.filter(d => d['Status Ach HI'] === '✅').length,
-          data.filter(d => d['Status Ach HI'] === '❌').length
-        ]
+        label: 'Status KPI (HI)', // 🔧 FIX legend "undefined"
+        data: [achieveCount, notAchieveCount],
+        backgroundColor: [
+          'rgba(25, 135, 84, 0.85)',   // ✅ hijau (Achieve)
+          'rgba(220, 53, 69, 0.85)'    // ❌ merah (Not Achieve)
+        ],
+        borderRadius: 6,
+        barPercentage: 0.6
       }]
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false } // optional: bisa ON/OFF
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0 }
+        }
+      }
+    }
   });
 }
 
