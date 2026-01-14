@@ -110,6 +110,16 @@ function loadDistrictBantenTable(API_URL) {
   let rawData = [];
   let headers = [];
 
+  /* === LOADING TABLE (FETCH) === */
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="100%" class="text-center py-4 text-muted">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Memuat data tabel...
+      </td>
+    </tr>
+  `;
+
   const cbTable = 'jsonp_table_' + Date.now();
 
   window[cbTable] = function (res) {
@@ -148,6 +158,16 @@ function loadDistrictBantenTable(API_URL) {
   };
 
   function applyFilter() {
+
+    /* === LOADING TABLE (FILTER) === */
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="${headers.length || 100}" class="text-center py-3 text-muted">
+          <span class="spinner-border spinner-border-sm"></span>
+        </td>
+      </tr>
+    `;
+
     let data = [...rawData];
 
     if (filterWitel.value) data = data.filter(r => r.WITEL === filterWitel.value);
@@ -317,4 +337,3 @@ function openTiketHIModal(API_URL, sto, witel) {
 
   document.body.appendChild(script);
 }
-
