@@ -108,6 +108,9 @@ async function openTTRDetail(endpoint, sto, header) {
 
   if (!endpoint || !sto) return;
 
+  // 🔧 PASTIKAN MODAL ADA
+  ensureTTRDetailModal();
+
   const json = await fetchJSONP(
     API_URL + `?type=${endpoint}&sto=${encodeURIComponent(sto)}`
   );
@@ -303,3 +306,27 @@ function renderTTRTable() {
       body.appendChild(tr);
     });
 }
+
+/* =====================================================
+   ENSURE DETAIL MODAL EXISTS (AUTO)
+===================================================== */
+function ensureTTRDetailModal() {
+
+  if (document.getElementById('ttrDetailModal')) return;
+
+  const modalHTML = `
+  <div class="modal fade" id="ttrDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detail Tiket</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="ttr-detail-body"></div>
+      </div>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
