@@ -2,6 +2,7 @@
    DASHBOARD B2B – FINAL KPI LOGIC (LOCKED)
    + LOADING
    + STATUS FILTER (ALL / ACHIEVE / NOT ACHIEVE)
+   + FILTER LABEL (WITEL / STATUS / KATEGORI KPI)
 ===================================================== */
 
 let dashboardRawData = [];
@@ -45,6 +46,12 @@ const KPI_PER_WITEL = 48;
       animation: spin .8s linear infinite;
       margin-bottom: 8px;
     }
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
   `;
   document.head.appendChild(style);
@@ -83,7 +90,7 @@ function initDashboardB2B(API_URL) {
       dashboardRawData = res.data || [];
 
       initDashboardFilter();
-      ensureStatusFilter(); // 🔥 status filter
+      ensureStatusFilter();
       renderDashboard();
 
       setText(
@@ -240,18 +247,30 @@ function renderStatusChart(data) {
 }
 
 /* =====================================================
-   FILTER
+   FILTER + LABEL
 ===================================================== */
 function initDashboardFilter() {
-  fillSelect(
-    document.getElementById('dashboard-filter-witel'),
-    uniq(dashboardRawData.map(d => d.Witel))
-  );
+  const witelEl = document.getElementById('dashboard-filter-witel');
+  const katEl   = document.getElementById('table-filter-kategori');
 
-  fillSelect(
-    document.getElementById('table-filter-kategori'),
-    uniq(dashboardRawData.map(d => d['Katagori KPI']))
-  );
+  fillSelect(witelEl, uniq(dashboardRawData.map(d => d.Witel)));
+  fillSelect(katEl, uniq(dashboardRawData.map(d => d['Katagori KPI'])));
+
+  // === LABEL WITEL ===
+  if (witelEl && !witelEl.previousElementSibling?.classList.contains('filter-label')) {
+    const lbl = document.createElement('span');
+    lbl.textContent = 'WITEL :';
+    lbl.className = 'filter-label text-danger';
+    witelEl.parentElement.insertBefore(lbl, witelEl);
+  }
+
+  // === LABEL KATEGORI KPI ===
+  if (katEl && !katEl.previousElementSibling?.classList.contains('filter-label')) {
+    const lbl = document.createElement('span');
+    lbl.textContent = 'KATEGORI KPI :';
+    lbl.className = 'filter-label text-warning';
+    katEl.parentElement.insertBefore(lbl, katEl);
+  }
 
   ['dashboard-filter-witel', 'table-filter-kategori', 'table-search']
     .forEach(id =>
@@ -260,22 +279,27 @@ function initDashboardFilter() {
     );
 }
 
-/* ===== STATUS FILTER (ALL / ACHIEVE / NOT ACHIEVE) ===== */
+/* ===== STATUS FILTER + LABEL ===== */
 function ensureStatusFilter() {
   if (document.getElementById('dashboard-filter-status')) return;
 
   const witelSelect = document.getElementById('dashboard-filter-witel');
   if (!witelSelect) return;
 
+  const label = document.createElement('span');
+  label.textContent = 'STATUS :';
+  label.className = 'filter-label text-info ms-2';
+
   const sel = document.createElement('select');
   sel.id = 'dashboard-filter-status';
-  sel.className = 'form-select form-select-sm w-auto ms-2';
+  sel.className = 'form-select form-select-sm w-auto ms-1';
   sel.innerHTML = `
     <option value="">All</option>
-    <option value="✅">Achieve only</option>
+    <option value="✅">Achieve</option>
     <option value="❌">Not Achieve</option>
   `;
 
+  witelSelect.parentElement.appendChild(label);
   witelSelect.parentElement.appendChild(sel);
   sel.addEventListener('input', renderDashboard);
 }
