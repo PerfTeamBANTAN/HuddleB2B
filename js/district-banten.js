@@ -110,12 +110,11 @@ function loadDistrictBantenTable(API_URL) {
   let rawData = [];
   let headers = [];
 
-  /* === LOADING TABLE (FETCH) === */
+  // === LOADING TABLE (SPINNER ONLY, DARK SAFE) ===
   tbody.innerHTML = `
     <tr>
-      <td colspan="100%" class="text-center py-4 text-muted">
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        Memuat data tabel...
+      <td colspan="30" class="text-center py-4">
+        <span class="spinner-border text-light"></span>
       </td>
     </tr>
   `;
@@ -159,11 +158,11 @@ function loadDistrictBantenTable(API_URL) {
 
   function applyFilter() {
 
-    /* === LOADING TABLE (FILTER) === */
+    // === LOADING SAAT FILTER (SAMA MODELNYA) ===
     tbody.innerHTML = `
       <tr>
-        <td colspan="${headers.length || 100}" class="text-center py-3 text-muted">
-          <span class="spinner-border spinner-border-sm"></span>
+        <td colspan="${headers.length || 30}" class="text-center py-3">
+          <span class="spinner-border spinner-border-sm text-light"></span>
         </td>
       </tr>
     `;
