@@ -1,5 +1,5 @@
 /* =====================================================
-   DASHBOARD B2B – FINAL KPI LOGIC (STO LABEL FIX)
+   DASHBOARD B2B – FULL JS (ERROR FIX)
 ===================================================== */
 
 let dashboardRawData = [];
@@ -9,7 +9,7 @@ let statusChart = null;
 const KPI_PER_WITEL = 48;
 
 /* =====================================================
-   AUTO LOADER + LABEL STYLE
+   STYLE + LOADING
 ===================================================== */
 (function () {
   const wrapper = document.getElementById('dashboard-b2b-wrapper');
@@ -37,7 +37,6 @@ const KPI_PER_WITEL = 48;
       font-size:11px;
       color:#9fb4ff;
       margin-bottom:2px;
-      white-space:nowrap;
     }
   `;
   document.head.appendChild(style);
@@ -51,19 +50,16 @@ const KPI_PER_WITEL = 48;
   }
 })();
 
-/* =====================================================
-   LOADING
-===================================================== */
-const showDashboardLoading = () =>
+const showLoading = () =>
   document.getElementById('dashboard-b2b-loading')?.classList.remove('d-none');
-const hideDashboardLoading = () =>
+const hideLoading = () =>
   document.getElementById('dashboard-b2b-loading')?.classList.add('d-none');
 
 /* =====================================================
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
-  showDashboardLoading();
+  showLoading();
   fetch(`${API_URL}?type=b2b_dashboard`)
     .then(r => r.json())
     .then(res => {
@@ -72,21 +68,21 @@ function initDashboardB2B(API_URL) {
       renderDashboard();
       setText('dashboard-b2b-last-update', `Last update: ${res.lastUpdate || '-'}`);
     })
-    .finally(hideDashboardLoading);
+    .finally(hideLoading);
 }
 
 /* =====================================================
-   RENDER MASTER
+   RENDER
 ===================================================== */
 function renderDashboard() {
-  showDashboardLoading();
+  showLoading();
   requestAnimationFrame(() => {
-    const filtered = applyDashboardFilter();
-    renderKPI(filtered);
-    renderTable(filtered);
-    renderAchievementChart(filtered);
-    renderStatusChart(filtered);
-    hideDashboardLoading();
+    const data = applyDashboardFilter();
+    renderKPI(data);
+    renderTable(data);
+    renderAchievementChart(data);
+    renderStatusChart(data);
+    hideLoading();
   });
 }
 
@@ -94,17 +90,9 @@ function renderDashboard() {
    KPI
 ===================================================== */
 function renderKPI(data) {
-  const sto = val('dashboard-filter-witel');
-
-  setText('kpi-total', sto ? KPI_PER_WITEL : KPI_PER_WITEL * 2);
+  setText('kpi-total', KPI_PER_WITEL);
   setText('kpi-achieve', data.filter(d => d['Status Ach HI'] === '✅').length);
   setText('kpi-not-achieve', data.filter(d => d['Status Ach HI'] === '❌').length);
-
-  const ach = dashboardRawData
-    .filter(r => String(r.Indikator).toLowerCase() === 'achievement')
-    .reduce((a, b) => a + num(b['Achievement HI']), 0);
-
-  setText('kpi-achievement-hi', ach ? (ach / 2).toFixed(2) + '%' : '-');
 }
 
 /* =====================================================
@@ -115,8 +103,7 @@ function renderTable(data) {
   tbody.innerHTML = '';
 
   if (!data.length) {
-    tbody.innerHTML =
-      `<tr><td colspan="7" class="text-center">Tidak ada data</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center">Tidak ada data</td></tr>`;
     return;
   }
 
@@ -149,10 +136,10 @@ function renderAchievementChart(data) {
     type: 'line',
     data: {
       labels: data.map(d => d.Indikator),
-      datasets: [
-        { label: 'Achievement HI', data: data.map(d => num(d['Achievement HI'])), fill: true },
-        { label: 'Kemarin', data: data.map(d => num(d['Achievement Kemarin'])), fill: true }
-      ]
+      datasets: [{
+        label: 'Achievement HI',
+        data: data.map(d => num(d['Achievement HI']))
+      }]
     },
     options: { responsive: true, maintainAspectRatio: false }
   });
@@ -179,20 +166,13 @@ function renderStatusChart(data) {
 }
 
 /* =====================================================
-   FILTER + LABEL FIX (STO INCLUDED)
+   FILTER + LABEL
 ===================================================== */
 function initDashboardFilter() {
+  const sto = document.getElementById('dashboard-filter-witel');
+  wrapLabelOnce(sto, 'Filter STO');
+  fillSelect(sto, uniq(dashboardRawData.map(d => d.Witel)));
 
-  /* ===== FILTER STO (WITEL) ===== */
-  const stoSelect = document.getElementById('dashboard-filter-witel');
-  wrapLabelOnce(stoSelect, 'Filter STO');
-
-  fillSelect(
-    stoSelect,
-    uniq(dashboardRawData.map(d => d.Witel))
-  );
-
-  /* ===== FILTER STATUS KPI ===== */
   const status = document.createElement('select');
   status.id = 'dashboard-filter-status';
   status.className = 'form-select form-select-sm w-auto';
@@ -201,16 +181,11 @@ function initDashboardFilter() {
     <option value="ach">Achieve Only</option>
     <option value="not">Not Achieve Only</option>
   `;
-  stoSelect.parentElement.appendChild(wrapWithLabel(status, 'Filter Status KPI'));
+  sto.parentElement.appendChild(wrapWithLabel(status, 'Status KPI'));
 
-  /* ===== FILTER KATEGORI ===== */
   const kat = document.getElementById('table-filter-kategori');
-  wrapLabelOnce(kat, 'Filter Kategori KPI');
-
-  fillSelect(
-    kat,
-    uniq(dashboardRawData.map(d => d['Katagori KPI']))
-  );
+  wrapLabelOnce(kat, 'Kategori KPI');
+  fillSelect(kat, uniq(dashboardRawData.map(d => d['Katagori KPI'])));
 
   ['dashboard-filter-witel','dashboard-filter-status','table-filter-kategori','table-search']
     .forEach(id =>
@@ -238,8 +213,20 @@ function applyDashboardFilter() {
 }
 
 /* =====================================================
-   UTIL
+   UTIL (LENGKAP)
 ===================================================== */
+function fillSelect(el, items) {
+  if (!el) return;
+  const first = el.querySelector('option')?.outerHTML || '<option value="">All</option>';
+  el.innerHTML = first;
+  items.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    el.appendChild(opt);
+  });
+}
+
 function wrapLabelOnce(el, text) {
   if (!el || el.dataset.labeled) return;
   el.dataset.labeled = '1';
