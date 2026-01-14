@@ -1,5 +1,6 @@
 /* =====================================================
    DASHBOARD B2B – FINAL KPI LOGIC (LOCKED)
+   + LOADING STATE (SAFE)
 ===================================================== */
 
 let dashboardRawData = [];
@@ -9,13 +10,29 @@ let statusChart = null;
 const KPI_PER_WITEL = 48;
 
 /* =====================================================
+   LOADING HANDLER (NON-INTRUSIVE)
+===================================================== */
+function showDashboardLoading() {
+  const el = document.getElementById('dashboard-b2b-loading');
+  if (el) el.classList.remove('d-none');
+}
+
+function hideDashboardLoading() {
+  const el = document.getElementById('dashboard-b2b-loading');
+  if (el) el.classList.add('d-none');
+}
+
+/* =====================================================
    INIT
 ===================================================== */
 function initDashboardB2B(API_URL) {
+  showDashboardLoading();
+
   fetch(`${API_URL}?type=b2b_dashboard`)
     .then(r => r.json())
     .then(res => {
       dashboardRawData = res.data || [];
+
       initDashboardFilter();
       renderDashboard();
 
@@ -24,18 +41,28 @@ function initDashboardB2B(API_URL) {
         `Last update: ${res.lastUpdate || '-'}`
       );
     })
-    .catch(console.error);
+    .catch(err => {
+      console.error(err);
+    })
+    .finally(() => {
+      hideDashboardLoading();
+    });
 }
 
 /* =====================================================
    RENDER MASTER
 ===================================================== */
 function renderDashboard() {
-  const filtered = applyDashboardFilter();
-  renderKPI(filtered);
-  renderTable(filtered);
-  renderAchievementChart(filtered);
-  renderStatusChart(filtered);
+  showDashboardLoading();
+
+  requestAnimationFrame(() => {
+    const filtered = applyDashboardFilter();
+    renderKPI(filtered);
+    renderTable(filtered);
+    renderAchievementChart(filtered);
+    renderStatusChart(filtered);
+    hideDashboardLoading();
+  });
 }
 
 /* =====================================================
@@ -96,7 +123,8 @@ function renderTable(data) {
   tbody.innerHTML = '';
 
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center">Tidak ada data</td></tr>`;
+    tbody.innerHTML =
+      `<tr><td colspan="7" class="text-center">Tidak ada data</td></tr>`;
     return;
   }
 
@@ -190,7 +218,8 @@ function initDashboardFilter() {
 
   ['dashboard-filter-witel', 'table-filter-kategori', 'table-search']
     .forEach(id =>
-      document.getElementById(id)?.addEventListener('input', renderDashboard)
+      document.getElementById(id)
+        ?.addEventListener('input', renderDashboard)
     );
 }
 
@@ -214,29 +243,40 @@ function num(v) {
   const n = parseFloat(String(v).replace(',', '.'));
   return isNaN(n) ? 0 : n;
 }
+
 function avg(arr) {
-  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  return arr.length
+    ? arr.reduce((a, b) => a + b, 0) / arr.length
+    : 0;
 }
+
 function fmt(v) {
   if (v === null || v === '') return '-';
   return num(v).toLocaleString('id-ID');
 }
+
 function badge(v) {
   if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
   if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
   return '-';
 }
+
 function uniq(arr) {
   return [...new Set(arr.filter(Boolean))];
 }
+
 function fillSelect(el, arr) {
   if (!el) return;
   el.innerHTML = `<option value="">All</option>`;
-  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+  arr.forEach(v =>
+    el.innerHTML += `<option value="${v}">${v}</option>`
+  );
 }
+
 function val(id) {
   return document.getElementById(id)?.value || '';
 }
+
 function setText(id, v) {
   const el = document.getElementById(id);
   if (el) el.textContent = v;
