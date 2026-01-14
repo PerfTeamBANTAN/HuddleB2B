@@ -41,19 +41,13 @@ function fmtInt(val) {
 }
 
 /* =====================================================
-   CARD COLOR HELPER
+   COLOR RULE
 ===================================================== */
 function danger(val, target) {
   if (val === null || val === undefined) return '';
   return Number(val) < Number(target) ? 'text-danger fw-bold' : '';
 }
-function dangerTicket(val) {
-  return Number(val) > 0 ? 'text-danger fw-bold' : '';
-}
 
-/* =====================================================
-   AUTO ALERT RULE
-===================================================== */
 function isAlertCell(type, header, row) {
 
   if (type === 'ttr_hsi_table') {
@@ -82,34 +76,7 @@ function isAlertCell(type, header, row) {
 }
 
 /* =====================================================
-   DETAIL TYPE MAPPER
-===================================================== */
-function getTTRDetailType(type, header) {
-
-  if (type === 'ttr_datin_table') {
-    if (header === 'Tot Tiket K2') return 'tot_tiket_k2_detail';
-    if (header === 'Tiket Not Ach K2') return 'tiket_not_ach_k2_detail';
-    if (header === 'Tot Tiket K3') return 'tot_tiket_k3_detail';
-    if (header === 'Tiket Not Ach K3') return 'tiket_not_ach_k3_detail';
-  }
-
-  if (type === 'ttr_hsi_table') {
-    if (header === 'Tot Tiket INDIBIZ 4H') return 'tot_indibiz_4h_detail';
-    if (header === 'Tiket Not Ach INDIBIZ 4H') return 'tiket_not_ach_indibiz_4h_detail';
-    if (header === 'Tot Tiket INDIBIZ 24H') return 'tot_indibiz_24h_detail';
-    if (header === 'Tiket Not Ach INDIBIZ 24H') return 'tiket_not_ach_indibiz_24h_detail';
-
-    if (header === 'Tot Tiket RESELLER 6H') return 'tot_reseller_6h_detail';
-    if (header === 'Tiket Not Ach RESELLER 6H') return 'tiket_not_ach_reseller_6h_detail';
-    if (header === 'Tot Tiket RESELLER 36H') return 'tot_reseller_36h_detail';
-    if (header === 'Tiket Not Ach RESELLER 36H') return 'tiket_not_ach_reseller_36h_detail';
-  }
-
-  return null;
-}
-
-/* =====================================================
-   HEADER FORMATTER
+   HEADER FORMAT
 ===================================================== */
 function formatHeaderLabel(h) {
   if (h === 'STO' || h === 'WITEL') return h;
@@ -122,7 +89,7 @@ function formatHeaderLabel(h) {
 }
 
 /* =====================================================
-   KPI SUMMARY
+   KPI SUMMARY CARD
 ===================================================== */
 async function renderSummaryCards(API_URL) {
 
@@ -207,27 +174,67 @@ async function loadTTRTable(API_URL, type) {
 function initTTRFilter() {
 
   const witel = document.getElementById('ttr-filter-witel');
-  const sto = document.getElementById('ttr-filter-sto');
+  const sto   = document.getElementById('ttr-filter-sto');
+  const pic   = document.getElementById('ttr-filter-pic');
 
+  const fw = witel.value;
+  const fs = sto.value;
+
+  // ===== WITEL =====
   witel.innerHTML = `<option value="">All Witel</option>`;
-  [...new Set(ttrRawData.map(d => d.WITEL))].forEach(v => witel.innerHTML += `<option>${v}</option>`);
+  [...new Set(ttrRawData.map(d => d.WITEL).filter(Boolean))]
+    .forEach(v => witel.innerHTML += `<option ${v===fw?'selected':''}>${v}</option>`);
 
+  // ===== STO (cascade from WITEL) =====
   sto.innerHTML = `<option value="">All STO</option>`;
-  [...new Set(ttrRawData.map(d => d.STO))].forEach(v => sto.innerHTML += `<option>${v}</option>`);
+  ttrRawData
+    .filter(d => !fw || d.WITEL === fw)
+    .map(d => d.STO)
+    .filter(Boolean)
+    .filter((v,i,a)=>a.indexOf(v)===i)
+    .forEach(v => sto.innerHTML += `<option ${v===fs?'selected':''}>${v}</option>`);
 
-  witel.onchange = renderTTRTable;
-  sto.onchange = renderTTRTable;
+  // ===== PIC (cascade from WITEL + STO) =====
+  pic.innerHTML = `<option value="">All PIC</option>`;
+  ttrRawData
+    .filter(d =>
+      (!fw || d.WITEL === fw) &&
+      (!fs || d.STO === fs)
+    )
+    .map(d => d.PIC)
+    .filter(Boolean)
+    .filter((v,i,a)=>a.indexOf(v)===i)
+    .forEach(v => pic.innerHTML += `<option>${v}</option>`);
+
+  // ===== EVENT =====
+  witel.onchange = () => {
+    sto.value = '';
+    pic.value = '';
+    initTTRFilter();
+    renderTTRTable();
+  };
+
+  sto.onchange = () => {
+    pic.value = '';
+    initTTRFilter();
+    renderTTRTable();
+  };
+
+  pic.onchange = renderTTRTable;
 }
 
+
 /* =====================================================
-   RENDER TABLE
+   RENDER TABLE (NO DETAIL CLICK)
 ===================================================== */
 function renderTTRTable() {
 
   const head = document.getElementById('ttr-table-head');
   const body = document.getElementById('ttr-table-body');
+
   const fw = document.getElementById('ttr-filter-witel').value;
   const fs = document.getElementById('ttr-filter-sto').value;
+  const fp = document.getElementById('ttr-filter-pic').value;
 
   head.innerHTML = '';
   ttrHeaders.forEach(h => {
@@ -240,7 +247,11 @@ function renderTTRTable() {
   body.innerHTML = '';
 
   ttrRawData
-    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs))
+    .filter(r =>
+      (!fw || r.WITEL === fw) &&
+      (!fs || r.STO === fs) &&
+      (!fp || r.PIC === fp)
+    )
     .forEach(r => {
 
       const tr = document.createElement('tr');
@@ -248,55 +259,20 @@ function renderTTRTable() {
       ttrHeaders.forEach(h => {
 
         const td = document.createElement('td');
-        let value = h.includes('%') ? fmtPercent(r[h]) :
-                    h.toLowerCase().includes('tiket') ? fmtInt(r[h]) :
-                    fmt(r[h]);
+        let value =
+          h.includes('%') ? fmtPercent(r[h]) :
+          h.toLowerCase().includes('tiket') ? fmtInt(r[h]) :
+          fmt(r[h]);
 
-        const detailType = getTTRDetailType(currentType, h);
-
-        if (detailType && Number(r[h]) > 0) {
-          td.innerHTML = `<span class="text-primary fw-bold"
-            style="cursor:pointer;text-decoration:underline"
-            onclick="openTTRDetail('${detailType}','${r.STO}','${r.WITEL}')">${value}</span>`;
-        }
-        else if (isAlertCell(currentType, h, r)) {
+        if (isAlertCell(currentType, h, r)) {
           td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
+        } else {
+          td.textContent = value;
         }
-        else td.textContent = value;
 
         tr.appendChild(td);
       });
 
       body.appendChild(tr);
     });
-}
-
-/* =====================================================
-   DETAIL MODAL
-===================================================== */
-async function openTTRDetail(type, sto, witel) {
-
-  const modal = document.getElementById('global-modal');
-  modal.querySelector('.modal-title').textContent = `${witel} / ${sto}`;
-  modal.querySelector('.modal-body').innerHTML = `<div class="text-center py-4">
-    <span class="spinner-border"></span></div>`;
-
-  new bootstrap.Modal(modal).show();
-
-  const json = await fetchJSONP(
-    `${API_URL}?type=${type}&sto=${encodeURIComponent(sto)}&witel=${encodeURIComponent(witel)}`
-  );
-
-  if (!json.data || !json.data.length) {
-    modal.querySelector('.modal-body').innerHTML = `<div class="text-center text-muted py-4">Tidak ada data</div>`;
-    return;
-  }
-
-  modal.querySelector('.modal-body').innerHTML = `
-    <div class="table-responsive">
-      <table class="table table-sm table-bordered table-dark">
-        <thead><tr>${json.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-        <tbody>${json.data.map(r=>`<tr>${json.headers.map(h=>`<td>${r[h]??''}</td>`).join('')}</tr>`).join('')}</tbody>
-      </table>
-    </div>`;
 }
