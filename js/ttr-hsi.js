@@ -308,25 +308,61 @@ function renderTTRTable() {
 }
 
 /* =====================================================
-   ENSURE DETAIL MODAL EXISTS (AUTO)
+   OPEN DETAIL TTR MODAL
 ===================================================== */
-function ensureTTRDetailModal() {
+async function openTTRDetail(endpoint, sto, header) {
 
-  if (document.getElementById('ttrDetailModal')) return;
+  const modal = document.getElementById('global-modal');
+  const title = modal.querySelector('.modal-title');
+  const body  = modal.querySelector('.modal-body');
 
-  const modalHTML = `
-  <div class="modal fade" id="ttrDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Tiket</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="ttr-detail-body"></div>
-      </div>
+  // ===== TITLE =====
+  title.textContent = `${header} – STO ${sto}`;
+
+  // ===== LOADING =====
+  body.innerHTML = `
+    <div class="text-center py-5">
+      <span class="spinner-border"></span>
     </div>
-  </div>`;
+  `;
 
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  new bootstrap.Modal(modal).show();
+
+  // ===== FETCH DATA =====
+  const res  = await fetch(
+    `${API_URL}?type=${endpoint}&sto=${encodeURIComponent(sto)}`
+  );
+  const json = await res.json();
+
+  // ===== EMPTY STATE =====
+  if (!json.data || !json.data.length) {
+    body.innerHTML = `
+      <div class="text-center py-4 text-muted">
+        Tidak ada data
+      </div>
+    `;
+    return;
+  }
+
+  // ===== TABLE RENDER =====
+  body.innerHTML = `
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-dark align-middle">
+        <thead>
+          <tr>
+            ${json.headers.map(h => `<th>${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${json.data.map(r => `
+            <tr>
+              ${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
+
 
