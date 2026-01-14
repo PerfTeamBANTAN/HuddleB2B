@@ -89,48 +89,35 @@ function formatHeaderLabel(h) {
 }
 
 /* =====================================================
-   DETAIL ENDPOINT MAPPER (NEW)
+   DETAIL ENDPOINT MAPPER (FIXED & COMPLETE)
 ===================================================== */
 function getDetailEndpoint(type, header) {
+
+  /* ================= DATIN ================= */
   if (type === 'ttr_datin_table') {
     if (header === 'Tot Tiket K2') return 'ttr_datin_k2_detail';
     if (header === 'Tiket Not Ach K2') return 'ttr_datin_k2_notach_detail';
     if (header === 'Tot Tiket K3') return 'ttr_datin_k3_detail';
     if (header === 'Tiket Not Ach K3') return 'ttr_datin_k3_notach_detail';
   }
+
+  /* ================= HSI ================= */
+  if (type === 'ttr_hsi_table') {
+
+    // INDIBIZ
+    if (header === 'Tot Tiket INDIBIZ 4H') return 'ttr_indibiz_detail';
+    if (header === 'Tot Tiket INDIBIZ 24H') return 'ttr_indibiz_detail';
+    if (header === 'Tiket Not Ach INDIBIZ 4H') return 'ttr_indibiz_4h_notach_detail';
+    if (header === 'Tiket Not Ach INDIBIZ 24H') return 'ttr_indibiz_24h_notach_detail';
+
+    // RESELLER
+    if (header === 'Tot Tiket RESELLER 6H') return 'ttr_reseller_detail';
+    if (header === 'Tot Tiket RESELLER 36H') return 'ttr_reseller_detail';
+    if (header === 'Tiket Not Ach RESELLER 6H') return 'ttr_reseller_6h_notach_detail';
+    if (header === 'Tiket Not Ach RESELLER 36H') return 'ttr_reseller_36h_notach_detail';
+  }
+
   return null;
-}
-
-/* =====================================================
-   OPEN DETAIL MODAL (NEW)
-===================================================== */
-async function openTTRDetail(endpoint, sto, header) {
-
-  if (!endpoint || !sto) return;
-
-  // 🔧 PASTIKAN MODAL ADA
-  ensureTTRDetailModal();
-
-  const json = await fetchJSONP(
-    API_URL + `?type=${endpoint}&sto=${encodeURIComponent(sto)}`
-  );
-
-  let html = `<h6 class="mb-3">${header} – STO ${sto}</h6>`;
-  html += `<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>`;
-
-  json.headers.forEach(h => html += `<th>${h}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  json.data.forEach(r => {
-    html += `<tr>`;
-    json.headers.forEach(h => html += `<td>${r[h] ?? ''}</td>`);
-    html += `</tr>`;
-  });
-
-  html += `</tbody></table></div>`;
-
-  document.getElementById('ttr-detail-body').innerHTML = html;
-  new bootstrap.Modal(document.getElementById('ttrDetailModal')).show();
 }
 
 /* =====================================================
@@ -308,7 +295,7 @@ function renderTTRTable() {
 }
 
 /* =====================================================
-   OPEN DETAIL TTR MODAL
+   OPEN DETAIL TTR MODAL (GLOBAL MODAL)
 ===================================================== */
 async function openTTRDetail(endpoint, sto, header) {
 
@@ -316,53 +303,33 @@ async function openTTRDetail(endpoint, sto, header) {
   const title = modal.querySelector('.modal-title');
   const body  = modal.querySelector('.modal-body');
 
-  // ===== TITLE =====
   title.textContent = `${header} – STO ${sto}`;
-
-  // ===== LOADING =====
-  body.innerHTML = `
-    <div class="text-center py-5">
-      <span class="spinner-border"></span>
-    </div>
-  `;
+  body.innerHTML = `<div class="text-center py-5">
+    <span class="spinner-border"></span>
+  </div>`;
 
   new bootstrap.Modal(modal).show();
 
-  // ===== FETCH DATA =====
-  const res  = await fetch(
-    `${API_URL}?type=${endpoint}&sto=${encodeURIComponent(sto)}`
-  );
+  const res  = await fetch(`${API_URL}?type=${endpoint}&sto=${encodeURIComponent(sto)}`);
   const json = await res.json();
 
-  // ===== EMPTY STATE =====
   if (!json.data || !json.data.length) {
-    body.innerHTML = `
-      <div class="text-center py-4 text-muted">
-        Tidak ada data
-      </div>
-    `;
+    body.innerHTML = `<div class="text-center py-4 text-muted">Tidak ada data</div>`;
     return;
   }
 
-  // ===== TABLE RENDER =====
   body.innerHTML = `
     <div class="table-responsive">
       <table class="table table-sm table-bordered table-dark align-middle">
         <thead>
-          <tr>
-            ${json.headers.map(h => `<th>${h}</th>`).join('')}
-          </tr>
+          <tr>${json.headers.map(h => `<th>${h}</th>`).join('')}</tr>
         </thead>
         <tbody>
           ${json.data.map(r => `
-            <tr>
-              ${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}
-            </tr>
+            <tr>${json.headers.map(h => `<td>${r[h] ?? ''}</td>`).join('')}</tr>
           `).join('')}
         </tbody>
       </table>
     </div>
   `;
 }
-
-
