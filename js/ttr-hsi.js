@@ -4,7 +4,7 @@
 let ttrRawData = [];
 let ttrHeaders = [];
 let currentType = 'ttr_hsi_table';
-let currentType = 'ttr_datin_table';
+
 
 /* =====================================================
    FORMATTER
