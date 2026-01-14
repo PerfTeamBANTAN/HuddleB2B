@@ -1,7 +1,8 @@
 /* =====================================================
    DASHBOARD B2B – FINAL KPI LOGIC (LOCKED)
-   + LOADING
+   + CONTEXTUAL LOADING
    + STATUS FILTER (ALL / ACHIEVE / NOT ACHIEVE)
+   + FILTER DESCRIPTION / LABEL
 ===================================================== */
 
 let dashboardRawData = [];
@@ -33,9 +34,8 @@ const KPI_PER_WITEL = 48;
       justify-content: center;
       flex-direction: column;
       color: #fff;
-      font-size: 14px;
     }
-    #dashboard-b2b-loading.d-none { display: none; }
+    #dashboard-b2b-loading.d-none { display:none }
     #dashboard-b2b-loading .spinner {
       width: 36px;
       height: 36px;
@@ -45,7 +45,7 @@ const KPI_PER_WITEL = 48;
       animation: spin .8s linear infinite;
       margin-bottom: 8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin { to { transform: rotate(360deg) } }
   `;
   document.head.appendChild(style);
 
@@ -59,9 +59,6 @@ const KPI_PER_WITEL = 48;
   wrapper.appendChild(loader);
 })();
 
-/* =====================================================
-   LOADING HANDLER
-===================================================== */
 function showDashboardLoading() {
   document.getElementById('dashboard-b2b-loading')
     ?.classList.remove('d-none');
@@ -81,11 +78,9 @@ function initDashboardB2B(API_URL) {
     .then(r => r.json())
     .then(res => {
       dashboardRawData = res.data || [];
-
       initDashboardFilter();
-      ensureStatusFilter(); // 🔥 status filter
+      initFilterDescriptions();
       renderDashboard();
-
       setText(
         'dashboard-b2b-last-update',
         `Last update: ${res.lastUpdate || '-'}`
@@ -137,12 +132,12 @@ function renderKPI(filteredData) {
     r => String(r.Indikator).toLowerCase() === 'achievement'
   );
 
-  const byWitel = {};
-  rows.forEach(r => byWitel[r.Witel] = num(r['Achievement HI']));
+  const achByWitel = {};
+  rows.forEach(r => achByWitel[r.Witel] = num(r['Achievement HI']));
 
   finalAchievement = selectedWitel
-    ? (byWitel[selectedWitel] || 0)
-    : avg(Object.values(byWitel));
+    ? (achByWitel[selectedWitel] || 0)
+    : avg(Object.values(achByWitel));
 
   setText(
     'kpi-achievement-hi',
@@ -182,7 +177,7 @@ function renderTable(data) {
 }
 
 /* =====================================================
-   CHART – ACH HI vs KEMARIN
+   CHARTS
 ===================================================== */
 function renderAchievementChart(data) {
   const el = document.getElementById('achievement-chart');
@@ -191,32 +186,32 @@ function renderAchievementChart(data) {
   el.innerHTML = `<canvas id="achChartCanvas"></canvas>`;
   achChart?.destroy();
 
-  achChart = new Chart(document.getElementById('achChartCanvas'), {
-    type: 'line',
-    data: {
-      labels: data.map(d => d.Indikator),
-      datasets: [
-        {
-          label: 'Achievement HI',
-          data: data.map(d => num(d['Achievement HI'])),
-          tension: .4,
-          fill: true
-        },
-        {
-          label: 'Kemarin',
-          data: data.map(d => num(d['Achievement Kemarin'])),
-          tension: .4,
-          fill: true
-        }
-      ]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
-  });
+  achChart = new Chart(
+    document.getElementById('achChartCanvas'),
+    {
+      type: 'line',
+      data: {
+        labels: data.map(d => d.Indikator),
+        datasets: [
+          {
+            label: 'Achievement HI',
+            data: data.map(d => num(d['Achievement HI'])),
+            tension: .4,
+            fill: true
+          },
+          {
+            label: 'Kemarin',
+            data: data.map(d => num(d['Achievement Kemarin'])),
+            tension: .4,
+            fill: true
+          }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    }
+  );
 }
 
-/* =====================================================
-   CHART – STATUS KPI
-===================================================== */
 function renderStatusChart(data) {
   const el = document.getElementById('status-chart');
   if (!el) return;
@@ -224,19 +219,22 @@ function renderStatusChart(data) {
   el.innerHTML = `<canvas id="statusChartCanvas"></canvas>`;
   statusChart?.destroy();
 
-  statusChart = new Chart(document.getElementById('statusChartCanvas'), {
-    type: 'bar',
-    data: {
-      labels: ['Achieve', 'Not Achieve'],
-      datasets: [{
-        data: [
-          data.filter(d => d['Status Ach HI'] === '✅').length,
-          data.filter(d => d['Status Ach HI'] === '❌').length
-        ]
-      }]
-    },
-    options: { responsive: true, maintainAspectRatio: false }
-  });
+  statusChart = new Chart(
+    document.getElementById('statusChartCanvas'),
+    {
+      type: 'bar',
+      data: {
+        labels: ['Achieve', 'Not Achieve'],
+        datasets: [{
+          data: [
+            data.filter(d => d['Status Ach HI'] === '✅').length,
+            data.filter(d => d['Status Ach HI'] === '❌').length
+          ]
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    }
+  );
 }
 
 /* =====================================================
@@ -253,46 +251,62 @@ function initDashboardFilter() {
     uniq(dashboardRawData.map(d => d['Katagori KPI']))
   );
 
-  ['dashboard-filter-witel', 'table-filter-kategori', 'table-search']
-    .forEach(id =>
-      document.getElementById(id)
-        ?.addEventListener('input', renderDashboard)
-    );
-}
+  const statusEl = document.getElementById('dashboard-filter-status');
+  if (statusEl) {
+    statusEl.innerHTML = `
+      <option value="">All</option>
+      <option value="achieve">Achieve</option>
+      <option value="not">Not Achieve</option>
+    `;
+  }
 
-/* ===== STATUS FILTER (ALL / ACHIEVE / NOT ACHIEVE) ===== */
-function ensureStatusFilter() {
-  if (document.getElementById('dashboard-filter-status')) return;
-
-  const witelSelect = document.getElementById('dashboard-filter-witel');
-  if (!witelSelect) return;
-
-  const sel = document.createElement('select');
-  sel.id = 'dashboard-filter-status';
-  sel.className = 'form-select form-select-sm w-auto ms-2';
-  sel.innerHTML = `
-    <option value="">All</option>
-    <option value="✅">Achieve only</option>
-    <option value="❌">Not Achieve</option>
-  `;
-
-  witelSelect.parentElement.appendChild(sel);
-  sel.addEventListener('input', renderDashboard);
+  [
+    'dashboard-filter-witel',
+    'dashboard-filter-status',
+    'table-filter-kategori',
+    'table-search'
+  ].forEach(id =>
+    document.getElementById(id)
+      ?.addEventListener('input', renderDashboard)
+  );
 }
 
 function applyDashboardFilter() {
-  const witel  = val('dashboard-filter-witel');
-  const kat    = val('table-filter-kategori');
-  const key    = val('table-search').toLowerCase();
+  const witel = val('dashboard-filter-witel');
+  const kat = val('table-filter-kategori');
+  const key = val('table-search').toLowerCase();
   const status = val('dashboard-filter-status');
 
   return dashboardRawData.filter(r => {
     if (witel && r.Witel !== witel) return false;
     if (kat && r['Katagori KPI'] !== kat) return false;
     if (key && !r.Indikator.toLowerCase().includes(key)) return false;
-    if (status && r['Status Ach HI'] !== status) return false;
+    if (status === 'achieve' && r['Status Ach HI'] !== '✅') return false;
+    if (status === 'not' && r['Status Ach HI'] !== '❌') return false;
     return true;
   });
+}
+
+/* =====================================================
+   FILTER DESCRIPTION (LABEL)
+===================================================== */
+function addFilterLabel(id, text) {
+  const el = document.getElementById(id);
+  if (!el || el.dataset.labeled) return;
+
+  const label = document.createElement('small');
+  label.className = 'text-muted d-block mb-1';
+  label.textContent = text;
+
+  el.parentElement.insertBefore(label, el);
+  el.dataset.labeled = '1';
+}
+
+function initFilterDescriptions() {
+  addFilterLabel('dashboard-filter-witel', 'Witel');
+  addFilterLabel('dashboard-filter-status', 'Status KPI (HI)');
+  addFilterLabel('table-filter-kategori', 'Kategori KPI');
+  addFilterLabel('table-search', 'Cari Indikator');
 }
 
 /* =====================================================
@@ -302,29 +316,40 @@ function num(v) {
   const n = parseFloat(String(v).replace(',', '.'));
   return isNaN(n) ? 0 : n;
 }
+
 function avg(arr) {
-  return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+  return arr.length
+    ? arr.reduce((a, b) => a + b, 0) / arr.length
+    : 0;
 }
+
 function fmt(v) {
   if (v === null || v === '') return '-';
   return num(v).toLocaleString('id-ID');
 }
+
 function badge(v) {
   if (v === '✅') return `<span class="badge bg-success">Achieve</span>`;
   if (v === '❌') return `<span class="badge bg-danger">Not Achieve</span>`;
   return '-';
 }
+
 function uniq(arr) {
   return [...new Set(arr.filter(Boolean))];
 }
+
 function fillSelect(el, arr) {
   if (!el) return;
   el.innerHTML = `<option value="">All</option>`;
-  arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+  arr.forEach(v =>
+    el.innerHTML += `<option value="${v}">${v}</option>`
+  );
 }
+
 function val(id) {
   return document.getElementById(id)?.value || '';
 }
+
 function setText(id, v) {
   const el = document.getElementById(id);
   if (el) el.textContent = v;
