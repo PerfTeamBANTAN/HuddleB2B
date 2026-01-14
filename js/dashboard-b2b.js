@@ -1,6 +1,6 @@
 /* =====================================================
    DASHBOARD B2B – FINAL KPI LOGIC (LOCKED)
-   + LOADING STATE (SAFE)
+   + CONTEXTUAL LOADING (INSIDE WRAPPER)
 ===================================================== */
 
 let dashboardRawData = [];
@@ -10,16 +10,70 @@ let statusChart = null;
 const KPI_PER_WITEL = 48;
 
 /* =====================================================
-   LOADING HANDLER (NON-INTRUSIVE)
+   AUTO CREATE LOADING (INSIDE #dashboard-b2b-wrapper)
+===================================================== */
+(function ensureDashboardLoader() {
+  const wrapper = document.getElementById('dashboard-b2b-wrapper');
+  if (!wrapper || document.getElementById('dashboard-b2b-loading')) return;
+
+  if (getComputedStyle(wrapper).position === 'static') {
+    wrapper.style.position = 'relative';
+  }
+
+  const style = document.createElement('style');
+  style.innerHTML = `
+    #dashboard-b2b-loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 10, 20, 0.75);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #fff;
+      font-size: 14px;
+    }
+    #dashboard-b2b-loading.d-none {
+      display: none;
+    }
+    #dashboard-b2b-loading .spinner {
+      width: 36px;
+      height: 36px;
+      border: 4px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const loader = document.createElement('div');
+  loader.id = 'dashboard-b2b-loading';
+  loader.className = 'd-none';
+  loader.innerHTML = `
+    <div class="spinner"></div>
+    <div>Loading Dashboard B2B...</div>
+  `;
+
+  wrapper.appendChild(loader);
+})();
+
+/* =====================================================
+   LOADING HANDLER
 ===================================================== */
 function showDashboardLoading() {
-  const el = document.getElementById('dashboard-b2b-loading');
-  if (el) el.classList.remove('d-none');
+  document.getElementById('dashboard-b2b-loading')
+    ?.classList.remove('d-none');
 }
 
 function hideDashboardLoading() {
-  const el = document.getElementById('dashboard-b2b-loading');
-  if (el) el.classList.add('d-none');
+  document.getElementById('dashboard-b2b-loading')
+    ?.classList.add('d-none');
 }
 
 /* =====================================================
@@ -41,12 +95,8 @@ function initDashboardB2B(API_URL) {
         `Last update: ${res.lastUpdate || '-'}`
       );
     })
-    .catch(err => {
-      console.error(err);
-    })
-    .finally(() => {
-      hideDashboardLoading();
-    });
+    .catch(console.error)
+    .finally(hideDashboardLoading);
 }
 
 /* =====================================================
@@ -71,14 +121,12 @@ function renderDashboard() {
 function renderKPI(filteredData) {
   const selectedWitel = val('dashboard-filter-witel');
 
-  /* ===== TOTAL KPI ===== */
   if (!selectedWitel) {
     setText('kpi-total', KPI_PER_WITEL * 2);
   } else {
     setText('kpi-total', KPI_PER_WITEL);
   }
 
-  /* ===== STATUS COUNT ===== */
   setText(
     'kpi-achieve',
     filteredData.filter(r => r['Status Ach HI'] === '✅').length
@@ -89,7 +137,6 @@ function renderKPI(filteredData) {
     filteredData.filter(r => r['Status Ach HI'] === '❌').length
   );
 
-  /* ===== ACHIEVEMENT HI (LOCKED RULE) ===== */
   let finalAchievement = 0;
 
   const achievementRows = dashboardRawData.filter(
