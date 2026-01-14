@@ -89,6 +89,48 @@ function formatHeaderLabel(h) {
 }
 
 /* =====================================================
+   DETAIL ENDPOINT MAPPER (NEW)
+===================================================== */
+function getDetailEndpoint(type, header) {
+  if (type === 'ttr_datin_table') {
+    if (header === 'Tot Tiket K2') return 'ttr_datin_k2_detail';
+    if (header === 'Tiket Not Ach K2') return 'ttr_datin_k2_notach_detail';
+    if (header === 'Tot Tiket K3') return 'ttr_datin_k3_detail';
+    if (header === 'Tiket Not Ach K3') return 'ttr_datin_k3_notach_detail';
+  }
+  return null;
+}
+
+/* =====================================================
+   OPEN DETAIL MODAL (NEW)
+===================================================== */
+async function openTTRDetail(endpoint, sto, header) {
+
+  if (!endpoint || !sto) return;
+
+  const json = await fetchJSONP(
+    API_URL + `?type=${endpoint}&sto=${encodeURIComponent(sto)}`
+  );
+
+  let html = `<h6 class="mb-3">${header} – STO ${sto}</h6>`;
+  html += `<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>`;
+
+  json.headers.forEach(h => html += `<th>${h}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  json.data.forEach(r => {
+    html += `<tr>`;
+    json.headers.forEach(h => html += `<td>${r[h] ?? ''}</td>`);
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  document.getElementById('ttr-detail-body').innerHTML = html;
+  new bootstrap.Modal(document.getElementById('ttrDetailModal')).show();
+}
+
+/* =====================================================
    KPI SUMMARY CARD
 ===================================================== */
 async function renderSummaryCards(API_URL) {
@@ -180,12 +222,10 @@ function initTTRFilter() {
   const fw = witel.value;
   const fs = sto.value;
 
-  // ===== WITEL =====
   witel.innerHTML = `<option value="">All Witel</option>`;
   [...new Set(ttrRawData.map(d => d.WITEL).filter(Boolean))]
     .forEach(v => witel.innerHTML += `<option ${v===fw?'selected':''}>${v}</option>`);
 
-  // ===== STO (cascade from WITEL) =====
   sto.innerHTML = `<option value="">All STO</option>`;
   ttrRawData
     .filter(d => !fw || d.WITEL === fw)
@@ -194,38 +234,21 @@ function initTTRFilter() {
     .filter((v,i,a)=>a.indexOf(v)===i)
     .forEach(v => sto.innerHTML += `<option ${v===fs?'selected':''}>${v}</option>`);
 
-  // ===== PIC (cascade from WITEL + STO) =====
   pic.innerHTML = `<option value="">All PIC</option>`;
   ttrRawData
-    .filter(d =>
-      (!fw || d.WITEL === fw) &&
-      (!fs || d.STO === fs)
-    )
+    .filter(d => (!fw || d.WITEL === fw) && (!fs || d.STO === fs))
     .map(d => d.PIC)
     .filter(Boolean)
     .filter((v,i,a)=>a.indexOf(v)===i)
     .forEach(v => pic.innerHTML += `<option>${v}</option>`);
 
-  // ===== EVENT =====
-  witel.onchange = () => {
-    sto.value = '';
-    pic.value = '';
-    initTTRFilter();
-    renderTTRTable();
-  };
-
-  sto.onchange = () => {
-    pic.value = '';
-    initTTRFilter();
-    renderTTRTable();
-  };
-
-  pic.onchange = renderTTRTable;
+  witel.onchange = () => { sto.value=''; pic.value=''; initTTRFilter(); renderTTRTable(); };
+  sto.onchange   = () => { pic.value=''; initTTRFilter(); renderTTRTable(); };
+  pic.onchange   = renderTTRTable;
 }
 
-
 /* =====================================================
-   RENDER TABLE (NO DETAIL CLICK)
+   RENDER TABLE (CLICK ENABLED)
 ===================================================== */
 function renderTTRTable() {
 
@@ -247,11 +270,7 @@ function renderTTRTable() {
   body.innerHTML = '';
 
   ttrRawData
-    .filter(r =>
-      (!fw || r.WITEL === fw) &&
-      (!fs || r.STO === fs) &&
-      (!fp || r.PIC === fp)
-    )
+    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs) && (!fp || r.PIC === fp))
     .forEach(r => {
 
       const tr = document.createElement('tr');
@@ -259,12 +278,20 @@ function renderTTRTable() {
       ttrHeaders.forEach(h => {
 
         const td = document.createElement('td');
-        let value =
+        const value =
           h.includes('%') ? fmtPercent(r[h]) :
           h.toLowerCase().includes('tiket') ? fmtInt(r[h]) :
           fmt(r[h]);
 
-        if (isAlertCell(currentType, h, r)) {
+        const endpoint = getDetailEndpoint(currentType, h);
+
+        if (endpoint && Number(r[h]) > 0) {
+          td.innerHTML = `
+            <span class="text-primary fw-bold" style="cursor:pointer"
+              onclick="openTTRDetail('${endpoint}','${r.STO}','${h}')">
+              ${value}
+            </span>`;
+        } else if (isAlertCell(currentType, h, r)) {
           td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
         } else {
           td.textContent = value;
