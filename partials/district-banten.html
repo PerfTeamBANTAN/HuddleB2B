@@ -1,151 +1,106 @@
-<div id="district-banten-wrapper" class="district-wrapper px-3">
+<!-- CONTENT AREA -->
+<div id="content-area" class="show-grid">
 
-  <h4 class="text-center text-light mb-3">
-    Huddle Performance CX B2B District BANTEN
-  </h4>
+  <div id="district-banten-wrapper" class="district-wrapper px-3">
 
-  <!-- ================= GRID CARD KPI ================= -->
-  <div id="district-banten-row" class="cards-scroll">
-    <!-- kartu KPI diisi JS -->
-  </div>
+    <h4 class="text-center text-light mb-3">
+      Huddle Performance CX B2B District BANTEN
+    </h4>
 
-  <!-- ================= TABLE SECTION ================= -->
-  <div class="mt-4">
+    <!-- ================= KPI GRID ================= -->
+    <div id="district-banten-row" class="cards-scroll">
+      <!-- KPI dari JS -->
+    </div>
 
-    <h5 class="text-light mb-2">
-      Prognosa Q B2B District Banten
-    </h5>
+    <!-- ================= TABLE SECTION ================= -->
+    <div class="mt-4 section-below-kpi">
 
-    <!-- ================= FILTER ================= -->
-  <div class="card bg-dark border-secondary mb-4">
-    <div class="card-body py-2">
+      <h5 class="text-light mb-2">
+        Prognosa Q B2B District Banten
+      </h5>
 
-      <div class="row g-2 align-items-end">
+      <!-- ================= FILTER ================= -->
+      <div class="card bg-dark border-secondary mb-4">
+        <div class="card-body py-2">
+          <div class="row g-2 align-items-end">
 
-        <!-- WITEL -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            Witel
-          </label>
-          <select id="filter-witel" class="form-select form-select-sm">
-            <option value="">All Witel</option>
-          </select>
+            <div class="col-md-3">
+              <label class="form-label text-light small mb-1">Witel</label>
+              <select id="filter-witel" class="form-select form-select-sm">
+                <option value="">All Witel</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label text-light small mb-1">STO</label>
+              <select id="filter-sto" class="form-select form-select-sm">
+                <option value="">All STO</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label text-light small mb-1">PIC</label>
+              <select id="filter-pic" class="form-select form-select-sm">
+                <option value="">All PIC</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= KETERANGAN ================= -->
+      <div class="card bg-dark border-warning mb-4 card-keterangan">
+        <div class="card-header text-warning fw-semibold">
+          <i class="fa fa-circle-info me-2"></i>Keterangan
         </div>
 
-        <!-- STO -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            STO
-          </label>
-          <select id="filter-sto" class="form-select form-select-sm">
-            <option value="">All STO</option>
-          </select>
+        <div class="card-body small text-light">
+          <ol class="mb-0 ps-3">
+            <li><strong>Anak Gamas before & after</strong> seluruhnya masuk perhitungan.</li>
+            <li>Symptom <strong>Perlu Ditangani</strong> semua masuk perhitungan.</li>
+            <li><strong>FCR Frontier</strong> dengan status gamas masuk perhitungan.</li>
+            <li>FCR Frontier dengan headline <em>%Gamas%</em> tetap dihitung.</li>
+            <li>Per <strong>01 Januari 2022</strong>, Gamas Open → turunan Open, Closed → turunan Closed.</li>
+            <li>FCR Solver seluruhnya masuk perhitungan.</li>
+            <li>Varians teknis berbasis SLA (Fisik & Logik).</li>
+            <li>Parameter laporan Hi-Open hanya mengambil tiket <strong>OPEN</strong>.</li>
+            <li>Status <strong>Ber-Billed</strong> = gangguan Open &gt; 30 hari.</li>
+            <li>Tiket belum Closed tetap dihitung otomatis.</li>
+            <li>Gangguan ditarik billing & usia &gt; 10 hari → Ber-Billed.</li>
+            <li>Update data 4x sehari: <span class="text-info">06, 12, 18, 24</span>.</li>
+          </ol>
         </div>
+      </div>
 
-        <!-- PIC -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            PIC
-          </label>
-          <select id="filter-pic" class="form-select form-select-sm">
-            <option value="">All PIC</option>
-          </select>
-        </div>
+      <!-- ================= LOADING ================= -->
+      <div id="alert-loading-overlay" class="loading-overlay d-none">
+        <div class="spinner-border text-light mb-2"></div>
+        <div class="loading-text">Mengambil data...</div>
+      </div>
 
+      <!-- ================= TABLE ================= -->
+      <div class="table-responsive">
+        <table
+          class="table table-dark table-striped table-bordered table-sm align-middle"
+          id="district-banten-table">
+          <thead class="table-secondary text-dark">
+            <tr id="district-banten-table-head"></tr>
+          </thead>
+          <tbody id="district-banten-table-body"></tbody>
+        </table>
       </div>
 
     </div>
-  </div>
 
-    <!-- ================= KETERANGAN ================= -->
-<div class="card bg-dark border-warning mb-4">
-  <div class="card-header text-warning fw-semibold">
-    <i class="fa fa-circle-info me-2"></i>Keterangan
-  </div>
-
-  <div class="card-body small text-light">
-    <ol class="mb-0 ps-3">
-      <li>
-        <strong>Anak Gamas before & after</strong> seluruhnya masuk perhitungan.
-      </li>
-      <li>
-        Symptom <strong>Perlu Ditangani</strong> semua masuk perhitungan.
-      </li>
-      <li>
-        <strong>FCR Frontier</strong> dengan status <em>gamas</em> masuk perhitungan.
-      </li>
-      <li>
-        FCR Frontier yang <em>trouble headline like "%Gamas%"</em> tetap dihitung.
-      </li>
-      <li>
-        Per <strong>01 Januari 2022</strong> FCR Frontier karena Gamas otomatis
-        <span class="text-info">Open</span>, dan jika Gamas
-        <span class="text-success">Closed</span> maka seluruh turunannya ikut Closed.
-      </li>
-      <li>
-        FCR Solver semua masuk perhitungan.
-      </li>
-      <li>
-        Varians report <strong>Teknis (Fisik & Logik)</strong> berbasis SLA.
-      </li>
-      <li>
-        Parameter untuk laporan <strong>Hi-Open</strong> hanya mengambil data
-        <strong>OPEN</strong>.
-      </li>
-      <li>
-        Status <strong>Ber-Billed</strong> dihitung dari gangguan Open
-        <strong>lebih dari 30 hari</strong>.
-      </li>
-      <li>
-        Apabila tiket Open belum Closed, perhitungan otomatis tetap berjalan.
-      </li>
-      <li>
-        Jika status gangguan <strong>ditarik billing</strong> dan
-        <strong>usia &gt; 10 hari</strong>, maka masuk kategori Ber-Billed.
-      </li>
-      <li>
-        Update data dilakukan <strong>4x sehari</strong>:
-        <span class="text-info">06.00, 12.00, 18.00, 24.00</span>
-        (beban kalkulasi cukup besar).
-      </li>
-    </ol>
-  </div>
-</div>
-
-
-  <!-- ================= LOADING ================= -->
-  <div id="alert-loading-overlay" class="loading-overlay d-none">
-    <div class="spinner-border text-light mb-2"></div>
-    <div class="loading-text">Mengambil data...</div>
-  </div>
-
-    <!-- ================= TABLE ================= -->
-    <div class="table-responsive">
-      <table
-        class="table table-dark table-striped table-bordered table-sm align-middle"
-        id="district-banten-table"
-      >
-        <thead class="table-secondary text-dark">
-          <tr id="district-banten-table-head"></tr>
-        </thead>
-        <tbody id="district-banten-table-body">
-          <tr>
-            <td colspan="10" class="text-center text-muted">
-              Memuat data...
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- ================= LAST UPDATE ================= -->
+    <div id="last-update" class="last-update text-end px-2 pb-3 mt-2">
+      <i class="fa fa-clock me-1"></i> Last update: -
     </div>
 
   </div>
-
-  <!-- ================= LAST UPDATE ================= -->
-  <div id="last-update" class="last-update text-end px-2 pb-3 mt-2">
-    <i class="fa fa-clock me-1"></i> Last update: -
-  </div>
-
 </div>
+
 
 <!-- ===================================================
      MODAL DETAIL TIKET HI
