@@ -57,18 +57,13 @@
 
         <div class="card-body small text-light">
           <ol class="mb-0 ps-3">
-            <li><strong>Anak Gamas before & after</strong> seluruhnya masuk perhitungan.</li>
-            <li>Symptom <strong>Perlu Ditangani</strong> semua masuk perhitungan.</li>
-            <li><strong>FCR Frontier</strong> dengan status gamas masuk perhitungan.</li>
-            <li>FCR Frontier dengan headline <em>%Gamas%</em> tetap dihitung.</li>
-            <li>Per <strong>01 Januari 2022</strong>, Gamas Open → turunan Open, Closed → turunan Closed.</li>
-            <li>FCR Solver seluruhnya masuk perhitungan.</li>
-            <li>Varians teknis berbasis SLA (Fisik & Logik).</li>
-            <li>Parameter laporan Hi-Open hanya mengambil tiket <strong>OPEN</strong>.</li>
-            <li>Status <strong>Ber-Billed</strong> = gangguan Open &gt; 30 hari.</li>
-            <li>Tiket belum Closed tetap dihitung otomatis.</li>
-            <li>Gangguan ditarik billing & usia &gt; 10 hari → Ber-Billed.</li>
-            <li>Update data 4x sehari: <span class="text-info">06, 12, 18, 24</span>.</li>
+            <li><strong>List Ber-bill</strong> adalah jumlah pelanggan aktif &gt; 30 hari.</li>
+            <li><strong>%Q s/d HI</strong> adalah %Q hari ini pada web <span class="text-info">https://assurance.telkom.co.id/ebis/index.php/</span>.</li>
+            <li><strong>Q 30D</strong> adalah line pelanggan terganggu dalam 30 hari.</li>
+            <li><strong>Q BI</strong> adalah line pelanggan terganggu di bulan berjalan saat ini di mulai dari tanggal 1 bulan ini.</li>
+            <li><strong>Budg Q BI</strong> adalah <em>(Targer bulan ini*List berbill)-Q BI</em>.</li>
+            <li><strong>Q Degr -31</strong> adalah list Q yang akan hilang dari Q 30D.</li>
+            <li><strong>Pragn Q BI</strong> adalah <em>((Q BI+Tiket HI-Q Degr -31)/List berbill))</em>.</li>
           </ol>
         </div>
       </div>
