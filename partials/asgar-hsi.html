@@ -14,54 +14,57 @@
   </div>
 
   <!-- ================= TABLE SECTION ================= -->
-  <div class="mt-4">
+  <div class="mt-4 section-below-kpi">
 
     <h5 class="text-light mb-2">
-      Pragnosa Assurance Guarantee HSI
+      Prognosa Assurance Guarantee HSI
     </h5>
 
     <!-- ================= FILTER ================= -->
-  <div class="card bg-dark border-secondary mb-4">
-    <div class="card-body py-2">
+    <div class="card bg-dark border-secondary mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
 
-      <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label text-light small mb-1">Witel</label>
+            <select id="asgar-filter-witel" class="form-select form-select-sm">
+              <option value="">All Witel</option>
+            </select>
+          </div>
 
-        <!-- WITEL -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            Witel
-          </label>
-          <select id="asgar-filter-witel" class="form-select form-select-sm">
-            <option value="">All Witel</option>
-          </select>
+          <div class="col-md-3">
+            <label class="form-label text-light small mb-1">STO</label>
+            <select id="asgar-filter-sto" class="form-select form-select-sm">
+              <option value="">All STO</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label text-light small mb-1">PIC</label>
+            <select id="asgar-filter-pic" class="form-select form-select-sm">
+              <option value="">All PIC</option>
+            </select>
+          </div>
+
         </div>
+      </div>
+    </div>
 
-        <!-- STO -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            STO
-          </label>
-          <select id="asgar-filter-sto" class="form-select form-select-sm">
-            <option value="">All STO</option>
-          </select>
-        </div>
-
-        <!-- PIC -->
-        <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            PIC
-          </label>
-          <select id="asgar-filter-pic" class="form-select form-select-sm">
-            <option value="">All PIC</option>
-          </select>
-        </div>
-
+    <!-- ================= KETERANGAN ================= -->
+    <div class="card bg-dark border-warning mb-4 card-keterangan">
+      <div class="card-header text-warning fw-semibold">
+        <i class="fa fa-circle-info me-2"></i>Keterangan
       </div>
 
+      <div class="card-body small text-light">
+        <ol class="mb-0 ps-3">
+          <li><strong>Asgar s/d HI</strong> adalah %Asgar saat ini pada web <span class="text-info">https://https://telkomcare.telkom.co.id/</span>.</li>
+          <li><strong>Total Tiket s/d HI</strong> adalah total line pelanggan terganggu pada list tiket <strong>ASGAR</strong>.</li>
+          <li><strong>Total Tiket Asgar</strong> adalah total line pelanggan terganggu dengan Flag <strong>GAUL</strong> pada list tiket <strong>ASGAR</strong>.</li>
+          
+        </ol>
+      </div>
     </div>
-  </div>
-
-
 
     <!-- ================= TABLE ================= -->
     <div class="table-responsive">
@@ -71,9 +74,7 @@
         </thead>
         <tbody id="asgar-hsi-table-body">
           <tr>
-            <td class="text-center text-muted">
-              Memuat data...
-            </td>
+            <td class="text-center text-muted">Memuat data...</td>
           </tr>
         </tbody>
       </table>
@@ -87,6 +88,7 @@
   </div>
 
 </div>
+
 
 <!-- ===================================================
      MODAL DETAIL TIKET HI / ASGAR HI
