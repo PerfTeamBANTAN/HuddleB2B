@@ -9,7 +9,7 @@ function initAsgarHSI(API_URL) {
   if (!container) return;
 
   container.innerHTML = '';
-  loading.classList.remove('d-none');
+  if (loading) loading.classList.remove('d-none');
 
   const cbKpi = 'jsonp_asgar_kpi_' + Date.now();
 
@@ -56,18 +56,18 @@ function initAsgarHSI(API_URL) {
           <div class="badge-card-body">
             <div class="row-item">
               <span>Target</span>
-              <span>${v.target.toFixed(2)}</span>
+              <span>${Number.isFinite(v.target) ? v.target.toFixed(2) : '-'}</span>
             </div>
             <div class="row-item">
               <span>Banten</span>
               <span class="${isGood(v.BANTEN) ? 'value-good' : 'value-bad'}">
-                ${typeof v.BANTEN === 'number' ? v.BANTEN.toFixed(2) : '-'}
+                ${Number.isFinite(v.BANTEN) ? v.BANTEN.toFixed(2) : '-'}
               </span>
             </div>
             <div class="row-item">
               <span>Tangerang</span>
               <span class="${isGood(v.TANGERANG) ? 'value-good' : 'value-bad'}">
-                ${typeof v.TANGERANG === 'number' ? v.TANGERANG.toFixed(2) : '-'}
+                ${Number.isFinite(v.TANGERANG) ? v.TANGERANG.toFixed(2) : '-'}
               </span>
             </div>
           </div>
@@ -78,7 +78,7 @@ function initAsgarHSI(API_URL) {
       loadAsgarHSITable(API_URL);
 
     } finally {
-      loading.classList.add('d-none');
+      if (loading) loading.classList.add('d-none');
       delete window[cbKpi];
       script.remove();
     }
