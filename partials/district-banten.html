@@ -57,6 +57,62 @@
     </div>
   </div>
 
+    <!-- ================= KETERANGAN ================= -->
+<div class="card bg-dark border-warning mb-4">
+  <div class="card-header text-warning fw-semibold">
+    <i class="fa fa-circle-info me-2"></i>Keterangan
+  </div>
+
+  <div class="card-body small text-light">
+    <ol class="mb-0 ps-3">
+      <li>
+        <strong>Anak Gamas before & after</strong> seluruhnya masuk perhitungan.
+      </li>
+      <li>
+        Symptom <strong>Perlu Ditangani</strong> semua masuk perhitungan.
+      </li>
+      <li>
+        <strong>FCR Frontier</strong> dengan status <em>gamas</em> masuk perhitungan.
+      </li>
+      <li>
+        FCR Frontier yang <em>trouble headline like "%Gamas%"</em> tetap dihitung.
+      </li>
+      <li>
+        Per <strong>01 Januari 2022</strong> FCR Frontier karena Gamas otomatis
+        <span class="text-info">Open</span>, dan jika Gamas
+        <span class="text-success">Closed</span> maka seluruh turunannya ikut Closed.
+      </li>
+      <li>
+        FCR Solver semua masuk perhitungan.
+      </li>
+      <li>
+        Varians report <strong>Teknis (Fisik & Logik)</strong> berbasis SLA.
+      </li>
+      <li>
+        Parameter untuk laporan <strong>Hi-Open</strong> hanya mengambil data
+        <strong>OPEN</strong>.
+      </li>
+      <li>
+        Status <strong>Ber-Billed</strong> dihitung dari gangguan Open
+        <strong>lebih dari 30 hari</strong>.
+      </li>
+      <li>
+        Apabila tiket Open belum Closed, perhitungan otomatis tetap berjalan.
+      </li>
+      <li>
+        Jika status gangguan <strong>ditarik billing</strong> dan
+        <strong>usia &gt; 10 hari</strong>, maka masuk kategori Ber-Billed.
+      </li>
+      <li>
+        Update data dilakukan <strong>4x sehari</strong>:
+        <span class="text-info">06.00, 12.00, 18.00, 24.00</span>
+        (beban kalkulasi cukup besar).
+      </li>
+    </ol>
+  </div>
+</div>
+
+
   <!-- ================= LOADING ================= -->
   <div id="alert-loading-overlay" class="loading-overlay d-none">
     <div class="spinner-border text-light mb-2"></div>
