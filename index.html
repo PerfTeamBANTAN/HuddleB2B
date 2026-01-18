@@ -610,6 +610,34 @@ tr.tr-pragnosa-bad td::before {
   background: #1f2428;
 }
 
+/* ===== FIX UTAMA ===== */
+#content-area.show-grid {
+  display: block !important;
+}
+
+/* KPI aman */
+.cards-scroll {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keterangan selalu kelihatan */
+.card-keterangan {
+  position: relative;
+  z-index: 6;
+}
+
+/* Overlay tidak nutup konten */
+.loading-overlay {
+  pointer-events: none;
+}
+
+/* Section bawah KPI */
+.section-below-kpi {
+  position: relative;
+  z-index: 3;
+}
+
 </style>
 
 </head>
