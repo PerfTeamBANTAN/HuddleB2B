@@ -185,19 +185,38 @@ function renderB2BTotalRow(){
 
     const tds = tr.querySelectorAll('td');
     for(let i=5;i<=22;i++){
-      total[i] += Number(tds[i]?.innerText || 0);
+      total[i] += parseInt(tds[i]?.innerText,10) || 0;
     }
   });
 
   const tr = document.createElement('tr');
   tr.className = 'total-row';
+
   tr.innerHTML = `
     <td colspan="4" class="text-center">TOTAL</td>
     <td></td>
-    ${total.slice(5).map(v=>`<td>${v}</td>`).join('')}
+    ${total.slice(5).map((v,i)=>`
+      <td class="clickable total-cell" data-index="${i+5}">
+        ${v}
+      </td>
+    `).join('')}
   `;
+
   tbody.appendChild(tr);
+
+  /* zero style */
+  tr.querySelectorAll('td').forEach(td=>{
+    if(td.textContent.trim()==='0') td.classList.add('zero');
+  });
+
+  /* CLICK EVENT TOTAL */
+  tr.querySelectorAll('.total-cell').forEach(td=>{
+    td.addEventListener('click',()=>{
+      openTotalDetail(td.dataset.index);
+    });
+  });
 }
+
 
 /* =====================================================
    FILTER
@@ -370,6 +389,107 @@ function openGenericDetail(API_URL, tr, type, title) {
       modalBody.innerHTML = html + '</tbody></table></div>';
     });
 }
+
+/* =====================================================
+   DETAIL TOTAL
+===================================================== */
+
+function openTotalDetail(colIndex){
+
+  const modal = new bootstrap.Modal(
+    document.getElementById('global-modal')
+  );
+
+  const modalBody  = document.querySelector('#global-modal .modal-body');
+  const modalTitle = document.querySelector('#global-modal .modal-title');
+
+  modalTitle.textContent = 'Detail TOTAL Tiket (Gabungan STO)';
+  modalBody.innerHTML = renderModalSpinner();
+  modal.show();
+
+  /* mapping kolom → parameter API */
+  const columnMap = {
+    5:  { mode:'HSI' },                  // HI HSI
+    6:  { mode:'DATIN' },                // HI DATIN
+    7:  { mode:'HSI', status:'Y' },      // Closed HSI
+    8:  { mode:'DATIN', status:'Y' },
+    9:  { mode:'HSI', status:'N' },      // Open HSI
+    10: { mode:'DATIN', status:'N' },
+
+    11: { mode:'HSI', ttr:'4JAM', result:'Y' },
+    12: { mode:'HSI', ttr:'4JAM', result:'N' },
+    13: { mode:'HSI', ttr:'24JAM', result:'Y' },
+    14: { mode:'HSI', ttr:'24JAM', result:'N' },
+
+    15: { mode:'HSI', ttr:'6JAM', result:'Y' },
+    16: { mode:'HSI', ttr:'6JAM', result:'N' },
+    17: { mode:'HSI', ttr:'36JAM', result:'Y' },
+    18: { mode:'HSI', ttr:'36JAM', result:'N' },
+
+    19: { mode:'HSI', gaul:'Y' },
+    20: { mode:'DATIN', gaul:'Y' }
+  };
+
+  const cfg = columnMap[colIndex];
+  if(!cfg){
+    modalBody.innerHTML =
+      `<div class="text-center text-muted py-4">Tidak ada detail</div>`;
+    return;
+  }
+
+  const params = new URLSearchParams({
+    type: 'detail_hi',
+    mode: cfg.mode || '',
+    status_closed: cfg.status || '',
+    ttr_type: cfg.ttr || '',
+    ttr_result: cfg.result || '',
+    gaul: cfg.gaul || '',
+    sto: '',                                // ALL STO
+    witel: filterWitel.value || '',
+    hsa: filterHsa.value || ''
+  });
+
+  fetch(API_URL + '?' + params.toString())
+    .then(res=>res.json())
+    .then(resData=>{
+
+      const rows = resData.data || [];
+      if(!rows.length){
+        modalBody.innerHTML =
+          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
+        return;
+      }
+
+      let html = `
+        <div class="table-responsive">
+        <table class="table table-dark table-striped table-sm">
+        <thead>
+          <tr>
+            <th>INCIDENT</th>
+            <th>SUMMARY</th>
+            <th>STO</th>
+            <th>WITEL</th>
+            <th>STATUS</th>
+            <th>KATEGORI</th>
+          </tr>
+        </thead><tbody>`;
+
+      rows.forEach(r=>{
+        html+=`
+          <tr>
+            <td>${r.INCIDENT}</td>
+            <td>${r.SUMMARY}</td>
+            <td>${r.STO}</td>
+            <td>${r.WITEL}</td>
+            <td>${r.STATUS}</td>
+            <td>${r.KATAGORI}</td>
+          </tr>`;
+      });
+
+      modalBody.innerHTML = html + '</tbody></table></div>';
+    });
+}
+
 
 /* =====================================================
   HIGHLIGHT
