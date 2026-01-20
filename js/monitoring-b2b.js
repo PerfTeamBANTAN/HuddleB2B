@@ -391,9 +391,8 @@ function openGenericDetail(API_URL, tr, type, title) {
 }
 
 /* =====================================================
-   DETAIL TOTAL
+   DETAIL TOTAL (ALL STO)
 ===================================================== */
-
 function openTotalDetail(colIndex){
 
   const modal = new bootstrap.Modal(
@@ -403,86 +402,89 @@ function openTotalDetail(colIndex){
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  modalTitle.textContent = 'Detail TOTAL Tiket (Gabungan STO)';
+  modalTitle.textContent = 'Detail TOTAL Tiket HI (Gabungan Semua STO)';
   modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
-  /* mapping kolom → parameter API */
-  const columnMap = {
-    5:  { mode:'HSI' },                  // HI HSI
-    6:  { mode:'DATIN' },                // HI DATIN
-    7:  { mode:'HSI', status:'Y' },      // Closed HSI
-    8:  { mode:'DATIN', status:'Y' },
-    9:  { mode:'HSI', status:'N' },      // Open HSI
-    10: { mode:'DATIN', status:'N' },
+  fetch(API_URL + '?type=total_hi_all_detail')
+    .then(res => res.json())
+    .then(resData => {
 
-    11: { mode:'HSI', ttr:'4JAM', result:'Y' },
-    12: { mode:'HSI', ttr:'4JAM', result:'N' },
-    13: { mode:'HSI', ttr:'24JAM', result:'Y' },
-    14: { mode:'HSI', ttr:'24JAM', result:'N' },
-
-    15: { mode:'HSI', ttr:'6JAM', result:'Y' },
-    16: { mode:'HSI', ttr:'6JAM', result:'N' },
-    17: { mode:'HSI', ttr:'36JAM', result:'Y' },
-    18: { mode:'HSI', ttr:'36JAM', result:'N' },
-
-    19: { mode:'HSI', gaul:'Y' },
-    20: { mode:'DATIN', gaul:'Y' }
-  };
-
-  const cfg = columnMap[colIndex];
-  if(!cfg){
-    modalBody.innerHTML =
-      `<div class="text-center text-muted py-4">Tidak ada detail</div>`;
-    return;
-  }
-
-  const params = new URLSearchParams({
-    type: 'detail_hi',
-    mode: cfg.mode || '',
-    status_closed: cfg.status || '',
-    ttr_type: cfg.ttr || '',
-    ttr_result: cfg.result || '',
-    gaul: cfg.gaul || '',
-    sto: '',                                // ALL STO
-    witel: filterWitel.value || '',
-    hsa: filterHsa.value || ''
-  });
-
-  fetch(API_URL + '?' + params.toString())
-    .then(res=>res.json())
-    .then(resData=>{
-
-      const rows = resData.data || [];
-      if(!rows.length){
+      let rows = resData.data || [];
+      if (!rows.length) {
         modalBody.innerHTML =
           `<div class="text-center text-muted py-4">Tidak ada data</div>`;
         return;
       }
 
+      /* ================= FILTER BY KOLOM ================= */
+      rows = rows.filter(r => {
+        switch (parseInt(colIndex,10)) {
+
+          case 5:  return r['FLAG HSI'] === 'Y';
+          case 6:  return r['FLAG HSI'] === 'N';
+
+          case 7:  return r['FLAG HSI'] === 'Y' && r.STATUS === 'CLOSED';
+          case 8:  return r['FLAG HSI'] === 'N' && r.STATUS === 'CLOSED';
+
+          case 9:  return r['FLAG HSI'] === 'Y' && r.STATUS !== 'CLOSED';
+          case 10: return r['FLAG HSI'] === 'N' && r.STATUS !== 'CLOSED';
+
+          case 11: return r['TTR 4 JAM'] === 'Y';
+          case 12: return r['TTR 4 JAM'] === 'N';
+          case 13: return r['TTR 24 JAM'] === 'Y';
+          case 14: return r['TTR 24 JAM'] === 'N';
+
+          case 15: return r['TTR 6 JAM'] === 'Y';
+          case 16: return r['TTR 6 JAM'] === 'N';
+          case 17: return r['TTR 36 JAM'] === 'Y';
+          case 18: return r['TTR 36 JAM'] === 'N';
+
+          case 19: return r['FLAG HSI'] === 'Y' && r['GAUL HSI'] == 1;
+          case 20: return r['FLAG HSI'] === 'N' && r['GAUL DATIN'] == 1;
+
+          default: return true;
+        }
+      });
+
+      if (!rows.length) {
+        modalBody.innerHTML =
+          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
+        return;
+      }
+
+      /* ================= RENDER TABLE ================= */
       let html = `
         <div class="table-responsive">
-        <table class="table table-dark table-striped table-sm">
+        <table class="table table-dark table-striped table-sm align-middle">
         <thead>
           <tr>
             <th>INCIDENT</th>
             <th>SUMMARY</th>
-            <th>STO</th>
+            <th>REPORTED DATE</th>
+            <th>SERVICE TYPE</th>
             <th>WITEL</th>
+            <th>WORKZONE</th>
             <th>STATUS</th>
             <th>KATEGORI</th>
+            <th>FLAG</th>
+            <th>GAUL</th>
           </tr>
         </thead><tbody>`;
 
-      rows.forEach(r=>{
-        html+=`
+      rows.forEach(r => {
+        html += `
           <tr>
             <td>${r.INCIDENT}</td>
             <td>${r.SUMMARY}</td>
-            <td>${r.STO}</td>
+            <td>${r['REPORTED DATE']}</td>
+            <td>${r['SERVICE TYPE']}</td>
             <td>${r.WITEL}</td>
+            <td>${r.WORKZONE}</td>
             <td>${r.STATUS}</td>
             <td>${r.KATAGORI}</td>
+            <td>${r['FLAG HSI']}</td>
+            <td>${r['FLAG HSI'] === 'Y' ? r['GAUL HSI'] : r['GAUL DATIN']}</td>
           </tr>`;
       });
 
