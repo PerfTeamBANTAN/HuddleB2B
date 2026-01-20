@@ -59,15 +59,15 @@ function initMonitoringB2B(API_URL) {
           <td class="hi-open-hsi clickable">${row[9] || 0}</td>
           <td class="hi-open-datin clickable">${row[10] || 0}</td>
 
-          <td>${row[11] || 0}</td>
-          <td>${row[12] || 0}</td>
-          <td>${row[13] || 0}</td>
-          <td>${row[14] || 0}</td>
+          <td class="ttr-4-ok clickable">${row[11] || 0}</td>
+          <td class="ttr-4-nok clickable">${row[12] || 0}</td>
+          <td class="ttr-24-ok clickable">${row[13] || 0}</td>
+          <td class="ttr-24-nok clickable">${row[14] || 0}</td>
 
-          <td>${row[15] || 0}</td>
-          <td>${row[16] || 0}</td>
-          <td>${row[17] || 0}</td>
-          <td>${row[18] || 0}</td>
+          <td class="ttr-6-ok clickable">${row[15] || 0}</td>
+          <td class="ttr-6-nok clickable">${row[16] || 0}</td>
+          <td class="ttr-36-ok clickable">${row[17] || 0}</td>
+          <td class="ttr-36-nok clickable">${row[18] || 0}</td>
 
           <td>${row[19] || 0}</td>
           <td>${row[20] || 0}</td>
@@ -79,31 +79,60 @@ function initMonitoringB2B(API_URL) {
         tbody.appendChild(tr);
 
         /* ===== TOTAL ===== */
-        tr.querySelector('.hi-hsi')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'HSI');
-        });
+        tr.querySelector('.hi-hsi')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI')
+        );
 
-        tr.querySelector('.hi-datin')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'DATIN');
-        });
+        tr.querySelector('.hi-datin')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'DATIN')
+        );
 
         /* ===== CLOSED ===== */
-        tr.querySelector('.hi-closed-hsi')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'HSI', 'Y');
-        });
+        tr.querySelector('.hi-closed-hsi')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', 'Y')
+        );
 
-        tr.querySelector('.hi-closed-datin')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'DATIN', 'Y');
-        });
+        tr.querySelector('.hi-closed-datin')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'DATIN', 'Y')
+        );
 
         /* ===== OPEN ===== */
-        tr.querySelector('.hi-open-hsi')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'HSI', 'N');
-        });
+        tr.querySelector('.hi-open-hsi')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', 'N')
+        );
 
-        tr.querySelector('.hi-open-datin')?.addEventListener('click', () => {
-          openDetailHI(API_URL, tr, 'DATIN', 'N');
-        });
+        tr.querySelector('.hi-open-datin')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'DATIN', 'N')
+        );
+
+        /* ===== TTR (TAMBAHAN TANPA UBAH UI) ===== */
+        tr.querySelector('.ttr-4-ok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '4JAM', 'Y')
+        );
+        tr.querySelector('.ttr-4-nok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '4JAM', 'N')
+        );
+
+        tr.querySelector('.ttr-24-ok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '24JAM', 'Y')
+        );
+        tr.querySelector('.ttr-24-nok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '24JAM', 'N')
+        );
+
+        tr.querySelector('.ttr-6-ok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '6JAM', 'Y')
+        );
+        tr.querySelector('.ttr-6-nok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '6JAM', 'N')
+        );
+
+        tr.querySelector('.ttr-36-ok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '36JAM', 'Y')
+        );
+        tr.querySelector('.ttr-36-nok')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '36JAM', 'N')
+        );
 
       });
 
@@ -140,7 +169,14 @@ function renderModalSpinner(text = 'Memuat data...') {
 /* =====================================================
    MODAL DETAIL HI
 ===================================================== */
-function openDetailHI(API_URL, tr, mode, statusClosed = '') {
+function openDetailHI(
+  API_URL,
+  tr,
+  mode,
+  statusClosed = '',
+  ttrType = '',
+  ttrResult = ''
+) {
 
   const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
@@ -149,12 +185,8 @@ function openDetailHI(API_URL, tr, mode, statusClosed = '') {
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  const labelStatus =
-    statusClosed === 'Y' ? 'CLOSED' :
-    statusClosed === 'N' ? 'OPEN' : 'ALL';
-
   modalTitle.textContent =
-    `Detail Tiket HI ${mode} (${labelStatus}) – ${tr.dataset.sto}`;
+    `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
 
   modalBody.innerHTML = renderModalSpinner('Mengambil detail tiket HI...');
   modal.show();
@@ -164,6 +196,8 @@ function openDetailHI(API_URL, tr, mode, statusClosed = '') {
     `?type=detail_hi` +
     `&mode=${mode}` +
     `&status_closed=${statusClosed}` +
+    `&ttr_type=${ttrType}` +
+    `&ttr_result=${ttrResult}` +
     `&sto=${tr.dataset.sto}` +
     `&witel=${tr.dataset.witel}` +
     `&hsa=${tr.dataset.hsa}`
@@ -218,8 +252,7 @@ function openDetailHI(API_URL, tr, mode, statusClosed = '') {
           </tr>`;
       });
 
-      html += '</tbody></table></div>';
-      modalBody.innerHTML = html;
+      modalBody.innerHTML = html + '</tbody></table></div>';
     })
     .catch(() => {
       modalBody.innerHTML = `
