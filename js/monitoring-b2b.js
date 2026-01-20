@@ -2,60 +2,6 @@
    MONITORING B2B HI
 ===================================================== */
 
-/* ===== UI POLISH (JS INJECT STYLE) ===== */
-(function injectB2BStyle(){
-  if (document.getElementById('b2b-ui-polish')) return;
-
-  const style = document.createElement('style');
-  style.id = 'b2b-ui-polish';
-  style.textContent = `
-    /* CLICKABLE CELL */
-    td.clickable{
-      cursor:pointer;
-      transition:
-        background .15s ease,
-        color .15s ease,
-        transform .08s ease;
-    }
-    td.clickable:hover{
-      background:rgba(255,255,255,.06);
-    }
-    td.clickable:active{
-      transform:scale(.97);
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
-    }
-
-    /* ROW HOVER */
-    #monitoring-b2b-body tr:hover td{
-      background:rgba(255,255,255,.045);
-    }
-
-    /* ZERO VALUE */
-    #monitoring-b2b-body td{
-      font-variant-numeric: tabular-nums;
-    }
-    #monitoring-b2b-body td.zero{
-      color:rgba(255,255,255,.35);
-      font-weight:500;
-    }
-
-    /* MODAL TABLE */
-    .modal table tbody tr:hover td{
-      background:rgba(255,255,255,.05);
-    }
-
-    /* LAST UPDATE */
-    #monitoring-b2b-update{
-      opacity:.85;
-      transition:opacity .15s ease;
-    }
-    #monitoring-b2b-update:hover{
-      opacity:1;
-    }
-  `;
-  document.head.appendChild(style);
-})();
-
 function initMonitoringB2B(API_URL) {
 
   const tbody      = document.getElementById('monitoring-b2b-body');
@@ -132,12 +78,7 @@ function initMonitoringB2B(API_URL) {
 
         tbody.appendChild(tr);
 
-        /* auto zero-style */
-        tr.querySelectorAll('td').forEach(td=>{
-          if (td.textContent.trim() === '0') td.classList.add('zero');
-        });
-
-        /* ===== EVENT LIST (ASLI, TIDAK DIUBAH) ===== */
+        /* ===== TOTAL ===== */
         tr.querySelector('.hi-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI')
         );
@@ -145,6 +86,7 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'DATIN')
         );
 
+        /* ===== CLOSED ===== */
         tr.querySelector('.hi-closed-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', 'Y')
         );
@@ -152,6 +94,7 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'DATIN', 'Y')
         );
 
+        /* ===== OPEN ===== */
         tr.querySelector('.hi-open-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', 'N')
         );
@@ -159,6 +102,7 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'DATIN', 'N')
         );
 
+        /* ===== TTR ===== */
         tr.querySelector('.ttr-4-ok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '4JAM', 'Y')
         );
@@ -184,6 +128,7 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'HSI', '', '36JAM', 'N')
         );
 
+        /* ===== GAUL ===== */
         tr.querySelector('.gaul-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '', '', 'Y')
         );
@@ -191,6 +136,7 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'DATIN', '', '', '', 'Y')
         );
 
+        /* ===== SQM & ALERT ===== */
         tr.querySelectorAll('td')[21]
           ?.addEventListener('click', () =>
             openDetailSQMHI(API_URL, tr)
