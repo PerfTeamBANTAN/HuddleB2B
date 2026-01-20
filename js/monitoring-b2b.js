@@ -69,8 +69,8 @@ function initMonitoringB2B(API_URL) {
           <td class="ttr-36-ok clickable">${row[17] || 0}</td>
           <td class="ttr-36-nok clickable">${row[18] || 0}</td>
 
-          <td>${row[19] || 0}</td>
-          <td>${row[20] || 0}</td>
+          <td class="gaul-hsi clickable">${row[19] || 0}</td>
+          <td class="gaul-datin clickable">${row[20] || 0}</td>
 
           <td>${row[21] || 0}</td>
           <td>${row[22] || 0}</td>
@@ -82,7 +82,6 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.hi-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI')
         );
-
         tr.querySelector('.hi-datin')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'DATIN')
         );
@@ -91,7 +90,6 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.hi-closed-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', 'Y')
         );
-
         tr.querySelector('.hi-closed-datin')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'DATIN', 'Y')
         );
@@ -100,12 +98,11 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.hi-open-hsi')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', 'N')
         );
-
         tr.querySelector('.hi-open-datin')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'DATIN', 'N')
         );
 
-        /* ===== TTR (TAMBAHAN TANPA UBAH UI) ===== */
+        /* ===== TTR ===== */
         tr.querySelector('.ttr-4-ok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '4JAM', 'Y')
         );
@@ -134,6 +131,13 @@ function initMonitoringB2B(API_URL) {
           openDetailHI(API_URL, tr, 'HSI', '', '36JAM', 'N')
         );
 
+        /* ===== GAUL ===== */
+        tr.querySelector('.gaul-hsi')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'HSI', '', '', '', 'Y')
+        );
+        tr.querySelector('.gaul-datin')?.addEventListener('click', () =>
+          openDetailHI(API_URL, tr, 'DATIN', '', '', '', 'Y')
+        );
       });
 
       buildDropdown(filterWitel, setWitel, 'All Witel');
@@ -162,8 +166,7 @@ function renderModalSpinner(text = 'Memuat data...') {
       <div class="spinner-border text-info mb-3"
            style="width:3.5rem;height:3.5rem;"></div>
       <div class="text-muted fw-semibold">${text}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 /* =====================================================
@@ -175,7 +178,8 @@ function openDetailHI(
   mode,
   statusClosed = '',
   ttrType = '',
-  ttrResult = ''
+  ttrResult = '',
+  gaul = ''
 ) {
 
   const modal = new bootstrap.Modal(
@@ -185,8 +189,9 @@ function openDetailHI(
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  modalTitle.textContent =
-    `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
+  let title = `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
+  if (gaul === 'Y') title += ' (GAUL)';
+  modalTitle.textContent = title;
 
   modalBody.innerHTML = renderModalSpinner('Mengambil detail tiket HI...');
   modal.show();
@@ -198,6 +203,7 @@ function openDetailHI(
     `&status_closed=${statusClosed}` +
     `&ttr_type=${ttrType}` +
     `&ttr_result=${ttrResult}` +
+    `&gaul=${gaul}` +
     `&sto=${tr.dataset.sto}` +
     `&witel=${tr.dataset.witel}` +
     `&hsa=${tr.dataset.hsa}`
@@ -206,34 +212,31 @@ function openDetailHI(
     .then(resData => {
 
       const rows = resData.data || [];
-
       if (!rows.length) {
-        modalBody.innerHTML = `
-          <div class="text-center text-muted py-4">
-            Tidak ada data
-          </div>`;
+        modalBody.innerHTML =
+          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
         return;
       }
 
       let html = `
         <div class="table-responsive">
-          <table class="table table-dark table-striped table-sm align-middle">
-            <thead>
-              <tr>
-                <th>INCIDENT</th>
-                <th>SUMMARY</th>
-                <th>REPORTED DATE</th>
-                <th>SERVICE TYPE</th>
-                <th>WITEL</th>
-                <th>WORKZONE</th>
-                <th>STATUS</th>
-                <th>CONVERT WAKTU</th>
-                <th>KATEGORI</th>
-                <th>GAUL HSI</th>
-                <th>IN LAMA HSI</th>
-              </tr>
-            </thead>
-            <tbody>`;
+        <table class="table table-dark table-striped table-sm align-middle">
+        <thead>
+          <tr>
+            <th>INCIDENT</th>
+            <th>SUMMARY</th>
+            <th>REPORTED DATE</th>
+            <th>SERVICE TYPE</th>
+            <th>WITEL</th>
+            <th>WORKZONE</th>
+            <th>STATUS</th>
+            <th>CONVERT WAKTU</th>
+            <th>KATEGORI</th>
+            <th>GAUL HSI</th>
+            <th>IN LAMA HSI</th>
+          </tr>
+        </thead>
+        <tbody>`;
 
       rows.forEach(r => {
         html += `
@@ -255,10 +258,8 @@ function openDetailHI(
       modalBody.innerHTML = html + '</tbody></table></div>';
     })
     .catch(() => {
-      modalBody.innerHTML = `
-        <div class="text-center text-danger py-4">
-          Gagal memuat data
-        </div>`;
+      modalBody.innerHTML =
+        `<div class="text-center text-danger py-4">Gagal memuat data</div>`;
     });
 }
 
