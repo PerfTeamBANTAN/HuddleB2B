@@ -726,6 +726,47 @@ tr.tr-pragnosa-bad td::before {
   color:#fff;
   font-weight:700;
 }
+
+#content-area.show-grid {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  padding-top: 0 !important;
+}
+
+/* =====================================================
+   STICKY HEADER – MONITORING B2B
+===================================================== */
+.monitoring-b2b-header {
+  position: sticky;
+  top: 56px; /* tinggi navbar */
+  z-index: 11;
+
+  background: linear-gradient(
+    180deg,
+    rgba(15,27,51,0.96),
+    rgba(10,18,34,0.96)
+  );
+
+  backdrop-filter: blur(6px);
+  padding: 10px 0;
+
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 6px 14px rgba(0,0,0,.45);
+}
+
+/* spacing supaya tabel tidak ketiban */
+.monitoring-b2b-wrapper {
+  padding-top: 8px;
+}
+
+/* =====================================================
+   FIX STICKY HEADER KETIBAN NAVBAR
+===================================================== */
+#content-area.show-grid {
+  padding-top: 56px !important; /* tinggi navbar */
+}
+
+
 </style>
 
 </head>
