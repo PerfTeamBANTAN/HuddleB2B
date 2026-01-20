@@ -605,8 +605,8 @@ tr.tr-pragnosa-bad td::before {
 /* Sticky header */
 .ttr-table thead th {
   position: sticky;
-  top: 0;
-  z-index: 2;
+  top: 56px;
+  z-index: 30;
   background: #1f2428;
 }
 
@@ -698,7 +698,7 @@ tr.tr-pragnosa-bad td::before {
 .ttr-table td:nth-child(1) {
   position: sticky;
   left: 0;
-  z-index: 7;
+  z-index: 40;
   background:#0b1220;
 }
 
@@ -706,13 +706,13 @@ tr.tr-pragnosa-bad td::before {
 .ttr-table td:nth-child(2) {
   position: sticky;
   left: 60px;
-  z-index: 7;
+  z-index: 40;
   background:#0b1220;
   box-shadow: 2px 0 0 rgba(255,255,255,.1);
 }
 
 .ttr-table thead th {
-  z-index: 10;
+  z-index: 50;
 }
 
 /* ================= BAD VALUE ================= */
@@ -756,7 +756,8 @@ tr.tr-pragnosa-bad td::before {
 
 /* spacing supaya tabel tidak ketiban */
 .monitoring-b2b-wrapper {
-  padding-top: 8px;
+  overflow: auto;
+  max-height: 70vh;
 }
 
 /* =====================================================
