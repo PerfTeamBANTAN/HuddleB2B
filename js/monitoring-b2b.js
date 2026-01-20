@@ -440,14 +440,11 @@ function openTotalDetail(colIndex){
     20: { mode:'DATIN', gaul:'Y' }
   };
 
+  const p = map[colIndex] || {};
   const qs = new URLSearchParams({
-  type: 'total_hi_all_detail',
-  ...p,
-
-  sto:   B2B_ACTIVE_FILTER.sto,
-  witel: B2B_ACTIVE_FILTER.witel,
-  hsa:   B2B_ACTIVE_FILTER.hsa
-}).toString();
+    type: 'total_hi_all_detail',
+    ...p
+  }).toString();
 
   fetch(API_URL + '?' + qs)
     .then(res => res.json())
