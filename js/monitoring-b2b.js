@@ -7,9 +7,9 @@ function initMonitoringB2B(API_URL) {
   const tbody      = document.getElementById('monitoring-b2b-body');
   const lastUpdate = document.getElementById('monitoring-b2b-update');
 
-  const filterWitel = document.getElementById('filterWitel');
-  const filterSto   = document.getElementById('filterSto');
-  const filterHsa   = document.getElementById('filterHsa');
+  window.filterWitel = document.getElementById('filterWitel');
+  window.filterSto   = document.getElementById('filterSto');
+  window.filterHsa   = document.getElementById('filterHsa');
 
   tbody.innerHTML = `
     <tr>
@@ -53,11 +53,11 @@ function initMonitoringB2B(API_URL) {
           <td class="hi-hsi clickable">${row[5] || 0}</td>
           <td class="hi-datin clickable">${row[6] || 0}</td>
 
-          <td>${row[7] || 0}</td>
-          <td>${row[8] || 0}</td>
+          <td class="hi-closed-hsi clickable">${row[7] || 0}</td>
+          <td class="hi-closed-datin clickable">${row[8] || 0}</td>
 
-          <td>${row[9] || 0}</td>
-          <td>${row[10] || 0}</td>
+          <td class="hi-open-hsi clickable">${row[9] || 0}</td>
+          <td class="hi-open-datin clickable">${row[10] || 0}</td>
 
           <td>${row[11] || 0}</td>
           <td>${row[12] || 0}</td>
@@ -78,13 +78,31 @@ function initMonitoringB2B(API_URL) {
 
         tbody.appendChild(tr);
 
-        /* ===== CLICK EVENT DETAIL ===== */
+        /* ===== TOTAL ===== */
         tr.querySelector('.hi-hsi')?.addEventListener('click', () => {
           openDetailHI(API_URL, tr, 'HSI');
         });
 
         tr.querySelector('.hi-datin')?.addEventListener('click', () => {
           openDetailHI(API_URL, tr, 'DATIN');
+        });
+
+        /* ===== CLOSED ===== */
+        tr.querySelector('.hi-closed-hsi')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'HSI', 'Y');
+        });
+
+        tr.querySelector('.hi-closed-datin')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'DATIN', 'Y');
+        });
+
+        /* ===== OPEN ===== */
+        tr.querySelector('.hi-open-hsi')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'HSI', 'N');
+        });
+
+        tr.querySelector('.hi-open-datin')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'DATIN', 'N');
         });
 
       });
@@ -122,7 +140,7 @@ function renderModalSpinner(text = 'Memuat data...') {
 /* =====================================================
    MODAL DETAIL HI
 ===================================================== */
-function openDetailHI(API_URL, tr, mode) {
+function openDetailHI(API_URL, tr, mode, statusClosed = '') {
 
   const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
@@ -131,15 +149,21 @@ function openDetailHI(API_URL, tr, mode) {
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
+  const labelStatus =
+    statusClosed === 'Y' ? 'CLOSED' :
+    statusClosed === 'N' ? 'OPEN' : 'ALL';
+
   modalTitle.textContent =
-    `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
+    `Detail Tiket HI ${mode} (${labelStatus}) – ${tr.dataset.sto}`;
 
   modalBody.innerHTML = renderModalSpinner('Mengambil detail tiket HI...');
   modal.show();
 
   fetch(
     API_URL +
-    `?type=detail_hi&mode=${mode}` +
+    `?type=detail_hi` +
+    `&mode=${mode}` +
+    `&status_closed=${statusClosed}` +
     `&sto=${tr.dataset.sto}` +
     `&witel=${tr.dataset.witel}` +
     `&hsa=${tr.dataset.hsa}`
@@ -206,7 +230,7 @@ function openDetailHI(API_URL, tr, mode) {
 }
 
 /* =====================================================
-   FILTER & HIGHLIGHT (TIDAK DIUBAH)
+   FILTER & HIGHLIGHT
 ===================================================== */
 
 function buildDropdown(el, setData, label) {
@@ -234,18 +258,16 @@ function applyB2BDropdownFilter() {
 function highlightBadCellsB2B() {
   document.querySelectorAll('#monitoring-b2b-body tr')
     .forEach(tr => {
-
       const tds = tr.querySelectorAll('td');
-
       const qhsiCell = tds[4];
-      if (qhsiCell) {
-        const v = parseFloat(
-          qhsiCell.innerText.replace('%','').replace(',','.')
-        );
-        if (!isNaN(v) && v > 2.3) {
-          qhsiCell.style.color = '#ff4d4f';
-          qhsiCell.style.fontWeight = '800';
-        }
+      if (!qhsiCell) return;
+
+      const v = parseFloat(
+        qhsiCell.innerText.replace('%','').replace(',','.')
+      );
+      if (!isNaN(v) && v > 2.3) {
+        qhsiCell.style.color = '#ff4d4f';
+        qhsiCell.style.fontWeight = '800';
       }
     });
 }
