@@ -406,54 +406,48 @@ function openTotalDetail(colIndex){
   modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
-  fetch(API_URL + '?type=total_hi_all_detail')
+  /* ================= MAP KOLOM → PARAM ================= */
+  const map = {
+    5:  { mode:'HSI' },
+    6:  { mode:'DATIN' },
+
+    7:  { mode:'HSI',   status_closed:'Y' },
+    8:  { mode:'DATIN', status_closed:'Y' },
+
+    9:  { mode:'HSI',   status_closed:'N' },
+    10: { mode:'DATIN', status_closed:'N' },
+
+    11: { mode:'HSI', ttr_type:'4JAM',  ttr_result:'Y' },
+    12: { mode:'HSI', ttr_type:'4JAM',  ttr_result:'N' },
+    13: { mode:'HSI', ttr_type:'24JAM', ttr_result:'Y' },
+    14: { mode:'HSI', ttr_type:'24JAM', ttr_result:'N' },
+
+    15: { mode:'HSI', ttr_type:'6JAM',  ttr_result:'Y' },
+    16: { mode:'HSI', ttr_type:'6JAM',  ttr_result:'N' },
+    17: { mode:'HSI', ttr_type:'36JAM', ttr_result:'Y' },
+    18: { mode:'HSI', ttr_type:'36JAM', ttr_result:'N' },
+
+    19: { mode:'HSI',   gaul:'Y' },
+    20: { mode:'DATIN', gaul:'Y' }
+  };
+
+  const p = map[colIndex] || {};
+  const qs = new URLSearchParams({
+    type: 'total_hi_all_detail',
+    ...p
+  }).toString();
+
+  fetch(API_URL + '?' + qs)
     .then(res => res.json())
     .then(resData => {
 
-      let rows = resData.data || [];
+      const rows = resData.data || [];
       if (!rows.length) {
         modalBody.innerHTML =
           `<div class="text-center text-muted py-4">Tidak ada data</div>`;
         return;
       }
 
-      /* ================= FILTER BY KOLOM ================= */
-      rows = rows.filter(r => {
-        switch (parseInt(colIndex,10)) {
-
-          case 5:  return r['FLAG HSI'] === 'Y';
-          case 6:  return r['FLAG HSI'] === 'N';
-
-          case 7:  return r['FLAG HSI'] === 'Y' && r.STATUS === 'CLOSED';
-          case 8:  return r['FLAG HSI'] === 'N' && r.STATUS === 'CLOSED';
-
-          case 9:  return r['FLAG HSI'] === 'Y' && r.STATUS !== 'CLOSED';
-          case 10: return r['FLAG HSI'] === 'N' && r.STATUS !== 'CLOSED';
-
-          case 11: return r['TTR 4 JAM'] === 'Y';
-          case 12: return r['TTR 4 JAM'] === 'N';
-          case 13: return r['TTR 24 JAM'] === 'Y';
-          case 14: return r['TTR 24 JAM'] === 'N';
-
-          case 15: return r['TTR 6 JAM'] === 'Y';
-          case 16: return r['TTR 6 JAM'] === 'N';
-          case 17: return r['TTR 36 JAM'] === 'Y';
-          case 18: return r['TTR 36 JAM'] === 'N';
-
-          case 19: return r['FLAG HSI'] === 'Y' && r['GAUL HSI'] == 1;
-          case 20: return r['FLAG HSI'] === 'N' && r['GAUL DATIN'] == 1;
-
-          default: return true;
-        }
-      });
-
-      if (!rows.length) {
-        modalBody.innerHTML =
-          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
-        return;
-      }
-
-      /* ================= RENDER TABLE ================= */
       let html = `
         <div class="table-responsive">
         <table class="table table-dark table-striped table-sm align-middle">
@@ -484,14 +478,13 @@ function openTotalDetail(colIndex){
             <td>${r.STATUS}</td>
             <td>${r.KATAGORI}</td>
             <td>${r['FLAG HSI']}</td>
-            <td>${r['FLAG HSI'] === 'Y' ? r['GAUL HSI'] : r['GAUL DATIN']}</td>
+            <td>${r['FLAG HSI']==='Y' ? r['GAUL HSI'] : r['GAUL DATIN']}</td>
           </tr>`;
       });
 
       modalBody.innerHTML = html + '</tbody></table></div>';
     });
 }
-
 
 /* =====================================================
   HIGHLIGHT
