@@ -72,8 +72,8 @@ function initMonitoringB2B(API_URL) {
           <td class="gaul-hsi clickable">${row[19] || 0}</td>
           <td class="gaul-datin clickable">${row[20] || 0}</td>
 
-          <td>${row[21] || 0}</td>
-          <td>${row[22] || 0}</td>
+          <td class="clickable">${row[21] || 0}</td>
+          <td class="clickable">${row[22] || 0}</td>
         `;
 
         tbody.appendChild(tr);
@@ -109,21 +109,18 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.ttr-4-nok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '4JAM', 'N')
         );
-
         tr.querySelector('.ttr-24-ok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '24JAM', 'Y')
         );
         tr.querySelector('.ttr-24-nok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '24JAM', 'N')
         );
-
         tr.querySelector('.ttr-6-ok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '6JAM', 'Y')
         );
         tr.querySelector('.ttr-6-nok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '6JAM', 'N')
         );
-
         tr.querySelector('.ttr-36-ok')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'HSI', '', '36JAM', 'Y')
         );
@@ -138,6 +135,17 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.gaul-datin')?.addEventListener('click', () =>
           openDetailHI(API_URL, tr, 'DATIN', '', '', '', 'Y')
         );
+
+        /* ===== SQM & ALERT ===== */
+        tr.querySelectorAll('td')[21]
+          ?.addEventListener('click', () =>
+            openDetailSQMHI(API_URL, tr)
+          );
+
+        tr.querySelectorAll('td')[22]
+          ?.addEventListener('click', () =>
+            openDetailAlertHI(API_URL, tr)
+          );
       });
 
       buildDropdown(filterWitel, setWitel, 'All Witel');
@@ -173,13 +181,8 @@ function renderModalSpinner(text = 'Memuat data...') {
    MODAL DETAIL HI
 ===================================================== */
 function openDetailHI(
-  API_URL,
-  tr,
-  mode,
-  statusClosed = '',
-  ttrType = '',
-  ttrResult = '',
-  gaul = ''
+  API_URL, tr, mode,
+  statusClosed = '', ttrType = '', ttrResult = '', gaul = ''
 ) {
 
   const modal = new bootstrap.Modal(
@@ -189,11 +192,10 @@ function openDetailHI(
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  let title = `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
-  if (gaul === 'Y') title += ' (GAUL)';
-  modalTitle.textContent = title;
+  modalTitle.textContent =
+    `Detail Tiket HI ${mode} – ${tr.dataset.sto}${gaul === 'Y' ? ' (GAUL)' : ''}`;
 
-  modalBody.innerHTML = renderModalSpinner('Mengambil detail tiket HI...');
+  modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
   fetch(
@@ -235,8 +237,7 @@ function openDetailHI(
             <th>GAUL HSI</th>
             <th>IN LAMA HSI</th>
           </tr>
-        </thead>
-        <tbody>`;
+        </thead><tbody>`;
 
       rows.forEach(r => {
         html += `
@@ -256,17 +257,69 @@ function openDetailHI(
       });
 
       modalBody.innerHTML = html + '</tbody></table></div>';
-    })
-    .catch(() => {
-      modalBody.innerHTML =
-        `<div class="text-center text-danger py-4">Gagal memuat data</div>`;
+    });
+}
+
+/* =====================================================
+   DETAIL SQM & ALERT
+===================================================== */
+function openDetailSQMHI(API_URL, tr) {
+  openGenericDetail(API_URL, tr, 'sqm_jadi_tiket_hi_detail',
+    `Detail SQM Jadi Tiket HI – ${tr.dataset.sto}`);
+}
+
+function openDetailAlertHI(API_URL, tr) {
+  openGenericDetail(API_URL, tr, 'alert_jadi_tiket_hi_detail',
+    `Detail Alert Jadi Tiket HI – ${tr.dataset.sto}`);
+}
+
+function openGenericDetail(API_URL, tr, type, title) {
+
+  const modal = new bootstrap.Modal(
+    document.getElementById('global-modal')
+  );
+
+  const modalBody  = document.querySelector('#global-modal .modal-body');
+  const modalTitle = document.querySelector('#global-modal .modal-title');
+
+  modalTitle.textContent = title;
+  modalBody.innerHTML = renderModalSpinner();
+  modal.show();
+
+  fetch(API_URL + `?type=${type}&sto=${tr.dataset.sto}`)
+    .then(res => res.json())
+    .then(resData => {
+
+      const rows = resData.data || [];
+      const headers = resData.headers || [];
+
+      if (!rows.length) {
+        modalBody.innerHTML =
+          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
+        return;
+      }
+
+      let html = `
+        <div class="table-responsive">
+        <table class="table table-dark table-striped table-sm">
+        <thead><tr>`;
+
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += '</tr></thead><tbody>';
+
+      rows.forEach(r => {
+        html += '<tr>';
+        headers.forEach(h => html += `<td>${r[h] ?? '-'}</td>`);
+        html += '</tr>';
+      });
+
+      modalBody.innerHTML = html + '</tbody></table></div>';
     });
 }
 
 /* =====================================================
    FILTER & HIGHLIGHT
 ===================================================== */
-
 function buildDropdown(el, setData, label) {
   if (!el) return;
   el.innerHTML = `<option value="">${label}</option>`;
