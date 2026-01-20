@@ -149,18 +149,42 @@ function applyB2BDropdownFilter() {
 }
 
 /* =====================================================
-   HIGHLIGHT NILAI ❌ (TTR)
+   HIGHLIGHT NILAI ❌ (TTR + %Q HSI) — JS ONLY
 ===================================================== */
 function highlightBadCellsB2B() {
+
   document
-    .querySelectorAll('.table-b2b-monitoring td')
-    .forEach(td => {
+    .querySelectorAll('#monitoring-b2b-body tr')
+    .forEach(tr => {
 
-      const val = Number(td.innerText);
+      const tds = tr.querySelectorAll('td');
 
-      /* kolom TTR ✔ / ✖ */
-      if (!isNaN(val) && val > 0 && td.cellIndex >= 12 && td.cellIndex <= 18) {
-        td.classList.add('value-bad');
+      /* ================= %Q HSI ALERT ================= */
+      const qhsiCell = tds[4]; // kolom %Q HSI (index ke-4)
+      if (qhsiCell) {
+        const qhsiVal = parseFloat(
+          qhsiCell.innerText.replace(',', '.')
+        );
+
+        if (!isNaN(qhsiVal) && qhsiVal > 2.3) {
+          qhsiCell.style.color = '#ff4d4f';
+          qhsiCell.style.fontWeight = '800';
+        }
       }
+
+      /* ================= TTR BAD ================= */
+      tds.forEach((td, idx) => {
+        const val = Number(td.innerText);
+
+        // kolom TTR ✔ / ✖
+        if (!isNaN(val) && val > 0 && idx >= 12 && idx <= 18) {
+          td.style.background =
+            'linear-gradient(135deg, rgba(220,53,69,.25), rgba(220,53,69,.45))';
+          td.style.color = '#fff';
+          td.style.fontWeight = '700';
+        }
+      });
+
     });
 }
+
