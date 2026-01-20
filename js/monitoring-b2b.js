@@ -372,28 +372,13 @@ function openGenericDetail(API_URL, tr, type, title) {
 }
 
 /* =====================================================
-   FILTER & HIGHLIGHT
+  HIGHLIGHT
 ===================================================== */
 function buildDropdown(el, setData, label) {
   if (!el) return;
   el.innerHTML = `<option value="">${label}</option>`;
   [...setData].filter(v => v).sort()
     .forEach(v => el.innerHTML += `<option>${v}</option>`);
-}
-
-function applyB2BDropdownFilter() {
-  const sto   = filterSto.value;
-  const witel = filterWitel.value;
-  const hsa   = filterHsa.value;
-
-  document.querySelectorAll('#monitoring-b2b-body tr')
-    .forEach(tr => {
-      tr.style.display =
-        (!sto || tr.dataset.sto === sto) &&
-        (!witel || tr.dataset.witel === witel) &&
-        (!hsa || tr.dataset.hsa === hsa)
-          ? '' : 'none';
-    });
 }
 
 function highlightBadCellsB2B() {
