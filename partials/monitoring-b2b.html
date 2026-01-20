@@ -1,4 +1,4 @@
-<div class="container-fluid dashboard-dark section-below-kpi">
+<div class="container-fluid dashboard-dark section-below-kpi monitoring-b2b-wrapper">
 
   <!-- HEADER -->
   <div class="d-flex justify-content-between align-items-center mb-3 px-2">
@@ -13,69 +13,83 @@
     </div>
   </div>
 
-  <!-- KPI SUMMARY -->
-  <div class="cards-scroll">
-
-    <div class="kpi-card">
-      <div class="kpi-title">Total Tiket Open</div>
-      <div class="kpi-value" id="kpi-total">0</div>
-      <div class="kpi-trend up">
-        <i class="fa-solid fa-circle-info"></i> All Witel
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-title">Tiket > SLA</div>
-      <div class="kpi-value text-danger" id="kpi-sla">0</div>
-      <div class="kpi-trend down">
-        <i class="fa-solid fa-triangle-exclamation"></i> Need Action
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-title">Tiket Critical</div>
-      <div class="kpi-value text-warning" id="kpi-critical">0</div>
-      <div class="kpi-trend">
-        <i class="fa-solid fa-bolt"></i> Priority
-      </div>
-    </div>
-
-  </div>
-
-  <!-- TABLE PANEL -->
-  <div class="panel-card mt-3">
-    <div class="panel-header">
-      <span>Detail Tiket B2B HI</span>
-      <input type="text"
-             class="form-control form-control-sm search-dark"
-             placeholder="Cari SID / Customer / Witel"
-             id="monitoringSearch"
-             style="max-width:260px;">
-    </div>
-
+  <!-- TABLE -->
+  <div class="panel-card">
     <div class="panel-body p-0">
+
       <div class="table-responsive" style="max-height:65vh;">
-        <table class="table table-dark table-hover mb-0">
+        <table class="table table-dark table-hover table-b2b-monitoring table-freeze mb-0">
+
           <thead>
+            <!-- ROW 1 -->
             <tr>
-              <th>Witel</th>
-              <th>SID</th>
-              <th>Customer</th>
-              <th>Status</th>
-              <th>Durasi (Jam)</th>
-              <th>SLA</th>
-              <th>Severity</th>
+              <th rowspan="3" class="col-sto">STO</th>
+              <th rowspan="3" class="col-witel">WITEL</th>
+              <th rowspan="3" class="col-small">HSA</th>
+              <th rowspan="3" class="col-small">OSA</th>
+              <th rowspan="3" class="col-small">%Q HSI</th>
+
+              <th colspan="2" class="grp-total">Total Tiket</th>
+              <th colspan="2" class="grp-closed">Tiket Closed</th>
+              <th colspan="2" class="grp-open">Tiket Open</th>
+
+              <th colspan="4" class="grp-indibiz">TTR INDIBIZ</th>
+              <th colspan="4" class="grp-reseller">TTR RESELLER</th>
+
+              <th colspan="2" class="grp-gaul">GAUL</th>
+
+              <th rowspan="3" class="col-kpi">SQM Jadi<br>Tiket HI</th>
+              <th rowspan="3" class="col-kpi">Alert Jadi<br>Tiket HI</th>
+            </tr>
+
+            <!-- ROW 2 -->
+            <tr>
+              <th rowspan="2" class="sub-hi col-kpi">HI HSI</th>
+              <th rowspan="2" class="sub-datin col-kpi">HI Datin</th>
+
+              <th rowspan="2" class="sub-hi">HSI</th>
+              <th rowspan="2" class="sub-datin">DATIN</th>
+
+              <th rowspan="2" class="sub-hi">HSI</th>
+              <th rowspan="2" class="sub-datin">DATIN</th>
+
+              <th colspan="2">TTR 4 Jam</th>
+              <th colspan="2">TTR 24 Jam</th>
+
+              <th colspan="2">TTR 6 Jam</th>
+              <th colspan="2">TTR 36 Jam</th>
+
+              <th rowspan="2" class="sub-hi">HSI</th>
+              <th rowspan="2" class="sub-datin">DATIN</th>
+            </tr>
+
+            <!-- ROW 3 -->
+            <tr>
+              <th class="ok col-ttr">✔</th>
+              <th class="bad col-ttr">✖</th>
+
+              <th class="ok col-ttr">✔</th>
+              <th class="bad col-ttr">✖</th>
+
+              <th class="ok col-ttr">✔</th>
+              <th class="bad col-ttr">✖</th>
+
+              <th class="ok col-ttr">✔</th>
+              <th class="bad col-ttr">✖</th>
             </tr>
           </thead>
+
           <tbody id="monitoring-b2b-body">
             <tr>
-              <td colspan="7" class="text-center text-muted">
+              <td colspan="23" class="text-center text-muted">
                 Loading data...
               </td>
             </tr>
           </tbody>
+
         </table>
       </div>
+
     </div>
   </div>
 
