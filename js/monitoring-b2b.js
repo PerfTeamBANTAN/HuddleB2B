@@ -222,20 +222,29 @@ function renderB2BTotalRow(){
    FILTER
 ===================================================== */
 function applyB2BDropdownFilter(){
-  const sto=filterSto.value,witel=filterWitel.value,hsa=filterHsa.value;
+
+  const sto   = filterSto.value || '';
+  const witel = filterWitel.value || '';
+  const hsa   = filterHsa.value || '';
+
+  /* SIMPAN FILTER AKTIF */
+  B2B_ACTIVE_FILTER = { sto, witel, hsa };
 
   document.querySelectorAll('#monitoring-b2b-body tr')
     .forEach(tr=>{
       if(tr.classList.contains('total-row')) return;
-      tr.style.display =
-        (!sto||tr.dataset.sto===sto)&&
-        (!witel||tr.dataset.witel===witel)&&
-        (!hsa||tr.dataset.hsa===hsa)
-        ? '' : 'none';
+
+      const show =
+        (!sto   || tr.dataset.sto   === sto) &&
+        (!witel || tr.dataset.witel === witel) &&
+        (!hsa   || tr.dataset.hsa   === hsa);
+
+      tr.style.display = show ? '' : 'none';
     });
 
   renderB2BTotalRow();
 }
+
 
 /* =====================================================
    SPINNER MODAL
@@ -431,11 +440,14 @@ function openTotalDetail(colIndex){
     20: { mode:'DATIN', gaul:'Y' }
   };
 
-  const p = map[colIndex] || {};
   const qs = new URLSearchParams({
-    type: 'total_hi_all_detail',
-    ...p
-  }).toString();
+  type: 'total_hi_all_detail',
+  ...p,
+
+  sto:   B2B_ACTIVE_FILTER.sto,
+  witel: B2B_ACTIVE_FILTER.witel,
+  hsa:   B2B_ACTIVE_FILTER.hsa
+}).toString();
 
   fetch(API_URL + '?' + qs)
     .then(res => res.json())
