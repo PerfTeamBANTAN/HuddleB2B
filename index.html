@@ -638,6 +638,94 @@ tr.tr-pragnosa-bad td::before {
   z-index: 3;
 }
 
+/* =====================================================
+   TTR / MONITORING B2B TABLE – FINAL FIX
+   (ISOLATED, TIDAK GANGGU TABLE LAIN)
+===================================================== */
+
+.ttr-table {
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+
+/* cell base */
+.ttr-table th,
+.ttr-table td {
+  font-size: 12px;
+  padding: 6px 8px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ================= HEADER HEIGHT ================= */
+.ttr-table thead th {
+  height: 38px;
+  line-height: 1.2;
+}
+
+/* ================= GROUP HEADER ================= */
+.ttr-table .grp-total    { background:#1b5e20 !important; }
+.ttr-table .grp-closed   { background:#0d47a1 !important; }
+.ttr-table .grp-open     { background:#b71c1c !important; }
+.ttr-table .grp-indibiz  { background:#4a148c !important; }
+.ttr-table .grp-reseller { background:#263238 !important; }
+.ttr-table .grp-gaul     { background:#004d40 !important; }
+
+/* ================= SUB HEADER ================= */
+.ttr-table .sub-hi {
+  background:#2e7d32 !important;
+  font-weight:600;
+}
+.ttr-table .sub-datin {
+  background:#1565c0 !important;
+  font-weight:600;
+}
+
+/* ================= ICON ================= */
+.ttr-table .ok  { color:#20c997; }
+.ttr-table .bad { color:#ff6b6b; }
+
+/* ================= COLUMN WIDTH ================= */
+.ttr-table .col-sto   { min-width:60px; }
+.ttr-table .col-witel { min-width:130px; text-align:left; padding-left:10px; }
+.ttr-table .col-small { min-width:55px; }
+.ttr-table .col-kpi   { min-width:80px; }
+.ttr-table .col-ttr   { min-width:40px; }
+
+/* ================= FREEZE STO + WITEL ================= */
+.ttr-table th:nth-child(1),
+.ttr-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 7;
+  background:#0b1220;
+}
+
+.ttr-table th:nth-child(2),
+.ttr-table td:nth-child(2) {
+  position: sticky;
+  left: 60px;
+  z-index: 7;
+  background:#0b1220;
+  box-shadow: 2px 0 0 rgba(255,255,255,.1);
+}
+
+.ttr-table thead th {
+  z-index: 10;
+}
+
+/* ================= BAD VALUE ================= */
+.ttr-table td.value-bad {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(220,53,69,.25),
+      rgba(220,53,69,.45)
+    );
+  color:#fff;
+  font-weight:700;
+}
 </style>
 
 </head>
