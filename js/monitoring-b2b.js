@@ -431,15 +431,11 @@ function openTotalDetail(colIndex){
     20: { mode:'DATIN', gaul:'Y' }
   };
 
+  const p = map[colIndex] || {};
   const qs = new URLSearchParams({
-  type: 'total_hi_all_detail',
-  ...p,
-
-  /* ===== FILTER UI (INI YANG HILANG) ===== */
-  sto:   filterSto?.value   || '',
-  witel: filterWitel?.value || '',
-  hsa:   filterHsa?.value   || ''
-}).toString();
+    type: 'total_hi_all_detail',
+    ...p
+  }).toString();
 
   fetch(API_URL + '?' + qs)
     .then(res => res.json())
