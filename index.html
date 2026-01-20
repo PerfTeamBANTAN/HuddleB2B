@@ -883,6 +883,25 @@ body {
   height: auto !important;
 }
 
+td.clickable{
+  position:relative;
+  color:#ff4d4f;
+  font-weight:600;
+}
+
+/* icon detail */
+td.clickable::after{
+  content:"🔍";
+  font-size:.75em;
+  margin-left:6px;
+  opacity:.7;
+}
+
+td.clickable:hover::after{
+  opacity:1;
+}
+
+
 </style>
 
 </head>
