@@ -106,6 +106,20 @@ function initMonitoringB2B(API_URL) {
 }
 
 /* =====================================================
+   SPINNER MODAL
+===================================================== */
+function renderModalSpinner(text = 'Memuat data...') {
+  return `
+    <div class="d-flex flex-column justify-content-center align-items-center"
+         style="min-height:260px;">
+      <div class="spinner-border text-info mb-3"
+           style="width:3.5rem;height:3.5rem;"></div>
+      <div class="text-muted fw-semibold">${text}</div>
+    </div>
+  `;
+}
+
+/* =====================================================
    MODAL DETAIL HI
 ===================================================== */
 function openDetailHI(API_URL, tr, mode) {
@@ -114,16 +128,14 @@ function openDetailHI(API_URL, tr, mode) {
     document.getElementById('global-modal')
   );
 
-  const modalBody = document.querySelector('#global-modal .modal-body');
+  const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
   modalTitle.textContent =
     `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
 
-  modalBody.innerHTML = `
-    <div class="text-center text-muted py-3">
-      Memuat data...
-    </div>`;
+  modalBody.innerHTML = renderModalSpinner('Mengambil detail tiket HI...');
+  modal.show();
 
   fetch(
     API_URL +
@@ -138,14 +150,16 @@ function openDetailHI(API_URL, tr, mode) {
       const rows = resData.data || [];
 
       if (!rows.length) {
-        modalBody.innerHTML =
-          `<div class="text-muted">Tidak ada data</div>`;
+        modalBody.innerHTML = `
+          <div class="text-center text-muted py-4">
+            Tidak ada data
+          </div>`;
         return;
       }
 
       let html = `
         <div class="table-responsive">
-          <table class="table table-dark table-striped table-sm">
+          <table class="table table-dark table-striped table-sm align-middle">
             <thead>
               <tr>
                 <th>INCIDENT</th>
@@ -182,9 +196,13 @@ function openDetailHI(API_URL, tr, mode) {
 
       html += '</tbody></table></div>';
       modalBody.innerHTML = html;
+    })
+    .catch(() => {
+      modalBody.innerHTML = `
+        <div class="text-center text-danger py-4">
+          Gagal memuat data
+        </div>`;
     });
-
-  modal.show();
 }
 
 /* =====================================================
