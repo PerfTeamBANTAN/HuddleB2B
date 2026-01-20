@@ -850,6 +850,18 @@ tr.tr-pragnosa-bad td::before {
   text-align: center;
 }
 
+/* =====================================================
+   TOTAL DISABLE STICKY TABLE HEADER (FINAL FIX)
+===================================================== */
+table thead,
+table thead th,
+.table-dark thead th,
+.ttr-table thead th {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+
 
 </style>
 
