@@ -1,6 +1,6 @@
 <div class="container-fluid dashboard-dark section-below-kpi monitoring-b2b-wrapper">
 
-  <!-- STICKY HEADER -->
+  <!-- ================= STICKY HEADER ================= -->
   <div class="monitoring-b2b-header sticky-header">
     <div class="d-flex justify-content-between align-items-center px-2">
       <h5 class="fw-bold mb-0">
@@ -15,45 +15,47 @@
     </div>
   </div>
 
-  <!-- ================= FILTER MONITORING B2B ================= -->
-<div class="card bg-dark border-secondary mb-3 mx-2">
-  <div class="card-body py-2">
-    <div class="row g-2 align-items-end">
+  <!-- ================= FILTER ================= -->
+  <div class="card bg-dark border-secondary mb-3 mx-2">
+    <div class="card-body py-2">
+      <div class="row g-2 align-items-end">
 
-      <div class="col-md-3">
-        <label class="form-label text-light small mb-1">Witel</label>
-        <select id="filterWitel" class="form-select form-select-sm">
-          <option value="">All Witel</option>
-        </select>
+        <div class="col-md-3">
+          <label class="form-label text-light small mb-1">Witel</label>
+          <select id="filterWitel" class="form-select form-select-sm">
+            <option value="">All Witel</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label text-light small mb-1">STO</label>
+          <select id="filterSto" class="form-select form-select-sm">
+            <option value="">All STO</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label text-light small mb-1">HSA</label>
+          <select id="filterHsa" class="form-select form-select-sm">
+            <option value="">All HSA</option>
+          </select>
+        </div>
+
       </div>
-
-      <div class="col-md-3">
-        <label class="form-label text-light small mb-1">STO</label>
-        <select id="filterSto" class="form-select form-select-sm">
-          <option value="">All STO</option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label text-light small mb-1">HSA</label>
-        <select id="filterHsa" class="form-select form-select-sm">
-          <option value="">All HSA</option>
-        </select>
-      </div>
-
     </div>
   </div>
-</div>
 
-
-  <!-- TABLE -->
+  <!-- ================= TABLE ================= -->
   <div class="panel-card">
     <div class="panel-body p-0">
 
+      <!-- ❗ no vertical scroll -->
       <div class="table-responsive monitoring-no-scroll">
-        <table class="table table-dark table-hover table-b2b-monitoring table-freeze mb-0">
+        <table
+          class="table table-dark table-hover table-b2b-monitoring table-freeze mb-0">
 
           <thead>
+
             <!-- ROW 1 -->
             <tr>
               <th rowspan="3" class="col-sto">STO</th>
@@ -71,8 +73,12 @@
 
               <th colspan="2" class="grp-gaul">GAUL</th>
 
-              <th rowspan="3" class="col-kpi">SQM Jadi<br>Tiket HI</th>
-              <th rowspan="3" class="col-kpi">Alert Jadi<br>Tiket HI</th>
+              <th rowspan="3" class="col-kpi">
+                SQM Jadi<br>Tiket HI
+              </th>
+              <th rowspan="3" class="col-kpi">
+                Alert Jadi<br>Tiket HI
+              </th>
             </tr>
 
             <!-- ROW 2 -->
@@ -110,6 +116,7 @@
               <th class="ok col-ttr">✔</th>
               <th class="bad col-ttr">✖</th>
             </tr>
+
           </thead>
 
           <tbody id="monitoring-b2b-body">
@@ -126,4 +133,30 @@
     </div>
   </div>
 
+</div>
+
+<!-- =====================================================
+     GLOBAL MODAL (DETAIL HI HSI / HI DATIN)
+===================================================== -->
+<div class="modal fade" id="global-modal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-light">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Detail Tiket
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal">
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- diisi via JS -->
+      </div>
+
+    </div>
+  </div>
 </div>
