@@ -1,15 +1,23 @@
 /* =====================================================
-   MONITORING B2B HI - ARRAY BASED (GOOGLE SHEET)
+   MONITORING B2B HI
+   SOURCE : GOOGLE SHEET (ARRAY BASED)
 ===================================================== */
 
 function initMonitoringB2B(API_URL) {
 
-  const tbody = document.getElementById('monitoring-b2b-body');
+  const tbody      = document.getElementById('monitoring-b2b-body');
   const lastUpdate = document.getElementById('monitoring-b2b-update');
 
   const filterWitel = document.getElementById('filterWitel');
   const filterSto   = document.getElementById('filterSto');
   const filterHsa   = document.getElementById('filterHsa');
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="23" class="text-center text-muted">
+        Memuat data...
+      </td>
+    </tr>`;
 
   fetch(API_URL + '?type=monitoring_b2b')
     .then(res => res.json())
@@ -24,14 +32,18 @@ function initMonitoringB2B(API_URL) {
 
       data.forEach(row => {
 
-        /* SAFE GUARD */
         if (!Array.isArray(row)) return;
 
-        setSto.add(row[0] || '-');
-        setWitel.add(row[1] || '-');
-        setHsa.add(row[2] || '-');
-
         const tr = document.createElement('tr');
+
+        /* ================= DATASET FOR FILTER ================= */
+        tr.dataset.sto   = row[0] || '';
+        tr.dataset.witel = row[1] || '';
+        tr.dataset.hsa   = row[2] || '';
+
+        setSto.add(row[0]);
+        setWitel.add(row[1]);
+        setHsa.add(row[2]);
 
         tr.innerHTML = `
           <td>${row[0] || '-'}</td>
@@ -69,15 +81,21 @@ function initMonitoringB2B(API_URL) {
         tbody.appendChild(tr);
       });
 
-      buildDropdown(filterWitel, setWitel, 'Semua Witel');
-      buildDropdown(filterSto, setSto, 'Semua STO');
-      buildDropdown(filterHsa, setHsa, 'Semua HSA');
+      /* ================= BUILD DROPDOWN ================= */
+      buildDropdown(filterWitel, setWitel, 'All Witel');
+      buildDropdown(filterSto, setSto, 'All STO');
+      buildDropdown(filterHsa, setHsa, 'All HSA');
 
+      /* ================= FILTER EVENT ================= */
       [filterWitel, filterSto, filterHsa].forEach(el => {
         if (el) el.addEventListener('change', applyB2BDropdownFilter);
       });
 
-      lastUpdate.textContent = new Date(resData.lastUpdate).toLocaleString('id-ID');
+      /* ================= LAST UPDATE ================= */
+      if (resData.lastUpdate) {
+        lastUpdate.textContent =
+          new Date(resData.lastUpdate).toLocaleString('id-ID');
+      }
 
       highlightBadCellsB2B();
     })
@@ -93,42 +111,54 @@ function initMonitoringB2B(API_URL) {
 }
 
 /* =====================================================
-   DROPDOWN FILTER
+   BUILD DROPDOWN (STYLE ASGAR)
 ===================================================== */
 function buildDropdown(el, setData, label) {
   if (!el) return;
+
   el.innerHTML = `<option value="">${label}</option>`;
-  [...setData].sort().forEach(v => {
-    el.innerHTML += `<option value="${v}">${v}</option>`;
-  });
-}
 
-function applyB2BDropdownFilter() {
-  const sto   = document.getElementById('filterSto')?.value || '';
-  const witel = document.getElementById('filterWitel')?.value || '';
-  const hsa   = document.getElementById('filterHsa')?.value || '';
-
-  document.querySelectorAll('#monitoring-b2b-body tr').forEach(tr => {
-    const cSto   = tr.children[0].innerText;
-    const cWitel = tr.children[1].innerText;
-    const cHsa   = tr.children[2].innerText;
-
-    const show =
-      (!sto || sto === cSto) &&
-      (!witel || witel === cWitel) &&
-      (!hsa || hsa === cHsa);
-
-    tr.style.display = show ? '' : 'none';
-  });
+  [...setData]
+    .filter(v => v)
+    .sort()
+    .forEach(v => {
+      el.innerHTML += `<option value="${v}">${v}</option>`;
+    });
 }
 
 /* =====================================================
-   HIGHLIGHT ❌
+   APPLY FILTER
+===================================================== */
+function applyB2BDropdownFilter() {
+
+  const sto   = document.getElementById('filterSto').value;
+  const witel = document.getElementById('filterWitel').value;
+  const hsa   = document.getElementById('filterHsa').value;
+
+  document
+    .querySelectorAll('#monitoring-b2b-body tr')
+    .forEach(tr => {
+
+      const match =
+        (!sto || tr.dataset.sto === sto) &&
+        (!witel || tr.dataset.witel === witel) &&
+        (!hsa || tr.dataset.hsa === hsa);
+
+      tr.style.display = match ? '' : 'none';
+    });
+}
+
+/* =====================================================
+   HIGHLIGHT NILAI ❌ (TTR)
 ===================================================== */
 function highlightBadCellsB2B() {
-  document.querySelectorAll('.table-b2b-monitoring td')
+  document
+    .querySelectorAll('.table-b2b-monitoring td')
     .forEach(td => {
+
       const val = Number(td.innerText);
+
+      /* kolom TTR ✔ / ✖ */
       if (!isNaN(val) && val > 0 && td.cellIndex >= 12 && td.cellIndex <= 18) {
         td.classList.add('value-bad');
       }
