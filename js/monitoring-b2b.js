@@ -1,91 +1,74 @@
 /* =====================================================
-   MONITORING B2B HI - TABLE + DROPDOWN FILTER (FIXED)
+   MONITORING B2B HI - ARRAY BASED (GOOGLE SHEET)
 ===================================================== */
 
 function initMonitoringB2B(API_URL) {
 
-  const tbody      = document.getElementById('monitoring-b2b-body');
+  const tbody = document.getElementById('monitoring-b2b-body');
   const lastUpdate = document.getElementById('monitoring-b2b-update');
 
   const filterWitel = document.getElementById('filterWitel');
   const filterSto   = document.getElementById('filterSto');
   const filterHsa   = document.getElementById('filterHsa');
 
-  fetch(API_URL + '?sheet=MONITORING_B2B')
+  fetch(API_URL + '?type=monitoring_b2b')
     .then(res => res.json())
     .then(resData => {
 
-      /* ===============================
-         NORMALIZE API RESPONSE
-      =============================== */
-      let data = [];
-
-      if (Array.isArray(resData)) {
-        data = resData;
-      } else if (Array.isArray(resData.data)) {
-        data = resData.data;
-      } else if (Array.isArray(resData.rows)) {
-        data = resData.rows;
-      } else {
-        throw new Error('Format data API tidak dikenali');
-      }
-
+      const data = resData.data || [];
       tbody.innerHTML = '';
 
       const setWitel = new Set();
       const setSto   = new Set();
       const setHsa   = new Set();
 
-      /* ===============================
-         BUILD TABLE
-      =============================== */
       data.forEach(row => {
 
-        setWitel.add(row.WITEL || '-');
-        setSto.add(row.STO || '-');
-        setHsa.add(row.HSA || '0');
+        /* SAFE GUARD */
+        if (!Array.isArray(row)) return;
+
+        setSto.add(row[0] || '-');
+        setWitel.add(row[1] || '-');
+        setHsa.add(row[2] || '-');
 
         const tr = document.createElement('tr');
 
         tr.innerHTML = `
-          <td>${row.STO || '-'}</td>
-          <td>${row.WITEL || '-'}</td>
-          <td>${row.HSA || 0}</td>
-          <td>${row.OSA || 0}</td>
-          <td>${row.Q_HSI || '0%'}</td>
+          <td>${row[0] || '-'}</td>
+          <td>${row[1] || '-'}</td>
+          <td>${row[2] || '-'}</td>
+          <td>${row[3] || '-'}</td>
+          <td>${row[4] || '0%'}</td>
 
-          <td>${row.TOTAL_HI_HSI || 0}</td>
-          <td>${row.TOTAL_HI_DATIN || 0}</td>
+          <td>${row[5] || 0}</td>
+          <td>${row[6] || 0}</td>
 
-          <td>${row.CLOSED_HSI || 0}</td>
-          <td>${row.CLOSED_DATIN || 0}</td>
+          <td>${row[7] || 0}</td>
+          <td>${row[8] || 0}</td>
 
-          <td>${row.OPEN_HSI || 0}</td>
-          <td>${row.OPEN_DATIN || 0}</td>
+          <td>${row[9] || 0}</td>
+          <td>${row[10] || 0}</td>
 
-          <td>${row.INDI_4_OK || 0}</td>
-          <td>${row.INDI_4_BAD || 0}</td>
-          <td>${row.INDI_24_OK || 0}</td>
-          <td>${row.INDI_24_BAD || 0}</td>
+          <td>${row[11] || 0}</td>
+          <td>${row[12] || 0}</td>
+          <td>${row[13] || 0}</td>
+          <td>${row[14] || 0}</td>
 
-          <td>${row.RES_6_OK || 0}</td>
-          <td>${row.RES_6_BAD || 0}</td>
-          <td>${row.RES_36_OK || 0}</td>
-          <td>${row.RES_36_BAD || 0}</td>
+          <td>${row[15] || 0}</td>
+          <td>${row[16] || 0}</td>
+          <td>${row[17] || 0}</td>
+          <td>${row[18] || 0}</td>
 
-          <td>${row.GAUL_HSI || 0}</td>
-          <td>${row.GAUL_DATIN || 0}</td>
+          <td>${row[19] || 0}</td>
+          <td>${row[20] || 0}</td>
 
-          <td>${row.SQM_JADI_HI || 0}</td>
-          <td>${row.ALERT_JADI_HI || 0}</td>
+          <td>${row[21] || 0}</td>
+          <td>${row[22] || 0}</td>
         `;
 
         tbody.appendChild(tr);
       });
 
-      /* ===============================
-         BUILD DROPDOWN FILTER
-      =============================== */
       buildDropdown(filterWitel, setWitel, 'Semua Witel');
       buildDropdown(filterSto, setSto, 'Semua STO');
       buildDropdown(filterHsa, setHsa, 'Semua HSA');
@@ -94,86 +77,60 @@ function initMonitoringB2B(API_URL) {
         if (el) el.addEventListener('change', applyB2BDropdownFilter);
       });
 
-      /* ===============================
-         LAST UPDATE
-      =============================== */
-      lastUpdate.textContent = new Date().toLocaleString('id-ID');
+      lastUpdate.textContent = new Date(resData.lastUpdate).toLocaleString('id-ID');
 
-      /* ===============================
-         HIGHLIGHT ❌
-      =============================== */
       highlightBadCellsB2B();
     })
     .catch(err => {
-      console.error('Monitoring B2B error:', err);
+      console.error(err);
       tbody.innerHTML = `
         <tr>
-          <td colspan="23" class="text-center text-danger">
+          <td colspan="23" class="text-danger text-center">
             Gagal memuat data
           </td>
-        </tr>
-      `;
+        </tr>`;
     });
 }
 
 /* =====================================================
-   DROPDOWN BUILDER
+   DROPDOWN FILTER
 ===================================================== */
-function buildDropdown(selectEl, dataSet, label) {
-  if (!selectEl) return;
-
-  selectEl.innerHTML = `<option value="">${label}</option>`;
-  [...dataSet].sort().forEach(v => {
-    selectEl.innerHTML += `<option value="${v}">${v}</option>`;
+function buildDropdown(el, setData, label) {
+  if (!el) return;
+  el.innerHTML = `<option value="">${label}</option>`;
+  [...setData].sort().forEach(v => {
+    el.innerHTML += `<option value="${v}">${v}</option>`;
   });
 }
 
-/* =====================================================
-   APPLY DROPDOWN FILTER
-===================================================== */
 function applyB2BDropdownFilter() {
-
-  const witel = document.getElementById('filterWitel')?.value || '';
   const sto   = document.getElementById('filterSto')?.value || '';
+  const witel = document.getElementById('filterWitel')?.value || '';
   const hsa   = document.getElementById('filterHsa')?.value || '';
 
-  document.querySelectorAll('#monitoring-b2b-body tr')
-    .forEach(tr => {
+  document.querySelectorAll('#monitoring-b2b-body tr').forEach(tr => {
+    const cSto   = tr.children[0].innerText;
+    const cWitel = tr.children[1].innerText;
+    const cHsa   = tr.children[2].innerText;
 
-      const vSto   = tr.children[0].innerText;
-      const vWitel = tr.children[1].innerText;
-      const vHsa   = tr.children[2].innerText;
+    const show =
+      (!sto || sto === cSto) &&
+      (!witel || witel === cWitel) &&
+      (!hsa || hsa === cHsa);
 
-      const show =
-        (!witel || vWitel === witel) &&
-        (!sto || vSto === sto) &&
-        (!hsa || vHsa === hsa);
-
-      tr.style.display = show ? '' : 'none';
-    });
+    tr.style.display = show ? '' : 'none';
+  });
 }
 
 /* =====================================================
-   HIGHLIGHT ❌ CELL
+   HIGHLIGHT ❌
 ===================================================== */
 function highlightBadCellsB2B() {
-
-  const table = document.querySelector('.table-b2b-monitoring');
-  if (!table) return;
-
-  const badIndexes = [];
-
-  table.querySelectorAll('thead tr:last-child th')
-    .forEach((th, i) => {
-      if (th.classList.contains('bad')) badIndexes.push(i);
-    });
-
-  table.querySelectorAll('tbody tr').forEach(tr => {
-    tr.querySelectorAll('td').forEach((td, i) => {
-      if (badIndexes.includes(i)) {
-        const v = Number(td.innerText);
-        if (!isNaN(v) && v > 0) td.classList.add('value-bad');
+  document.querySelectorAll('.table-b2b-monitoring td')
+    .forEach(td => {
+      const val = Number(td.innerText);
+      if (!isNaN(val) && val > 0 && td.cellIndex >= 12 && td.cellIndex <= 18) {
+        td.classList.add('value-bad');
       }
     });
-  });
 }
