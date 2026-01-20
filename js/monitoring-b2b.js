@@ -41,7 +41,6 @@
     }
     #monitoring-b2b-update:hover{ opacity:1; }
 
-    /* TOTAL ROW */
     #monitoring-b2b-body tr.total-row td{
       background:#0f172a !important;
       font-weight:800;
@@ -52,6 +51,10 @@
 })();
 
 function initMonitoringB2B(API_URL) {
+
+  /* ================= FIX UTAMA ================= */
+  window.API_URL = API_URL;
+  /* ============================================ */
 
   const tbody      = document.getElementById('monitoring-b2b-body');
   const lastUpdate = document.getElementById('monitoring-b2b-update');
@@ -77,11 +80,9 @@ function initMonitoringB2B(API_URL) {
       const setHsa   = new Set();
 
       data.forEach(row => {
-
         if (!Array.isArray(row)) return;
 
         const tr = document.createElement('tr');
-
         tr.dataset.sto   = row[0] || '';
         tr.dataset.witel = row[1] || '';
         tr.dataset.hsa   = row[2] || '';
@@ -129,7 +130,6 @@ function initMonitoringB2B(API_URL) {
           if (td.textContent.trim() === '0') td.classList.add('zero');
         });
 
-        /* EVENT LIST — ASLI */
         tr.querySelector('.hi-hsi')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI'));
         tr.querySelector('.hi-datin')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN'));
         tr.querySelector('.hi-closed-hsi')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','Y'));
@@ -166,7 +166,7 @@ function initMonitoringB2B(API_URL) {
       }
 
       highlightBadCellsB2B();
-      renderB2BTotalRow(); // ← TOTAL
+      renderB2BTotalRow();
     });
 }
 
