@@ -111,7 +111,7 @@ function initMonitoringB2B(API_URL) {
 }
 
 /* =====================================================
-   BUILD DROPDOWN (STYLE ASGAR)
+   BUILD DROPDOWN
 ===================================================== */
 function buildDropdown(el, setData, label) {
   if (!el) return;
@@ -160,11 +160,15 @@ function highlightBadCellsB2B() {
       const tds = tr.querySelectorAll('td');
 
       /* ================= %Q HSI ALERT ================= */
-      const qhsiCell = tds[4]; // kolom %Q HSI (index ke-4)
+      const qhsiCell = tds[4]; // kolom %Q HSI
       if (qhsiCell) {
-        const qhsiVal = parseFloat(
-          qhsiCell.innerText.replace(',', '.')
-        );
+
+        const raw = qhsiCell.innerText
+          .replace('%', '')
+          .replace(',', '.')
+          .trim();
+
+        const qhsiVal = parseFloat(raw);
 
         if (!isNaN(qhsiVal) && qhsiVal > 2.3) {
           qhsiCell.style.color = '#ff4d4f';
@@ -176,7 +180,6 @@ function highlightBadCellsB2B() {
       tds.forEach((td, idx) => {
         const val = Number(td.innerText);
 
-        // kolom TTR ✔ / ✖
         if (!isNaN(val) && val > 0 && idx >= 12 && idx <= 18) {
           td.style.background =
             'linear-gradient(135deg, rgba(220,53,69,.25), rgba(220,53,69,.45))';
@@ -187,4 +190,3 @@ function highlightBadCellsB2B() {
 
     });
 }
-
