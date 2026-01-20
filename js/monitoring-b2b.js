@@ -1,5 +1,5 @@
 /* =====================================================
-   MONITORING B2B HI - AGGREGATE TABLE + DROPDOWN FILTER
+   MONITORING B2B HI - TABLE + DROPDOWN FILTER (FIXED)
 ===================================================== */
 
 function initMonitoringB2B(API_URL) {
@@ -13,7 +13,22 @@ function initMonitoringB2B(API_URL) {
 
   fetch(API_URL + '?sheet=MONITORING_B2B')
     .then(res => res.json())
-    .then(data => {
+    .then(resData => {
+
+      /* ===============================
+         NORMALIZE API RESPONSE
+      =============================== */
+      let data = [];
+
+      if (Array.isArray(resData)) {
+        data = resData;
+      } else if (Array.isArray(resData.data)) {
+        data = resData.data;
+      } else if (Array.isArray(resData.rows)) {
+        data = resData.rows;
+      } else {
+        throw new Error('Format data API tidak dikenali');
+      }
 
       tbody.innerHTML = '';
 
@@ -22,19 +37,19 @@ function initMonitoringB2B(API_URL) {
       const setHsa   = new Set();
 
       /* ===============================
-         BUILD TABLE & COLLECT FILTER
+         BUILD TABLE
       =============================== */
       data.forEach(row => {
 
-        if (row.WITEL) setWitel.add(row.WITEL);
-        if (row.STO)   setSto.add(row.STO);
-        if (row.HSA)   setHsa.add(row.HSA);
+        setWitel.add(row.WITEL || '-');
+        setSto.add(row.STO || '-');
+        setHsa.add(row.HSA || '0');
 
         const tr = document.createElement('tr');
 
         tr.innerHTML = `
-          <td class="sticky-col">${row.STO || '-'}</td>
-          <td class="sticky-col-2">${row.WITEL || '-'}</td>
+          <td>${row.STO || '-'}</td>
+          <td>${row.WITEL || '-'}</td>
           <td>${row.HSA || 0}</td>
           <td>${row.OSA || 0}</td>
           <td>${row.Q_HSI || '0%'}</td>
@@ -72,17 +87,12 @@ function initMonitoringB2B(API_URL) {
          BUILD DROPDOWN FILTER
       =============================== */
       buildDropdown(filterWitel, setWitel, 'Semua Witel');
-      buildDropdown(filterSto,   setSto,   'Semua STO');
-      buildDropdown(filterHsa,   setHsa,   'Semua HSA');
+      buildDropdown(filterSto, setSto, 'Semua STO');
+      buildDropdown(filterHsa, setHsa, 'Semua HSA');
 
-      /* ===============================
-         FILTER EVENT
-      =============================== */
-      [filterWitel, filterSto, filterHsa]
-        .filter(el => el)
-        .forEach(el =>
-          el.addEventListener('change', applyB2BDropdownFilter)
-        );
+      [filterWitel, filterSto, filterHsa].forEach(el => {
+        if (el) el.addEventListener('change', applyB2BDropdownFilter);
+      });
 
       /* ===============================
          LAST UPDATE
@@ -107,18 +117,15 @@ function initMonitoringB2B(API_URL) {
 }
 
 /* =====================================================
-   BUILD DROPDOWN HELPER
+   DROPDOWN BUILDER
 ===================================================== */
 function buildDropdown(selectEl, dataSet, label) {
   if (!selectEl) return;
 
   selectEl.innerHTML = `<option value="">${label}</option>`;
-
-  [...dataSet]
-    .sort()
-    .forEach(val => {
-      selectEl.innerHTML += `<option value="${val}">${val}</option>`;
-    });
+  [...dataSet].sort().forEach(v => {
+    selectEl.innerHTML += `<option value="${v}">${v}</option>`;
+  });
 }
 
 /* =====================================================
@@ -139,15 +146,15 @@ function applyB2BDropdownFilter() {
 
       const show =
         (!witel || vWitel === witel) &&
-        (!sto   || vSto === sto) &&
-        (!hsa   || vHsa === hsa);
+        (!sto || vSto === sto) &&
+        (!hsa || vHsa === hsa);
 
       tr.style.display = show ? '' : 'none';
     });
 }
 
 /* =====================================================
-   HIGHLIGHT ❌ CELL (AUTO RED)
+   HIGHLIGHT ❌ CELL
 ===================================================== */
 function highlightBadCellsB2B() {
 
@@ -165,9 +172,7 @@ function highlightBadCellsB2B() {
     tr.querySelectorAll('td').forEach((td, i) => {
       if (badIndexes.includes(i)) {
         const v = Number(td.innerText);
-        if (!isNaN(v) && v > 0) {
-          td.classList.add('value-bad');
-        }
+        if (!isNaN(v) && v > 0) td.classList.add('value-bad');
       }
     });
   });
