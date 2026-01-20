@@ -1,0 +1,82 @@
+<div class="container-fluid dashboard-dark section-below-kpi">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+    <h5 class="fw-bold mb-0">
+      <i class="fa-solid fa-ticket me-2 text-warning"></i>
+      Monitoring Tiket B2B HI
+    </h5>
+
+    <div class="last-update">
+      <i class="fa-regular fa-clock"></i>
+      <span id="monitoring-b2b-update">-</span>
+    </div>
+  </div>
+
+  <!-- KPI SUMMARY -->
+  <div class="cards-scroll">
+
+    <div class="kpi-card">
+      <div class="kpi-title">Total Tiket Open</div>
+      <div class="kpi-value" id="kpi-total">0</div>
+      <div class="kpi-trend up">
+        <i class="fa-solid fa-circle-info"></i> All Witel
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-title">Tiket > SLA</div>
+      <div class="kpi-value text-danger" id="kpi-sla">0</div>
+      <div class="kpi-trend down">
+        <i class="fa-solid fa-triangle-exclamation"></i> Need Action
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-title">Tiket Critical</div>
+      <div class="kpi-value text-warning" id="kpi-critical">0</div>
+      <div class="kpi-trend">
+        <i class="fa-solid fa-bolt"></i> Priority
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLE PANEL -->
+  <div class="panel-card mt-3">
+    <div class="panel-header">
+      <span>Detail Tiket B2B HI</span>
+      <input type="text"
+             class="form-control form-control-sm search-dark"
+             placeholder="Cari SID / Customer / Witel"
+             id="monitoringSearch"
+             style="max-width:260px;">
+    </div>
+
+    <div class="panel-body p-0">
+      <div class="table-responsive" style="max-height:65vh;">
+        <table class="table table-dark table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Witel</th>
+              <th>SID</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Durasi (Jam)</th>
+              <th>SLA</th>
+              <th>Severity</th>
+            </tr>
+          </thead>
+          <tbody id="monitoring-b2b-body">
+            <tr>
+              <td colspan="7" class="text-center text-muted">
+                Loading data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
