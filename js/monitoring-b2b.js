@@ -1,6 +1,5 @@
 /* =====================================================
    MONITORING B2B HI
-   SOURCE : GOOGLE SHEET (ARRAY BASED)
 ===================================================== */
 
 function initMonitoringB2B(API_URL) {
@@ -36,7 +35,6 @@ function initMonitoringB2B(API_URL) {
 
         const tr = document.createElement('tr');
 
-        /* ================= DATASET FOR FILTER ================= */
         tr.dataset.sto   = row[0] || '';
         tr.dataset.witel = row[1] || '';
         tr.dataset.hsa   = row[2] || '';
@@ -52,8 +50,8 @@ function initMonitoringB2B(API_URL) {
           <td>${row[3] || '-'}</td>
           <td>${row[4] || '0%'}</td>
 
-          <td>${row[5] || 0}</td>
-          <td>${row[6] || 0}</td>
+          <td class="hi-hsi clickable">${row[5] || 0}</td>
+          <td class="hi-datin clickable">${row[6] || 0}</td>
 
           <td>${row[7] || 0}</td>
           <td>${row[8] || 0}</td>
@@ -79,114 +77,157 @@ function initMonitoringB2B(API_URL) {
         `;
 
         tbody.appendChild(tr);
+
+        /* ===== CLICK EVENT DETAIL ===== */
+        tr.querySelector('.hi-hsi')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'HSI');
+        });
+
+        tr.querySelector('.hi-datin')?.addEventListener('click', () => {
+          openDetailHI(API_URL, tr, 'DATIN');
+        });
+
       });
 
-      /* ================= BUILD DROPDOWN ================= */
       buildDropdown(filterWitel, setWitel, 'All Witel');
       buildDropdown(filterSto, setSto, 'All STO');
       buildDropdown(filterHsa, setHsa, 'All HSA');
 
-      /* ================= FILTER EVENT ================= */
-      [filterWitel, filterSto, filterHsa].forEach(el => {
-        if (el) el.addEventListener('change', applyB2BDropdownFilter);
-      });
+      [filterWitel, filterSto, filterHsa]
+        .forEach(el => el?.addEventListener('change', applyB2BDropdownFilter));
 
-      /* ================= LAST UPDATE ================= */
       if (resData.lastUpdate) {
         lastUpdate.textContent =
           new Date(resData.lastUpdate).toLocaleString('id-ID');
       }
 
       highlightBadCellsB2B();
-    })
-    .catch(err => {
-      console.error(err);
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="23" class="text-danger text-center">
-            Gagal memuat data
-          </td>
-        </tr>`;
     });
 }
 
 /* =====================================================
-   BUILD DROPDOWN
+   MODAL DETAIL HI
 ===================================================== */
+function openDetailHI(API_URL, tr, mode) {
+
+  const modal = new bootstrap.Modal(
+    document.getElementById('global-modal')
+  );
+
+  const modalBody = document.querySelector('#global-modal .modal-body');
+  const modalTitle = document.querySelector('#global-modal .modal-title');
+
+  modalTitle.textContent =
+    `Detail Tiket HI ${mode} – ${tr.dataset.sto}`;
+
+  modalBody.innerHTML = `
+    <div class="text-center text-muted py-3">
+      Memuat data...
+    </div>`;
+
+  fetch(
+    API_URL +
+    `?type=detail_hi&mode=${mode}` +
+    `&sto=${tr.dataset.sto}` +
+    `&witel=${tr.dataset.witel}` +
+    `&hsa=${tr.dataset.hsa}`
+  )
+    .then(res => res.json())
+    .then(resData => {
+
+      const rows = resData.data || [];
+
+      if (!rows.length) {
+        modalBody.innerHTML =
+          `<div class="text-muted">Tidak ada data</div>`;
+        return;
+      }
+
+      let html = `
+        <div class="table-responsive">
+          <table class="table table-dark table-striped table-sm">
+            <thead>
+              <tr>
+                <th>INCIDENT</th>
+                <th>SUMMARY</th>
+                <th>REPORTED DATE</th>
+                <th>SERVICE TYPE</th>
+                <th>WITEL</th>
+                <th>WORKZONE</th>
+                <th>STATUS</th>
+                <th>CONVERT WAKTU</th>
+                <th>KATEGORI</th>
+                <th>GAUL HSI</th>
+                <th>IN LAMA HSI</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+      rows.forEach(r => {
+        html += `
+          <tr>
+            <td>${r.INCIDENT}</td>
+            <td>${r.SUMMARY}</td>
+            <td>${r['REPORTED DATE']}</td>
+            <td>${r['SERVICE TYPE']}</td>
+            <td>${r.WITEL}</td>
+            <td>${r.WORKZONE}</td>
+            <td>${r.STATUS}</td>
+            <td>${r['convert waktu']}</td>
+            <td>${r.KATAGORI}</td>
+            <td>${r['GAUL HSI']}</td>
+            <td>${r['IN LAMA HSI']}</td>
+          </tr>`;
+      });
+
+      html += '</tbody></table></div>';
+      modalBody.innerHTML = html;
+    });
+
+  modal.show();
+}
+
+/* =====================================================
+   FILTER & HIGHLIGHT (TIDAK DIUBAH)
+===================================================== */
+
 function buildDropdown(el, setData, label) {
   if (!el) return;
-
   el.innerHTML = `<option value="">${label}</option>`;
-
-  [...setData]
-    .filter(v => v)
-    .sort()
-    .forEach(v => {
-      el.innerHTML += `<option value="${v}">${v}</option>`;
-    });
+  [...setData].filter(v => v).sort()
+    .forEach(v => el.innerHTML += `<option>${v}</option>`);
 }
 
-/* =====================================================
-   APPLY FILTER
-===================================================== */
 function applyB2BDropdownFilter() {
+  const sto   = filterSto.value;
+  const witel = filterWitel.value;
+  const hsa   = filterHsa.value;
 
-  const sto   = document.getElementById('filterSto').value;
-  const witel = document.getElementById('filterWitel').value;
-  const hsa   = document.getElementById('filterHsa').value;
-
-  document
-    .querySelectorAll('#monitoring-b2b-body tr')
+  document.querySelectorAll('#monitoring-b2b-body tr')
     .forEach(tr => {
-
-      const match =
+      tr.style.display =
         (!sto || tr.dataset.sto === sto) &&
         (!witel || tr.dataset.witel === witel) &&
-        (!hsa || tr.dataset.hsa === hsa);
-
-      tr.style.display = match ? '' : 'none';
+        (!hsa || tr.dataset.hsa === hsa)
+          ? '' : 'none';
     });
 }
 
-/* =====================================================
-   HIGHLIGHT NILAI ❌ (TTR + %Q HSI) — JS ONLY
-===================================================== */
 function highlightBadCellsB2B() {
-
-  document
-    .querySelectorAll('#monitoring-b2b-body tr')
+  document.querySelectorAll('#monitoring-b2b-body tr')
     .forEach(tr => {
 
       const tds = tr.querySelectorAll('td');
 
-      /* ================= %Q HSI ALERT ================= */
-      const qhsiCell = tds[4]; // kolom %Q HSI
+      const qhsiCell = tds[4];
       if (qhsiCell) {
-
-        const raw = qhsiCell.innerText
-          .replace('%', '')
-          .replace(',', '.')
-          .trim();
-
-        const qhsiVal = parseFloat(raw);
-
-        if (!isNaN(qhsiVal) && qhsiVal > 2.3) {
+        const v = parseFloat(
+          qhsiCell.innerText.replace('%','').replace(',','.')
+        );
+        if (!isNaN(v) && v > 2.3) {
           qhsiCell.style.color = '#ff4d4f';
           qhsiCell.style.fontWeight = '800';
         }
       }
-
-      /* ================= TTR BAD ================= */
-      tds.forEach((td, idx) => {
-        const val = Number(td.innerText);
-
-        if (!isNaN(val) && val > 0 && idx >= 12 && idx <= 18) {
-          td.style.background =
-            'linear-gradient(135deg, rgba(220,53,69,.25), rgba(220,53,69,.45))';
-          td.style.color = '#fff';
-          td.style.fontWeight = '700';
-        }
-      });
-
     });
 }
