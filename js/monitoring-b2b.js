@@ -405,7 +405,16 @@ function openGenericDetail(API_URL, tr, type, title) {
 ===================================================== */
 function openTotalDetail(colIndex){
 
-  const { sto, witel, hsa } = window.B2B_ACTIVE_FILTER || {};
+  const f = window.B2B_ACTIVE_FILTER || {};
+
+const params = {
+  type: 'total_hi_all_detail'
+};
+
+if (f.sto)   params.sto   = f.sto;
+if (f.witel) params.witel = f.witel;
+if (f.hsa)   params.hsa   = f.hsa;
+
 
   const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
@@ -435,10 +444,9 @@ function openTotalDetail(colIndex){
   };
 
   const qs = new URLSearchParams({
-    type:'total_hi_all_detail',
-    ...(map[colIndex]||{}),
-    sto,witel,hsa
-  }).toString();
+  ...params,
+  ...(map[colIndex] || {})
+}).toString();
 
   fetch(API_URL + '?' + qs)
     .then(res=>res.json())
