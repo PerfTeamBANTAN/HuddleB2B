@@ -52,9 +52,7 @@
 
 function initMonitoringB2B(API_URL) {
 
-  /* ================= FIX UTAMA ================= */
   window.API_URL = API_URL;
-  /* ============================================ */
 
   const tbody      = document.getElementById('monitoring-b2b-body');
   const lastUpdate = document.getElementById('monitoring-b2b-update');
@@ -62,6 +60,8 @@ function initMonitoringB2B(API_URL) {
   window.filterWitel = document.getElementById('filterWitel');
   window.filterSto   = document.getElementById('filterSto');
   window.filterHsa   = document.getElementById('filterHsa');
+
+  window.B2B_ACTIVE_FILTER = { sto:'', witel:'', hsa:'' };
 
   tbody.innerHTML = `
     <tr>
@@ -141,10 +141,12 @@ function initMonitoringB2B(API_URL) {
         tr.querySelector('.ttr-4-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','4JAM','N'));
         tr.querySelector('.ttr-24-ok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','24JAM','Y'));
         tr.querySelector('.ttr-24-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','24JAM','N'));
-        tr.querySelector('.ttr-6-ok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','6JAM','Y'));
-        tr.querySelector('.ttr-6-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','6JAM','N'));
-        tr.querySelector('.ttr-36-ok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','36JAM','Y'));
-        tr.querySelector('.ttr-36-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','36JAM','N'));
+
+        /* === FIX: 6JAM & 36JAM = DATIN === */
+        tr.querySelector('.ttr-6-ok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN','','6JAM','Y'));
+        tr.querySelector('.ttr-6-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN','','6JAM','N'));
+        tr.querySelector('.ttr-36-ok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN','','36JAM','Y'));
+        tr.querySelector('.ttr-36-nok')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN','','36JAM','N'));
 
         tr.querySelector('.gaul-hsi')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'HSI','','','','Y'));
         tr.querySelector('.gaul-datin')?.addEventListener('click',()=>openDetailHI(API_URL,tr,'DATIN','','','','Y'));
@@ -185,7 +187,9 @@ function renderB2BTotalRow(){
 
     const tds = tr.querySelectorAll('td');
     for(let i=5;i<=22;i++){
-      total[i] += parseInt(tds[i]?.innerText,10) || 0;
+      total[i] += Number(
+        tds[i]?.innerText.replace(/[^\d]/g,'')
+      ) || 0;
     }
   });
 
@@ -204,19 +208,16 @@ function renderB2BTotalRow(){
 
   tbody.appendChild(tr);
 
-  /* zero style */
   tr.querySelectorAll('td').forEach(td=>{
     if(td.textContent.trim()==='0') td.classList.add('zero');
   });
 
-  /* CLICK EVENT TOTAL */
   tr.querySelectorAll('.total-cell').forEach(td=>{
     td.addEventListener('click',()=>{
       openTotalDetail(td.dataset.index);
     });
   });
 }
-
 
 /* =====================================================
    FILTER
@@ -227,7 +228,6 @@ function applyB2BDropdownFilter(){
   const witel = filterWitel.value || '';
   const hsa   = filterHsa.value || '';
 
-  /* SIMPAN FILTER AKTIF */
   B2B_ACTIVE_FILTER = { sto, witel, hsa };
 
   document.querySelectorAll('#monitoring-b2b-body tr')
@@ -243,20 +243,6 @@ function applyB2BDropdownFilter(){
     });
 
   renderB2BTotalRow();
-}
-
-
-/* =====================================================
-   SPINNER MODAL
-===================================================== */
-function renderModalSpinner(text = 'Memuat data...') {
-  return `
-    <div class="d-flex flex-column justify-content-center align-items-center"
-         style="min-height:260px;">
-      <div class="spinner-border text-info mb-3"
-           style="width:3.5rem;height:3.5rem;"></div>
-      <div class="text-muted fw-semibold">${text}</div>
-    </div>`;
 }
 
 /* =====================================================
@@ -400,9 +386,11 @@ function openGenericDetail(API_URL, tr, type, title) {
 }
 
 /* =====================================================
-   DETAIL TOTAL (ALL STO)
+   DETAIL TOTAL (ALL STO / FILTERED)
 ===================================================== */
 function openTotalDetail(colIndex){
+
+  const { sto, witel, hsa } = window.B2B_ACTIVE_FILTER || {};
 
   const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
@@ -411,47 +399,37 @@ function openTotalDetail(colIndex){
   const modalBody  = document.querySelector('#global-modal .modal-body');
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  modalTitle.textContent = 'Detail TOTAL Tiket HI (Gabungan Semua STO)';
+  modalTitle.textContent = 'Detail TOTAL Tiket HI';
   modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
-  /* ================= MAP KOLOM → PARAM ================= */
   const map = {
-    5:  { mode:'HSI' },
-    6:  { mode:'DATIN' },
-
-    7:  { mode:'HSI',   status_closed:'Y' },
-    8:  { mode:'DATIN', status_closed:'Y' },
-
-    9:  { mode:'HSI',   status_closed:'N' },
-    10: { mode:'DATIN', status_closed:'N' },
-
-    11: { mode:'HSI', ttr_type:'4JAM',  ttr_result:'Y' },
-    12: { mode:'HSI', ttr_type:'4JAM',  ttr_result:'N' },
-    13: { mode:'HSI', ttr_type:'24JAM', ttr_result:'Y' },
-    14: { mode:'HSI', ttr_type:'24JAM', ttr_result:'N' },
-
-    15: { mode:'HSI', ttr_type:'6JAM',  ttr_result:'Y' },
-    16: { mode:'HSI', ttr_type:'6JAM',  ttr_result:'N' },
-    17: { mode:'HSI', ttr_type:'36JAM', ttr_result:'Y' },
-    18: { mode:'HSI', ttr_type:'36JAM', ttr_result:'N' },
-
-    19: { mode:'HSI',   gaul:'Y' },
-    20: { mode:'DATIN', gaul:'Y' }
+    5:{mode:'HSI'},6:{mode:'DATIN'},
+    7:{mode:'HSI',status_closed:'Y'},8:{mode:'DATIN',status_closed:'Y'},
+    9:{mode:'HSI',status_closed:'N'},10:{mode:'DATIN',status_closed:'N'},
+    11:{mode:'HSI',ttr_type:'4JAM',ttr_result:'Y'},
+    12:{mode:'HSI',ttr_type:'4JAM',ttr_result:'N'},
+    13:{mode:'HSI',ttr_type:'24JAM',ttr_result:'Y'},
+    14:{mode:'HSI',ttr_type:'24JAM',ttr_result:'N'},
+    15:{mode:'DATIN',ttr_type:'6JAM',ttr_result:'Y'},
+    16:{mode:'DATIN',ttr_type:'6JAM',ttr_result:'N'},
+    17:{mode:'DATIN',ttr_type:'36JAM',ttr_result:'Y'},
+    18:{mode:'DATIN',ttr_type:'36JAM',ttr_result:'N'},
+    19:{mode:'HSI',gaul:'Y'},
+    20:{mode:'DATIN',gaul:'Y'}
   };
 
-  const p = map[colIndex] || {};
   const qs = new URLSearchParams({
-    type: 'total_hi_all_detail',
-    ...p
+    type:'total_hi_all_detail',
+    ...(map[colIndex]||{}),
+    sto,witel,hsa
   }).toString();
 
   fetch(API_URL + '?' + qs)
-    .then(res => res.json())
-    .then(resData => {
-
+    .then(res=>res.json())
+    .then(resData=>{
       const rows = resData.data || [];
-      if (!rows.length) {
+      if(!rows.length){
         modalBody.innerHTML =
           `<div class="text-center text-muted py-4">Tidak ada data</div>`;
         return;
@@ -459,24 +437,15 @@ function openTotalDetail(colIndex){
 
       let html = `
         <div class="table-responsive">
-        <table class="table table-dark table-striped table-sm align-middle">
-        <thead>
-          <tr>
-            <th>INCIDENT</th>
-            <th>SUMMARY</th>
-            <th>REPORTED DATE</th>
-            <th>SERVICE TYPE</th>
-            <th>WITEL</th>
-            <th>WORKZONE</th>
-            <th>STATUS</th>
-            <th>KATEGORI</th>
-            <th>FLAG</th>
-            <th>GAUL</th>
-          </tr>
-        </thead><tbody>`;
+        <table class="table table-dark table-striped table-sm">
+        <thead><tr>
+          <th>INCIDENT</th><th>SUMMARY</th><th>REPORTED DATE</th>
+          <th>SERVICE TYPE</th><th>WITEL</th><th>WORKZONE</th>
+          <th>STATUS</th><th>KATEGORI</th><th>FLAG</th><th>GAUL</th>
+        </tr></thead><tbody>`;
 
-      rows.forEach(r => {
-        html += `
+      rows.forEach(r=>{
+        html+=`
           <tr>
             <td>${r.INCIDENT}</td>
             <td>${r.SUMMARY}</td>
@@ -487,13 +456,14 @@ function openTotalDetail(colIndex){
             <td>${r.STATUS}</td>
             <td>${r.KATAGORI}</td>
             <td>${r['FLAG HSI']}</td>
-            <td>${r['FLAG HSI']==='Y' ? r['GAUL HSI'] : r['GAUL DATIN']}</td>
+            <td>${r['FLAG HSI']==='Y'?r['GAUL HSI']:r['GAUL DATIN']}</td>
           </tr>`;
       });
 
       modalBody.innerHTML = html + '</tbody></table></div>';
     });
 }
+
 
 /* =====================================================
   HIGHLIGHT
