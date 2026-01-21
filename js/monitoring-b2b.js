@@ -413,7 +413,7 @@ const params = {
 
 if (f.sto)   params.sto   = f.sto;
 if (f.witel) params.witel = f.witel;
-if (f.hsa)   params.hsa   = f.hsa;
+if (f.hsa) params.hsa = f.hsa.trim();
 
 
   const modal = new bootstrap.Modal(
