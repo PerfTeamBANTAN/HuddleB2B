@@ -131,14 +131,14 @@ function renderB2BTotalRow(){
     <td colspan="4" class="text-center">TOTAL</td>
     <td></td>
     ${total.slice(5).map((v,i)=>`
-      <td class="clickable total-cell" data-index="${i+5}">${v}</td>
+      <td class="clickable total-cell" data-metric="${i}">${v}</td>
     `).join('')}
   `;
 
   tbody.appendChild(tr);
 
   tr.querySelectorAll('.total-cell').forEach(td=>{
-    td.addEventListener('click',()=>openTotalDetail(td.dataset.index));
+    td.addEventListener('click',()=>openTotalDetail(td.dataset.metric));
   });
 }
 
@@ -321,7 +321,7 @@ function openGenericDetail(API_URL, tr, type, title) {
 
 /* ================= TOTAL DETAIL ================= */
 
-function openTotalDetail(colIndex){
+function openTotalDetail(metricIndex){
 
   const modal=new bootstrap.Modal(document.getElementById('global-modal'));
   const body=document.querySelector('#global-modal .modal-body');
@@ -332,37 +332,35 @@ function openTotalDetail(colIndex){
   modal.show();
 
   const map={
-    5:{mode:'HSI'},6:{mode:'DATIN'},
-    7:{mode:'HSI',status_closed:'Y'},
-    8:{mode:'DATIN',status_closed:'Y'},
-    9:{mode:'HSI',status_closed:'N'},
-    10:{mode:'DATIN',status_closed:'N'},
-    11:{mode:'HSI',ttr_type:'4JAM',ttr_result:'Y'},
-    12:{mode:'HSI',ttr_type:'4JAM',ttr_result:'N'},
-    13:{mode:'HSI',ttr_type:'24JAM',ttr_result:'Y'},
-    14:{mode:'HSI',ttr_type:'24JAM',ttr_result:'N'},
-    15:{mode:'HSI',ttr_type:'6JAM',ttr_result:'Y'},
-    16:{mode:'HSI',ttr_type:'6JAM',ttr_result:'N'},
-    17:{mode:'HSI',ttr_type:'36JAM',ttr_result:'Y'},
-    18:{mode:'HSI',ttr_type:'36JAM',ttr_result:'N'},
-    19:{mode:'HSI',gaul:'Y'},
-    20:{mode:'DATIN',gaul:'Y'}
+    0:{mode:'HSI'},
+    1:{mode:'DATIN'},
+    2:{mode:'HSI',status_closed:'Y'},
+    3:{mode:'DATIN',status_closed:'Y'},
+    4:{mode:'HSI',status_closed:'N'},
+    5:{mode:'DATIN',status_closed:'N'},
+    6:{mode:'HSI',ttr_type:'4JAM',ttr_result:'Y'},
+    7:{mode:'HSI',ttr_type:'4JAM',ttr_result:'N'},
+    8:{mode:'HSI',ttr_type:'24JAM',ttr_result:'Y'},
+    9:{mode:'HSI',ttr_type:'24JAM',ttr_result:'N'},
+    10:{mode:'HSI',ttr_type:'6JAM',ttr_result:'Y'},
+    11:{mode:'HSI',ttr_type:'6JAM',ttr_result:'N'},
+    12:{mode:'HSI',ttr_type:'36JAM',ttr_result:'Y'},
+    13:{mode:'HSI',ttr_type:'36JAM',ttr_result:'N'},
+    14:{mode:'HSI',gaul:'Y'},
+    15:{mode:'DATIN',gaul:'Y'}
   };
 
-  const { sto, witel, hsa } = B2B_ACTIVE_FILTER;
+  const params={
+    type:'total_hi_all_detail',
+    ...(map[metricIndex]||{})
+  };
 
-const params = {
-  type: 'total_hi_all_detail',
-  ...(map[colIndex] || {})
-};
+  const {sto,witel,hsa}=B2B_ACTIVE_FILTER;
+  if(sto) params.sto=sto;
+  if(witel) params.witel=witel;
+  if(hsa) params.hsa=hsa;
 
-if (sto)   params.sto   = sto;
-if (witel) params.witel = witel;
-if (hsa)   params.hsa   = hsa;
-
-const qs = new URLSearchParams(params).toString();
-
-  fetch(API_URL+'?'+qs)
+  fetch(API_URL+'?'+new URLSearchParams(params))
     .then(r=>r.json())
     .then(res=>{
       if(!res.data?.length){
@@ -392,3 +390,4 @@ function highlightBadCellsB2B(){
     if(v>2.3){ td.style.color='#ff4d4f'; td.style.fontWeight='800'; }
   });
 }
+
