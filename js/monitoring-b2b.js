@@ -246,6 +246,21 @@ function applyB2BDropdownFilter(){
 }
 
 /* =====================================================
+   LOADING SPINNER
+===================================================== */
+
+function renderModalSpinner(text = 'Memuat data...') {
+  return `
+    <div class="d-flex flex-column justify-content-center align-items-center"
+         style="min-height:260px;">
+      <div class="spinner-border text-info mb-3"
+           style="width:3.5rem;height:3.5rem;"></div>
+      <div class="text-muted fw-semibold">${text}</div>
+    </div>`;
+}
+
+
+/* =====================================================
    MODAL DETAIL HI
 ===================================================== */
 function openDetailHI(
