@@ -349,12 +349,18 @@ function openTotalDetail(colIndex){
     20:{mode:'DATIN',gaul:'Y'}
   };
 
-  const {sto,witel,hsa}=B2B_ACTIVE_FILTER;
-  const qs=new URLSearchParams({
-    type:'total_hi_all_detail',
-    ...(map[colIndex]||{}),
-    sto,witel,hsa
-  }).toString();
+  const { sto, witel, hsa } = B2B_ACTIVE_FILTER;
+
+const params = {
+  type: 'total_hi_all_detail',
+  ...(map[colIndex] || {})
+};
+
+if (sto)   params.sto   = sto;
+if (witel) params.witel = witel;
+if (hsa)   params.hsa   = hsa;
+
+const qs = new URLSearchParams(params).toString();
 
   fetch(API_URL+'?'+qs)
     .then(r=>r.json())
