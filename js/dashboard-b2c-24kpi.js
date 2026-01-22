@@ -118,16 +118,16 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   Object.entries(grouped).forEach(([kategori, items]) => {
 
     container.insertAdjacentHTML('beforeend', `
-      <div class="kpi-line">
-        <div class="kpi-line-title">${kategori}</div>
-        <div class="kpi-line-items"></div>
+      <div class="kpi-row-line">
+        <div class="kpi-row-title">${kategori}</div>
+        <div class="kpi-row-cards"></div>
       </div>
     `);
 
-    const row = container.lastElementChild.querySelector('.kpi-line-items');
+    const cards = container.lastElementChild.querySelector('.kpi-row-cards');
 
     items.forEach(kpi => {
-      row.insertAdjacentHTML('beforeend', `
+      cards.insertAdjacentHTML('beforeend', `
         <div class="kpi-card mini">
           <div class="kpi-title">${kpi.indikator}</div>
           <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
@@ -139,6 +139,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
   });
 }
+
 
 
   /* ===============================
