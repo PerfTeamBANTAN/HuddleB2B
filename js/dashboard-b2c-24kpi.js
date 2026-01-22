@@ -1,95 +1,127 @@
-function initDashboardB2C24KPI(API_URL) {
+/* =========================================================
+   DASHBOARD B2C – 24 KPI DISTRICT BANTEN
+   Compatible with index.html loader
+========================================================= */
 
-  const summaryEl = document.getElementById('b2cSummary');
-  const gridEl = document.getElementById('b2cKpiGrid');
-  const lastUpdateEl = document.getElementById('b2cLastUpdate');
+let B2C_API_URL = '';
 
-  summaryEl.innerHTML = skeletonSummary();
-  gridEl.innerHTML = skeletonGrid();
+/* ================= INIT ================= */
 
-  fetch(`${API_URL}?type=b2c_24kpi_banten`)
-    .then(res => res.json())
-    .then(json => {
-      renderSummary(json.summary);
-      renderGrid(json.data);
+function initDashboardB2C24KPI(apiUrl) {
+  B2C_API_URL = apiUrl;
+  fetchB2CData();
+}
 
-      lastUpdateEl.innerHTML =
-        `<i class="fa fa-clock"></i>
-         ${new Date(json.lastUpdate).toLocaleString()}`;
-    })
-    .catch(err => {
-      summaryEl.innerHTML =
-        `<div class="text-danger">Failed load KPI</div>`;
-      console.error(err);
-    });
+/* ================= FETCH ================= */
 
-  /* ================= SUMMARY ================= */
+async function fetchB2CData() {
+  const content = document.getElementById('content-area');
 
-  function renderSummary(s) {
-    summaryEl.innerHTML = `
-      ${sumCard('TOTAL KPI', s.totalKPI, 'primary')}
-      ${sumCard('AVG ACH', s.avgAch + '%', 'info')}
-      ${sumCard('GOOD', s.good, 'success')}
-      ${sumCard('WARNING', s.warning, 'warning')}
-      ${sumCard('BELOW', s.bad, 'danger')}
-    `;
+  try {
+    showLoading();
+
+    const res = await fetch(B2C_API_URL);
+    const json = await res.json();
+
+    console.log('B2C RESPONSE:', json);
+
+    if (!json || !json.data) {
+      throw new Error('Invalid B2C API response');
+    }
+
+    renderSummary(json.summary, json.lastUpdate);
+    renderKPIGrid(json.data);
+
+    hideLoading();
+
+  } catch (err) {
+    console.error(err);
+    showError('Failed load KPI B2C');
   }
+}
 
-  function sumCard(title, val, color) {
-    return `
-      <div class="col-6 col-md-2">
-        <div class="kpi-card text-center">
-          <div class="kpi-title">${title}</div>
-          <div class="kpi-value text-${color}">${val}</div>
+/* ================= LOADING ================= */
+
+function showLoading() {
+  const content = document.getElementById('content-area');
+  content.insertAdjacentHTML('beforeend', `
+    <div class="loading-overlay" id="loading-b2c">
+      <div class="spinner-border text-light"></div>
+      <div class="loading-text">Loading KPI B2C...</div>
+    </div>
+  `);
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading-b2c');
+  if (el) el.remove();
+}
+
+/* ================= SUMMARY ================= */
+
+function renderSummary(summary, lastUpdate) {
+  if (!summary) return;
+
+  setText('sum-total', summary.totalKPI);
+  setText('sum-good', summary.good);
+  setText('sum-warning', summary.warning);
+  setText('sum-bad', summary.bad);
+
+  if (lastUpdate) {
+    setText(
+      'last-update',
+      new Date(lastUpdate).toLocaleString('id-ID')
+    );
+  }
+}
+
+/* ================= KPI GRID ================= */
+
+function renderKPIGrid(rows) {
+  const wrap = document.getElementById('kpi-grid');
+  if (!wrap) return;
+
+  wrap.innerHTML = '';
+
+  rows.forEach(kpi => {
+    const status = kpi['Status Ach HI'];
+    const isGood = status === '✅';
+
+    wrap.insertAdjacentHTML('beforeend', `
+      <div class="kpi-card ${isGood ? 'kpi-good' : 'kpi-bad'}">
+        <div class="kpi-title">${kpi.Indikator}</div>
+
+        <div class="kpi-value">
+          ${formatNumber(kpi['Achievement HI'])}
+        </div>
+
+        <div class="kpi-trend ${isGood ? 'up' : 'down'}">
+          Target ${kpi.Target} ${status}
         </div>
       </div>
-    `;
-  }
+    `);
+  });
+}
 
-  /* ================= GRID ================= */
+/* ================= ERROR ================= */
 
-  function renderGrid(data) {
-    gridEl.innerHTML = '';
+function showError(msg) {
+  const content = document.getElementById('content-area');
+  content.innerHTML = `
+    <div class="text-danger text-center mt-5 fw-bold">
+      ${msg}
+    </div>
+  `;
+}
 
-    data.forEach(kpi => {
-      const pct = kpi.pct || 0;
-      const color =
-        pct >= 100 ? 'success' :
-        pct >= 90  ? 'warning' : 'danger';
+/* ================= UTIL ================= */
 
-      gridEl.innerHTML += `
-        <div class="col-6 col-md-3 col-xl-2">
-          <div class="kpi-card">
-            <div class="kpi-title">${kpi.KPI || kpi['KPI NAME']}</div>
-            <div class="kpi-value text-${color}">
-              ${pct}%
-            </div>
-            <div class="progress mt-2" style="height:6px">
-              <div class="progress-bar bg-${color}"
-                   style="width:${Math.min(pct,100)}%">
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-  }
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = val ?? '-';
+}
 
-  /* ================= SKELETON ================= */
-
-  function skeletonSummary() {
-    return Array(5).fill(`
-      <div class="col-6 col-md-2">
-        <div class="kpi-card skeleton" style="height:90px"></div>
-      </div>
-    `).join('');
-  }
-
-  function skeletonGrid() {
-    return Array(12).fill(`
-      <div class="col-6 col-md-3 col-xl-2">
-        <div class="kpi-card skeleton" style="height:110px"></div>
-      </div>
-    `).join('');
-  }
+function formatNumber(val) {
+  if (val === null || val === undefined) return '-';
+  return Number(val).toLocaleString('id-ID');
 }
