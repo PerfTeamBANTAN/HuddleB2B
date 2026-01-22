@@ -323,8 +323,11 @@ function renderBadKpiTable(data) {
   renderSummary(api);
   renderKpiGrid(api.data);
   applyKpiHighlightAndTooltip();
+
+  // === TABLE BAD KPI ===
   renderBadKpiTable(api.data);
 }
+
 
 
   async function init() {
