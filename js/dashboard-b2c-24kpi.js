@@ -1,192 +1,142 @@
 /* =========================================================
-   DASHBOARD B2C – KPI DISTRICT BANTEN
-   FINAL VERSION – PRODUCTION READY
-   Data Source: Google AppScript
-========================================================= */
+   B2C KPI DASHBOARD – FULL JS (FIXED & STABLE)
+   ========================================================= */
 
-let B2C_API_URL = '';
+/* ======================
+   UTILITIES
+====================== */
+const $ = (id) => document.getElementById(id);
 
-/* ================= INIT ================= */
-
-function initDashboardB2C(apiUrl) {
-  B2C_API_URL = apiUrl;
-  loadB2CData();
+function formatNumber(val) {
+  if (val === null || val === undefined || val === '#N/A') return '-';
+  return Number(val).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 }
 
-/* ================= FETCH DATA ================= */
+function calcStatus(target, achievement) {
+  if (
+    target === null ||
+    achievement === null ||
+    target === '#N/A' ||
+    achievement === '#N/A'
+  ) return 'NA';
+  return Number(achievement) >= Number(target) ? 'GOOD' : 'BAD';
+}
 
-async function loadB2CData() {
-  try {
-    showLoading();
-
-    const res = await fetch(B2C_API_URL);
-    const json = await res.json();
-
-    console.log('B2C KPI DATA:', json);
-
-    if (!json || !Array.isArray(json.data)) {
-      throw new Error('Invalid API structure');
-    }
-
-    renderLastUpdate(json.lastUpdate);
-    renderSummary(json.summary, json.data);
-    renderKpiGrid(json.data);
-
-    hideLoading();
-
-  } catch (err) {
-    console.error(err);
-    showError('Failed load KPI');
+function statusColor(status) {
+  switch (status) {
+    case 'GOOD': return '#2ecc71';
+    case 'BAD': return '#e74c3c';
+    default: return '#7f8c8d';
   }
 }
 
-/* ================= HEADER ================= */
-
-function renderLastUpdate(ts) {
-  const el = document.getElementById('b2cLastUpdate');
-  if (!el || !ts) return;
-
-  el.innerHTML = `
-    <i class="fa fa-clock me-1"></i>
-    Updated ${new Date(ts).toLocaleString('id-ID')}
-  `;
-}
-
-/* ================= SUMMARY ================= */
-
-function renderSummary(summary, data) {
-  const wrap = document.getElementById('b2cSummary');
-  if (!wrap) return;
-
+/* ======================
+   SUMMARY SECTION
+====================== */
+function renderSummary(data) {
   const total = data.length;
-  const good  = data.filter(d => d['Status Ach HI'] === '✅').length;
-  const bad   = data.filter(d => d['Status Ach HI'] === '❌').length;
-  const na    = data.filter(d => d['Status Ach HI'] === '#N/A').length;
+  const good = data.filter(d => d.status_hi === 'GOOD').length;
+  const bad  = data.filter(d => d.status_hi === 'BAD').length;
 
-  wrap.innerHTML = `
-    ${summaryCard('TOTAL KPI', total, 'primary')}
-    ${summaryCard('GOOD', good, 'success')}
-    ${summaryCard('BAD', bad, 'danger')}
-    ${summaryCard('NO DATA', na, 'secondary')}
-  `;
-}
-
-function summaryCard(label, value, cls) {
-  return `
-    <div class="col-md-3 col-6">
-      <div class="summary-tile ${cls}">
-        <div class="summary-label">${label}</div>
-        <div class="summary-value">${value}</div>
+  $('b2cSummary').innerHTML = `
+    <div class="col-md-4">
+      <div class="summary-card">
+        <div class="label">TOTAL KPI</div>
+        <div class="value">${total}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="summary-card good">
+        <div class="label">ACHIEVE</div>
+        <div class="value">${good}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="summary-card bad">
+        <div class="label">NOT ACHIEVE</div>
+        <div class="value">${bad}</div>
       </div>
     </div>
   `;
 }
 
-/* ================= KPI GRID ================= */
-
+/* ======================
+   KPI CARD
+====================== */
 function renderKpiGrid(data) {
-  const grid = document.getElementById('b2cKpiGrid');
-  if (!grid) return;
+  const container = $('b2cKpiGrid');
+  container.innerHTML = '';
 
-  grid.innerHTML = '';
+  data.forEach((kpi) => {
+    const color = statusColor(kpi.status_hi);
 
-  data.forEach(row => {
-    const indikator = row.Indikator || '-';
-    const witel     = row.Witel || '';
-    const target    = parseNum(row.Target);
-    const achHi     = parseNum(row['Achievement HI']);
-    const achPrev   = parseNum(row['Achievement Kemarin']);
-    const status    = row['Status Ach HI'];
-
-    const statusCls = getStatusClass(status);
-    const statusTxt = getStatusText(status);
-
-    let pct = null;
-    if (target !== null && achHi !== null && target !== 0) {
-      pct = Math.round((achHi / target) * 100);
-    }
-
-    grid.insertAdjacentHTML('beforeend', `
+    container.insertAdjacentHTML('beforeend', `
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-        <div class="kpi-tile ${statusCls}">
+        <div class="kpi-card">
+          <div class="kpi-title">${kpi.indikator}</div>
 
-          <div class="kpi-title" title="${indikator}">
-            ${indikator}
+          <div class="kpi-circle" style="border-color:${color}">
+            <span style="color:${color}">
+              ${formatNumber(kpi.achievement_hi)}
+            </span>
           </div>
 
-          <div class="kpi-witel">${witel}</div>
-
-          <div class="kpi-value">
-            ${pct !== null ? pct + '%' : 'N/A'}
+          <div class="kpi-meta">
+            <div>TGT ${formatNumber(kpi.target)}</div>
+            <div class="kpi-status" style="color:${color}">
+              ${kpi.status_hi}
+            </div>
           </div>
-
-          <div class="kpi-status">${statusTxt}</div>
-
-          <div class="kpi-info">
-            <div>ACH HI: <b>${fmt(achHi)}</b></div>
-            <div>TARGET: <b>${fmt(target)}</b></div>
-            <div>KEMARIN: ${fmt(achPrev)}</div>
-          </div>
-
         </div>
       </div>
     `);
   });
 }
 
-/* ================= UTIL ================= */
+/* ======================
+   DATA NORMALIZER
+====================== */
+function normalizeData(raw) {
+  return raw.map(row => {
+    const status = calcStatus(row.Target, row['Achievement HI']);
 
-function parseNum(val) {
-  if (val === null || val === undefined) return null;
-  if (val === '#N/A') return null;
-  if (typeof val === 'number') return val;
-  return Number(String(val).replace(',', '.'));
+    return {
+      indikator: row.Indikator,
+      witel: row.Witel,
+      target: row.Target,
+      achievement_hi: row['Achievement HI'],
+      achievement_yesterday: row['Achievement Kemarin'],
+      status_hi: status,
+      category: row['Katagori KPI']
+    };
+  });
 }
 
-function fmt(val) {
-  if (val === null || val === undefined) return '-';
-  return Number(val).toLocaleString('id-ID');
+/* ======================
+   MAIN INIT
+====================== */
+function initDashboardB2C(apiUrl) {
+  console.log('B2C KPI DATA FETCH...');
+
+  fetch(apiUrl)
+    .then(res => res.json())
+    .then(res => {
+      const data = normalizeData(res.data);
+
+      $('b2cLastUpdate').innerText =
+        `Updated ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
+
+      renderSummary(data);
+      renderKpiGrid(data);
+    })
+    .catch(err => {
+      console.error('B2C KPI ERROR:', err);
+    });
 }
 
-function getStatusClass(status) {
-  if (status === '✅') return 'good';
-  if (status === '❌') return 'bad';
-  return 'nodata';
-}
-
-function getStatusText(status) {
-  if (status === '✅') return 'GOOD';
-  if (status === '❌') return 'BAD';
-  return 'NO DATA';
-}
-
-/* ================= LOADING ================= */
-
-function showLoading() {
-  if (document.getElementById('b2cLoading')) return;
-
-  document.body.insertAdjacentHTML('beforeend', `
-    <div id="b2cLoading" class="loading-overlay">
-      <div class="spinner-border text-info"></div>
-      <div class="mt-2">Loading KPI...</div>
-    </div>
-  `);
-}
-
-function hideLoading() {
-  const el = document.getElementById('b2cLoading');
-  if (el) el.remove();
-}
-
-/* ================= ERROR ================= */
-
-function showError(msg) {
-  const grid = document.getElementById('b2cKpiGrid');
-  if (!grid) return;
-
-  grid.innerHTML = `
-    <div class="col-12 text-center text-danger fw-bold">
-      ${msg}
-    </div>
-  `;
+/* =========================================================
+   🔥 COMPATIBILITY FIX (INI YANG HILANG SEBELUMNYA)
+   ========================================================= */
+function initDashboardB2C4KPI(apiUrl) {
+  initDashboardB2C(apiUrl);
 }
