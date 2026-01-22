@@ -1262,6 +1262,40 @@ td.clickable:hover {
     0 8px 18px rgba(0,0,0,.75);
 }
 
+/* =====================================================
+   KPI INLINE PER KATEGORI
+===================================================== */
+
+.kpi-line {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+/* judul kategori di kiri */
+.kpi-line-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7dd3fc;
+  padding-top: 6px;
+  line-height: 1.2;
+}
+
+/* KPI mengalir ke kanan */
+.kpi-line-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* mini card */
+.kpi-card.mini {
+  width: 150px;
+  min-height: 82px;
+  padding: 8px 10px;
+}
+
 </style>
 
 </head>
