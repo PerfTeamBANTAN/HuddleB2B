@@ -149,14 +149,66 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   });
 }
 
+/* ===============================
+   AUTO KPI CHECK + TOOLTIP
+=============================== */
+function applyKpiHighlightAndTooltip() {
+
+  document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
+
+    const rows = card.querySelectorAll('.kpi-row');
+    if (rows.length < 2) return;
+
+    const target = parseFloat(
+      rows[0].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.')
+    );
+    const tgr = parseFloat(
+      rows[1].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.')
+    );
+    const btn = rows[2]
+      ? parseFloat(rows[2].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.'))
+      : null;
+
+    if (isNaN(target) || isNaN(tgr)) return;
+
+    /* === BELOW TARGET === */
+    if (tgr < target) {
+      card.classList.add('bad');   // reuse existing style (AMAN)
+    } else {
+      card.classList.add('good');
+    }
+
+    /* === TOOLTIP === */
+    const tooltip = document.createElement('div');
+    tooltip.className = 'kpi-tooltip';
+
+    tooltip.innerHTML = `
+      <strong>${card.querySelector('.kpi-title')?.innerText}</strong><br>
+      Target : ${fmt(target)}<br>
+      Tangerang : ${fmt(tgr)}<br>
+      ${btn !== null ? `Banten : ${fmt(btn)}<br>` : ''}
+      Status : ${tgr >= target ? 'ACH' : 'BELOW TARGET'}
+    `;
+
+    card.style.position = 'relative';
+    card.appendChild(tooltip);
+  });
+}
+ 
+   
   /* ===============================
      MAIN
   =============================== */
   function render(api) {
-    if (!api || !Array.isArray(api.data)) return;
-    renderSummary(api);
-    renderKpiGrid(api.data);
-  }
+  if (!api || !Array.isArray(api.data)) return;
+
+  renderSummary(api);
+  renderKpiGrid(api.data);
+
+  // === PENTING: setelah KPI selesai dibuat ===
+  applyKpiHighlightAndTooltip();
+}
+
 
   async function init() {
     showSkeleton();
