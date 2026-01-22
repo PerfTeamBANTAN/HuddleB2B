@@ -1,5 +1,7 @@
 /* =====================================================
-   B2C DASHBOARD RENDER SCRIPT
+   B2C DASHBOARD RENDER SCRIPT (STABLE VERSION)
+   ❗ Tidak butuh API_URL_B2C
+   ❗ Compatible dengan loader lama
 ===================================================== */
 
 /* ===============================
@@ -7,9 +9,7 @@
 =============================== */
 const fmt = (v) => {
   if (v === null || v === undefined || isNaN(v)) return '-';
-  return Number(v).toLocaleString('id-ID', {
-    maximumFractionDigits: 2
-  });
+  return Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 };
 
 const isGood = (val, target) =>
@@ -22,7 +22,7 @@ const isGood = (val, target) =>
 =============================== */
 function groupByKategori(data) {
   return data.reduce((acc, item) => {
-    acc[item.kategori] ??= [];
+    if (!acc[item.kategori]) acc[item.kategori] = [];
     acc[item.kategori].push(item);
     return acc;
   }, {});
@@ -34,12 +34,12 @@ function groupByKategori(data) {
 function renderSummary(api) {
   const { summary, data, lastUpdate } = api;
 
-  document.getElementById('b2cLastUpdate').innerText =
-    `Last Update : ${lastUpdate}`;
+  const lastEl = document.getElementById('b2cLastUpdate');
+  if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
 
   const tangerangGood = data.filter(d => isGood(d.tangerang, d.target)).length;
   const bantenGood = data.filter(d => isGood(d.banten, d.target)).length;
-  const total = summary.totalKPI;
+  const total = summary.totalKPI || data.length;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
@@ -62,7 +62,9 @@ function renderSummary(api) {
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
         <div class="summary-value">${total}</div>
-        <div class="summary-sub">GOOD ${summary.good} | BAD ${summary.bad}</div>
+        <div class="summary-sub">
+          GOOD ${summary.good} | BAD ${summary.bad}
+        </div>
       </div>
     </div>
   `;
@@ -93,11 +95,18 @@ function renderKpiGrid(data) {
           <div class="kpi-card">
             <div class="kpi-title">${kpi.indikator}</div>
 
-            <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
-            <div class="kpi-row"><span>Tangerang</span>
+            <div class="kpi-row">
+              <span>Target</span>
+              <span>${fmt(kpi.target)}</span>
+            </div>
+
+            <div class="kpi-row">
+              <span>Tangerang</span>
               <span class="${tgGood ? 'good' : 'bad'}">${fmt(kpi.tangerang)}</span>
             </div>
-            <div class="kpi-row"><span>Banten</span>
+
+            <div class="kpi-row">
+              <span>Banten</span>
               <span class="${bnGood ? 'good' : 'bad'}">${fmt(kpi.banten)}</span>
             </div>
           </div>
@@ -111,8 +120,8 @@ function renderKpiGrid(data) {
    MAIN RENDER
 =============================== */
 function renderB2CDashboard(apiResponse) {
-  if (!apiResponse?.data) {
-    console.error('Invalid API Response', apiResponse);
+  if (!apiResponse || !Array.isArray(apiResponse.data)) {
+    console.error('Invalid B2C API Response', apiResponse);
     return;
   }
 
@@ -121,13 +130,18 @@ function renderB2CDashboard(apiResponse) {
 }
 
 /* =====================================================
-   🔥 INIT FUNCTION (WAJIB ADA)
-   Dipanggil oleh loader HTML kamu
+   🔥 INIT FUNCTION (HARUS ADA & SESUAI LOADER)
 ===================================================== */
 window.initDashboardB2C24KPI = async function () {
   try {
-    const res = await fetch(API_URL_B2C); // ganti sesuai endpoint kamu
+    if (typeof B2B_API_URL === 'undefined') {
+      throw new Error('B2B_API_URL tidak tersedia');
+    }
+
+    const url = `${B2B_API_URL}?type=b2c_24kpi_banten`;
+    const res = await fetch(url);
     const json = await res.json();
+
     renderB2CDashboard(json);
   } catch (err) {
     console.error('B2C Dashboard Error:', err);
