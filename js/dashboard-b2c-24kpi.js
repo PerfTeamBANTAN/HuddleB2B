@@ -59,41 +59,34 @@ function groupByKategori(data) {
    RENDER SUMMARY (ADVANCED)
 =============================== */
 function renderSummary(api) {
-  const { summary, data, lastUpdate } = api;
+  const { summary, lastUpdate } = api;
 
-  document.getElementById('b2cLastUpdate').innerText =
-    `Last Update : ${lastUpdate}`;
+  const lastEl = document.getElementById('b2cLastUpdate');
+  if (lastEl) {
+    lastEl.innerText = `Last Update : ${lastUpdate}`;
+  }
 
-  const tangerangGood = data.filter(d =>
-    isGood(d.tangerang, d.target)
-  ).length;
-
-  const bantenGood = data.filter(d =>
-    isGood(d.banten, d.target)
-  ).length;
-
-  const total = summary.totalKPI;
-
-  const tangerangPct = (tangerangGood / total) * 100;
-  const bantenPct = (bantenGood / total) * 100;
+  // 🔥 TOTAL ACH DIAMBIL DARI SUMMARY (BUKAN DATA[])
+  const tangerangAch = summary.totalAch?.tangerang ?? null;
+  const bantenAch    = summary.totalAch?.banten ?? null;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
-      <div class="summary-card ${getSummaryClass(tangerangPct)}">
+      <div class="summary-card">
         <h6>TANGERANG</h6>
-        <div class="summary-value">${fmt(tangerangPct)}%</div>
+        <div class="summary-value">${fmt(tangerangAch)}%</div>
         <div class="summary-sub">
-          ✅ ${tangerangGood} ❌ ${total - tangerangGood}
+          ✅ ${summary.good} ❌ ${summary.bad}
         </div>
       </div>
     </div>
 
     <div class="col-md-4">
-      <div class="summary-card ${getSummaryClass(bantenPct)}">
+      <div class="summary-card">
         <h6>BANTEN</h6>
-        <div class="summary-value">${fmt(bantenPct)}%</div>
+        <div class="summary-value">${fmt(bantenAch)}%</div>
         <div class="summary-sub">
-          ✅ ${bantenGood} ❌ ${total - bantenGood}
+          ✅ ${summary.good} ❌ ${summary.bad}
         </div>
       </div>
     </div>
@@ -101,7 +94,7 @@ function renderSummary(api) {
     <div class="col-md-4">
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
-        <div class="summary-value">${total}</div>
+        <div class="summary-value">${summary.totalKPI}</div>
         <div class="summary-sub">
           GOOD ${summary.good} | BAD ${summary.bad}
         </div>
