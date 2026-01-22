@@ -4,19 +4,20 @@
 ===================================================== */
 
 /* ===============================
-   HELPERS
+   HELPERS (SAFE GUARD)
 =============================== */
-const fmt = (v) => {
+window.fmt = window.fmt || function (v) {
   if (v === null || v === undefined || isNaN(v)) return '-';
   return Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 };
 
-const isGood = (val, target) =>
-  typeof val === 'number' &&
-  typeof target === 'number' &&
-  val >= target;
+window.isGood = window.isGood || function (val, target) {
+  return typeof val === 'number' &&
+         typeof target === 'number' &&
+         val >= target;
+};
 
-const getTrend = (today, yesterday) => {
+window.getTrend = window.getTrend || function (today, yesterday) {
   if (typeof today !== 'number' || typeof yesterday !== 'number') return '';
   if (today > yesterday) return '▲';
   if (today < yesterday) return '▼';
@@ -24,9 +25,9 @@ const getTrend = (today, yesterday) => {
 };
 
 /* ===============================
-   MINI KPI PROGRESS (NEXT LEVEL)
+   MINI KPI PROGRESS
 =============================== */
-const miniProgress = (val, target) => {
+window.miniProgress = window.miniProgress || function (val, target) {
   if (typeof val !== 'number' || typeof target !== 'number' || target === 0) {
     return { raw: 0, pct: 0, color: '#ff6b6b', glow: '' };
   }
@@ -54,13 +55,21 @@ const miniProgress = (val, target) => {
    SKELETON LOADER
 =============================== */
 function showSkeleton() {
-  document.getElementById('b2cSummary').innerHTML = `
-    <div class="col-md-4 skeleton-card"></div>
-    <div class="col-md-4 skeleton-card"></div>
-    <div class="col-md-4 skeleton-card"></div>
-  `;
-  document.getElementById('b2cKpiGrid').innerHTML =
-    '<div class="col-md-3 skeleton-kpi"></div>'.repeat(8);
+  const summary = document.getElementById('b2cSummary');
+  const grid    = document.getElementById('b2cKpiGrid');
+
+  if (summary) {
+    summary.innerHTML = `
+      <div class="col-md-4 skeleton-card"></div>
+      <div class="col-md-4 skeleton-card"></div>
+      <div class="col-md-4 skeleton-card"></div>
+    `;
+  }
+
+  if (grid) {
+    grid.innerHTML =
+      '<div class="col-md-3 skeleton-kpi"></div>'.repeat(8);
+  }
 }
 
 /* ===============================
@@ -114,7 +123,7 @@ function renderSummary(api) {
 }
 
 /* ===============================
-   RENDER KPI GRID (NEXT LEVEL)
+   RENDER KPI GRID
 =============================== */
 function renderKpiGrid(data) {
   const container = document.getElementById('b2cKpiGrid');
@@ -148,7 +157,6 @@ function renderKpiGrid(data) {
               <span>${fmt(kpi.target)}</span>
             </div>
 
-            <!-- STACKED COMPARISON -->
             <div style="margin:6px 0;height:5px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;">
               <div style="height:100%;width:${(tg.pct/totalStack)*100}%;background:${tg.color};float:left"></div>
               <div style="height:100%;width:${(bn.pct/totalStack)*100}%;background:${bn.color};float:left"></div>
@@ -156,39 +164,17 @@ function renderKpiGrid(data) {
 
             <div class="kpi-row">
               <span>Tangerang</span>
-              <span class="${tgGood ? 'good' : 'bad'}"
-                    title="${tg.raw.toFixed(1)}%">
+              <span class="${tgGood ? 'good' : 'bad'}">
                 ${fmt(kpi.tangerang)}
                 <small>${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</small>
-
-                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
-                  <div style="
-                    height:100%;
-                    width:${tg.pct}%;
-                    background:${tg.color};
-                    box-shadow:${tg.glow};
-                    transition:width .4s ease;">
-                  </div>
-                </div>
               </span>
             </div>
 
             <div class="kpi-row">
               <span>Banten</span>
-              <span class="${bnGood ? 'good' : 'bad'}"
-                    title="${bn.raw.toFixed(1)}%">
+              <span class="${bnGood ? 'good' : 'bad'}">
                 ${fmt(kpi.banten)}
                 <small>${getTrend(kpi.banten, kpi.banten_yesterday)}</small>
-
-                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
-                  <div style="
-                    height:100%;
-                    width:${bn.pct}%;
-                    background:${bn.color};
-                    box-shadow:${bn.glow};
-                    transition:width .4s ease;">
-                  </div>
-                </div>
               </span>
             </div>
           </div>
