@@ -1,198 +1,177 @@
-/* =========================================================
-   DASHBOARD B2C 24 KPI – DISTRICT BANTEN
-   STRUCTURE FIRST – NO STYLE – NO CHART
-========================================================= */
+/* =====================================================
+   B2C DASHBOARD RENDER SCRIPT
+   Compatible with API:
+   {
+     lastUpdate,
+     summary,
+     data:[{ kategori, indikator, target, banten, tangerang }]
+   }
+===================================================== */
 
-/* ===================== INIT ===================== */
-function initDashboardB2C24KPI(API_URL) {
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(raw => {
-      const data = mapApiToB2C(raw);
-      renderWitelSummary(data);
-      renderKpiGrid(data);
-      renderCategorySummary(data);
-      renderLastUpdate();
-    })
-    .catch(err => {
-      console.error("B2C Dashboard Error:", err);
-    });
-}
-
-/* ===================== MAPPER ===================== */
-/*
-  WAJIB menghasilkan format:
-  {
-    kategori,
-    indikator,
-    target,
-    banten,
-    tangerang
-  }
-*/
-function mapApiToB2C(raw) {
-  // asumsi API dari Google Sheet
-  // raw.data = array row
-
-  return raw.data.map(r => ({
-    kategori   : r.KATEGORI,
-    indikator  : r.INDIKATOR,
-    target     : parseFloat(r.TARGET),
-    banten     : parseFloat(r.BANTEN),
-    tangerang  : parseFloat(r.TANGERANG)
-  }));
-}
-
-/* ===================== LEFT : WITEL SUMMARY ===================== */
-function renderWitelSummary(data) {
-  const el = document.getElementById("b2cWitelSummary");
-  el.innerHTML = "";
-
-  const witel = {
-    TANGERANG: { ok: 0, bad: 0, total: 0 },
-    BANTEN: { ok: 0, bad: 0, total: 0 }
-  };
-
-  data.forEach(d => {
-    witel.TANGERANG.total++;
-    witel.BANTEN.total++;
-
-    d.tangerang >= d.target
-      ? witel.TANGERANG.ok++
-      : witel.TANGERANG.bad++;
-
-    d.banten >= d.target
-      ? witel.BANTEN.ok++
-      : witel.BANTEN.bad++;
+/* ===============================
+   HELPERS
+=============================== */
+const fmt = (v) => {
+  if (v === null || v === undefined || isNaN(v)) return '-';
+  return Number(v).toLocaleString('id-ID', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
   });
+};
 
-  const achTgr = (
-    data.reduce((s,d)=>s+d.tangerang,0) / data.length
-  ).toFixed(2);
+const isGood = (val, target) =>
+  typeof val === 'number' &&
+  typeof target === 'number' &&
+  val >= target;
 
-  const achBtn = (
-    data.reduce((s,d)=>s+d.banten,0) / data.length
-  ).toFixed(2);
-
-  el.insertAdjacentHTML("beforeend", createWitelBox(
-    "TANGERANG", achTgr,
-    witel.TANGERANG.ok, witel.TANGERANG.bad
-  ));
-
-  el.insertAdjacentHTML("beforeend", createWitelBox(
-    "BANTEN", achBtn,
-    witel.BANTEN.ok, witel.BANTEN.bad
-  ));
+/* ===============================
+   GROUP BY KATEGORI
+=============================== */
+function groupByKategori(data) {
+  return data.reduce((acc, item) => {
+    if (!acc[item.kategori]) acc[item.kategori] = [];
+    acc[item.kategori].push(item);
+    return acc;
+  }, {});
 }
 
-function createWitelBox(title, ach, ok, bad) {
-  return `
-    <div class="witel-summary">
-      <h3>${title}</h3>
-      <div class="ach">${ach}</div>
-      <div class="status">
-        <span>✔ ${ok}</span>
-        <span>✖ ${bad}</span>
+/* ===============================
+   RENDER SUMMARY
+=============================== */
+function renderSummary(api) {
+  const { summary, data, lastUpdate } = api;
+
+  document.getElementById('b2cLastUpdate').innerText =
+    `Last Update : ${lastUpdate}`;
+
+  const tangerangGood = data.filter(d =>
+    isGood(d.tangerang, d.target)
+  ).length;
+
+  const bantenGood = data.filter(d =>
+    isGood(d.banten, d.target)
+  ).length;
+
+  const total = summary.totalKPI;
+
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>TANGERANG</h6>
+        <div class="summary-value">
+          ${fmt((tangerangGood / total) * 100)}%
+        </div>
+        <div class="summary-sub">
+          ✅ ${tangerangGood} &nbsp; ❌ ${total - tangerangGood}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>BANTEN</h6>
+        <div class="summary-value">
+          ${fmt((bantenGood / total) * 100)}%
+        </div>
+        <div class="summary-sub">
+          ✅ ${bantenGood} &nbsp; ❌ ${total - bantenGood}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>TOTAL KPI</h6>
+        <div class="summary-value">${total}</div>
+        <div class="summary-sub">
+          GOOD ${summary.good} | BAD ${summary.bad}
+        </div>
       </div>
     </div>
   `;
 }
 
-/* ===================== CENTER : KPI GRID ===================== */
+/* ===============================
+   RENDER KPI GRID
+=============================== */
 function renderKpiGrid(data) {
-  const el = document.getElementById("b2cKpiGrid");
-  el.innerHTML = "";
+  const container = document.getElementById('b2cKpiGrid');
+  container.innerHTML = '';
 
-  const grouped = {};
+  const grouped = groupByKategori(data);
 
-  data.forEach(d => {
-    if (!grouped[d.kategori]) grouped[d.kategori] = [];
-    grouped[d.kategori].push(d);
-  });
+  Object.keys(grouped).forEach(kategori => {
 
-  Object.entries(grouped).forEach(([kategori, list]) => {
-    const col = document.createElement("div");
-    col.className = "category-column";
-
-    col.innerHTML = `
-      <div class="category-header">
-        indikator sesuai kategori
+    /* ===== KATEGORI HEADER ===== */
+    container.insertAdjacentHTML(
+      'beforeend',
+      `
+      <div class="col-12">
+        <div class="kategori-title">
+          ${kategori}
+        </div>
       </div>
-    `;
+      `
+    );
 
-    list.forEach(kpi => {
-      col.insertAdjacentHTML("beforeend", createKpiCard(kpi));
+    /* ===== KPI CARDS ===== */
+    grouped[kategori].forEach(kpi => {
+      const tgGood = isGood(kpi.tangerang, kpi.target);
+      const bnGood = isGood(kpi.banten, kpi.target);
+
+      container.insertAdjacentHTML(
+        'beforeend',
+        `
+        <div class="col-md-4 col-lg-3">
+          <div class="kpi-card">
+            <div class="kpi-title">
+              ${kpi.indikator}
+            </div>
+
+            <div class="kpi-row">
+              <span>Target</span>
+              <span>${fmt(kpi.target)}</span>
+            </div>
+
+            <div class="kpi-row">
+              <span>Tangerang</span>
+              <span class="${tgGood ? 'good' : 'bad'}">
+                ${fmt(kpi.tangerang)}
+              </span>
+            </div>
+
+            <div class="kpi-row">
+              <span>Banten</span>
+              <span class="${bnGood ? 'good' : 'bad'}">
+                ${fmt(kpi.banten)}
+              </span>
+            </div>
+          </div>
+        </div>
+        `
+      );
     });
-
-    el.appendChild(col);
   });
 }
 
-function createKpiCard(kpi) {
-  return `
-    <div class="kpi-card">
-      <div class="kpi-title">${kpi.indikator}</div>
-      <div class="kpi-row">Target : ${kpi.target}</div>
-      <div class="kpi-row">
-        Banten : ${kpi.banten}
-        ${kpi.banten >= kpi.target ? "✔" : "✖"}
-      </div>
-      <div class="kpi-row">
-        Tangerang : ${kpi.tangerang}
-        ${kpi.tangerang >= kpi.target ? "✔" : "✖"}
-      </div>
-    </div>
-  `;
+/* ===============================
+   MAIN RENDER
+=============================== */
+function renderB2CDashboard(apiResponse) {
+  if (!apiResponse || !apiResponse.data) {
+    console.error('Invalid API Response', apiResponse);
+    return;
+  }
+
+  renderSummary(apiResponse);
+  renderKpiGrid(apiResponse.data);
 }
 
-/* ===================== RIGHT : CATEGORY SUMMARY ===================== */
-function renderCategorySummary(data) {
-  const el = document.getElementById("b2cCategorySummary");
-  el.innerHTML = "";
-
-  const categories = [...new Set(data.map(d => d.kategori))];
-
-  categories.forEach(cat => {
-    el.insertAdjacentHTML("beforeend", `
-      <div class="category-box">
-        ${cat}
-      </div>
-    `);
-  });
-}
-
-/* ===================== LAST UPDATE ===================== */
-function renderLastUpdate() {
-  document.getElementById("b2cLastUpdate").innerText =
-    new Date().toLocaleString("id-ID");
-}
-
-/* ===================== DEBUG MODE ===================== */
-/* UNCOMMENT UNTUK TEST TANPA API */
-/*
-initDashboardB2C24KPI({
-  data: [
-    {
-      KATEGORI:"B2C Quality of Service Assurance",
-      INDIKATOR:"Assurance guarantee All",
-      TARGET:91.71,
-      BANTEN:97.28,
-      TANGERANG:94.44
-    },
-    {
-      KATEGORI:"B2C CX CUSTOMER (Management)",
-      INDIKATOR:"Service Availability (All Teknis)",
-      TARGET:98.52,
-      BANTEN:99.1,
-      TANGERANG:98.98
-    },
-    {
-      KATEGORI:"B2C CX CUSTOMER (Management)",
-      INDIKATOR:"Q Gangguan (All Teknis)",
-      TARGET:2.7,
-      BANTEN:2.3,
-      TANGERANG:2.12
-    }
-  ]
-});
-*/
+/* ===============================
+   FETCH & INIT
+=============================== */
+// contoh
+// fetch(API_URL)
+//   .then(res => res.json())
+//   .then(renderB2CDashboard)
+//   .catch(console.error);
