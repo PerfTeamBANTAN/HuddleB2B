@@ -1214,6 +1214,10 @@ td.clickable:hover {
   display: flex;
   gap: 16px;
 }
+  
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row {
+  align-items: stretch;
+}
 
 /* judul kiri */
 
@@ -1224,6 +1228,10 @@ td.clickable:hover {
   flex-wrap: nowrap;
   overflow-x: auto;
 }
+  
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-cards {
+  align-items: stretch;
+}
 
 /* mini card tetap */
 #b2cKpiGrid .b2c-kpi-wrapper .kpi-card.mini {
@@ -1232,9 +1240,23 @@ td.clickable:hover {
   flex-shrink: 0;
 }
 
-/* ===============================
-   CATEGORY CARD (LEFT SIDE)
-================================ */
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 260px;
+  min-height: 110px;
+
+  text-align: center;
+  padding: 14px;
+  border-radius: 14px;
+}
+  
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-card.mini {
+  min-height: 110px;
+}
+
 
 /* ===============================
    CATEGORY TITLE TEXT
