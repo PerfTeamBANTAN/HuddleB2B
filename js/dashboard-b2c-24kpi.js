@@ -110,31 +110,36 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      RENDER KPI GRID
   =============================== */
   function renderKpiGrid(data) {
-    const container = document.getElementById('b2cKpiGrid');
-    container.innerHTML = '';
+  const container = document.getElementById('b2cKpiGrid');
+  container.innerHTML = '';
 
-    Object.entries(groupByKategori(data)).forEach(([kategori, items]) => {
-      container.insertAdjacentHTML('beforeend',
-        `<div class="col-12"><div class="kategori-title">${kategori}</div></div>`
-      );
+  const grouped = groupByKategori(data);
 
-      items.forEach(kpi => {
-        const tg = miniProgress(kpi.tangerang, kpi.target);
-        const bn = miniProgress(kpi.banten, kpi.target);
+  Object.entries(grouped).forEach(([kategori, items]) => {
 
-        container.insertAdjacentHTML('beforeend', `
-          <div class="kpi-mini-col">
-            <div class="kpi-card mini">
-              <div class="kpi-title">${kpi.indikator}</div>
-              <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
-              <div class="kpi-row"><span>Tangerang</span><span>${fmt(kpi.tangerang)}</span></div>
-              <div class="kpi-row"><span>Banten</span><span>${fmt(kpi.banten)}</span></div>
-            </div>
-          </div>
-        `);
-      });
+    container.insertAdjacentHTML('beforeend', `
+      <div class="kpi-line">
+        <div class="kpi-line-title">${kategori}</div>
+        <div class="kpi-line-items"></div>
+      </div>
+    `);
+
+    const row = container.lastElementChild.querySelector('.kpi-line-items');
+
+    items.forEach(kpi => {
+      row.insertAdjacentHTML('beforeend', `
+        <div class="kpi-card mini">
+          <div class="kpi-title">${kpi.indikator}</div>
+          <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
+          <div class="kpi-row"><span>Tgr</span><span>${fmt(kpi.tangerang)}</span></div>
+          <div class="kpi-row"><span>Bnt</span><span>${fmt(kpi.banten)}</span></div>
+        </div>
+      `);
     });
-  }
+
+  });
+}
+
 
   /* ===============================
      MAIN
