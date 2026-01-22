@@ -117,31 +117,25 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
   Object.entries(grouped).forEach(([kategori, items]) => {
 
-    // 1 ROW = 1 KATEGORI
     const row = document.createElement('div');
     row.className = 'kpi-category-row';
 
-    // TITLE
     const title = document.createElement('div');
     title.className = 'kpi-category-title';
     title.innerText = kategori;
 
-    // CARD CONTAINER (HORIZONTAL)
     const cards = document.createElement('div');
     cards.className = 'kpi-category-cards';
 
-    // KPI CARDS
     items.forEach(kpi => {
       const card = document.createElement('div');
       card.className = 'kpi-card mini';
-
       card.innerHTML = `
         <div class="kpi-title">${kpi.indikator}</div>
         <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
         <div class="kpi-row"><span>Tgr</span><span>${fmt(kpi.tangerang)}</span></div>
         <div class="kpi-row"><span>Bnt</span><span>${fmt(kpi.banten)}</span></div>
       `;
-
       cards.appendChild(card);
     });
 
@@ -150,6 +144,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     container.appendChild(row);
   });
 }
+
 
 
 
