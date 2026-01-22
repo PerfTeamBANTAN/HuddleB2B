@@ -254,8 +254,20 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   applyKpiHighlightAndTooltip();
   renderBadKpiTable(api.data);
 
-  hideSkeleton(); // <<<<<< INI KUNCI
+  // 🔥 MATIKAN LOADING
+  const loading = document.getElementById('b2cKpiLoading');
+  if (loading) loading.classList.add('d-none');
+
+  // 🔥 TAMPILKAN KPI GRID
+  const grid = document.getElementById('b2cKpiGrid');
+  if (grid) {
+    grid.classList.remove('d-none');
+    grid.style.display = 'block';
+  }
+
+  hideSkeleton();
 }
+
 
 
   async function init() {
