@@ -1240,6 +1240,85 @@ td.clickable:hover {
   flex-shrink: 0;
 }
 
+/* ===============================
+   CATEGORY CARD (LEFT SIDE)
+================================ */
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-title {
+  width: 260px;
+  flex-shrink: 0;
+
+  padding: 14px 16px;
+  border-radius: 14px;
+
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.3;
+
+  color: #e5f9ff;
+  background: linear-gradient(145deg, #0ea5e9, #0369a1);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 6px 16px rgba(0,0,0,.6);
+
+  display: flex;
+  align-items: center;
+}
+
+/* Variasi warna per baris */
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row:nth-of-type(1) .kpi-category-title {
+  background: linear-gradient(145deg, #0ea5e9, #0369a1);
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row:nth-of-type(2) .kpi-category-title {
+  background: linear-gradient(145deg, #22c55e, #166534);
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row:nth-of-type(3) .kpi-category-title {
+  background: linear-gradient(145deg, #f97316, #9a3412);
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row:nth-of-type(4) .kpi-category-title {
+  background: linear-gradient(145deg, #a855f7, #6b21a8);
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row:nth-of-type(5) .kpi-category-title {
+  background: linear-gradient(145deg, #14b8a6, #065f46);
+}
+
+/* ===============================
+   ROW SEPARATOR
+================================ */
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row {
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0,255,255,.35),
+    transparent
+  );
+}
+
+#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-cards {
+  padding-left: 16px;
+  border-left: 1px solid rgba(0,255,255,.15);
+}
+
+
 </style>
 
 </head>
