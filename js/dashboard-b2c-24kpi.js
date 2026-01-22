@@ -1,91 +1,124 @@
-/* =====================================================
-   DASHBOARD B2C 24 KPI – SAFE VERSION
-===================================================== */
+function initDashboardB2C24KPI(API_URL) {
 
-window.initDashboardB2C24KPI = function (result) {
+  const grid = document.getElementById('b2cKpiGrid');
+  const summary = document.getElementById('b2cSummary');
+  const lastUpdate = document.getElementById('b2cLastUpdate');
 
-  if (!result || !result.data) {
-    console.error('B2C KPI: data kosong');
-    return;
-  }
-
-  const bgCard = 'linear-gradient(145deg, #0b2a3f, #081c2c)';
-  const borderGood = '#00e5ff';
-  const borderBad = '#ff5252';
-
-  /* LAST UPDATE */
-  const lastUpdateEl = document.getElementById('b2cLastUpdate');
-  if (lastUpdateEl) {
-    lastUpdateEl.innerHTML =
-      'Updated ' + new Date(result.lastUpdate).toLocaleString('id-ID');
-  }
-
-  /* SUMMARY */
-  const summaryEl = document.getElementById('b2cSummary');
-  summaryEl.innerHTML = `
-    <div class="col-md-4">
-      <div class="p-3 rounded" style="background:${bgCard}">
-        <div class="text-secondary small">TOTAL KPI</div>
-        <div class="fs-3 fw-bold text-info">${result.summary.totalKPI}</div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="p-3 rounded" style="background:${bgCard}">
-        <div class="text-secondary small">ACHIEVE</div>
-        <div class="fs-3 fw-bold text-success">${result.summary.good}</div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="p-3 rounded" style="background:${bgCard}">
-        <div class="text-secondary small">NOT ACHIEVE</div>
-        <div class="fs-3 fw-bold text-danger">${result.summary.bad}</div>
-      </div>
+  // loading overlay
+  grid.innerHTML = `
+    <div class="loading-overlay">
+      <div class="spinner-border text-info"></div>
+      <div class="loading-text">Loading KPI B2C...</div>
     </div>
   `;
 
-  /* GROUP BY WITEL */
-  const group = {};
-  result.data.forEach(d => {
-    if (!group[d.witel]) group[d.witel] = [];
-    group[d.witel].push(d);
-  });
+  fetch(API_URL + '?type=b2c_24kpi_banten')
+    .then(res => res.json())
+    .then(result => {
 
-  const grid = document.getElementById('b2cKpiGrid');
-  grid.innerHTML = '';
+      /* =====================
+         LAST UPDATE
+      ====================== */
+      lastUpdate.innerHTML = `
+        <i class="fa fa-clock"></i>
+        ${result.lastUpdate}
+      `;
 
-  Object.keys(group).forEach(witel => {
-
-    grid.innerHTML += `
-      <div class="col-12 mb-4">
-        <div class="p-4 rounded" style="background:${bgCard}">
-          <h5 class="fw-bold text-info mb-3">${witel}</h5>
-          <div class="row g-3" id="kpi-${witel}"></div>
+      /* =====================
+         SUMMARY
+      ====================== */
+      summary.innerHTML = `
+        <div class="col-md-4">
+          <div class="summary-neon">
+            <div class="summary-title">TOTAL KPI</div>
+            <div class="summary-value">${result.summary.totalKPI}</div>
+          </div>
         </div>
-      </div>
-    `;
-
-    const wrap = document.getElementById(`kpi-${witel}`);
-
-    group[witel].forEach(kpi => {
-      if (kpi.indikator.includes('TOTAL ACH')) return;
-
-      const good = kpi.status_hi === 'GOOD';
-      const border = good ? borderGood : borderBad;
-
-      wrap.innerHTML += `
-        <div class="col-md-3">
-          <div class="p-3 rounded h-100"
-            style="background:${bgCard};border:2px solid ${border}">
-            <div class="fw-bold text-info small">${kpi.indikator}</div>
-            <div class="small text-secondary">Target : ${kpi.target ?? 'NA'}</div>
-            <div class="fs-4 fw-bold text-white">${kpi.achievement_hi ?? 'NA'}</div>
-            <div class="${good ? 'text-success' : 'text-danger'} small">
-              ${good ? '✔ Achieve' : '✖ Not Achieve'}
-            </div>
-            <div class="text-secondary small mt-1">${kpi.category}</div>
+        <div class="col-md-4">
+          <div class="summary-neon">
+            <div class="summary-title">GOOD</div>
+            <div class="summary-value text-success">${result.summary.good}</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="summary-neon">
+            <div class="summary-title">BAD</div>
+            <div class="summary-value text-danger">${result.summary.bad}</div>
           </div>
         </div>
       `;
+
+      /* =====================
+         GROUP BY WITEL
+      ====================== */
+      const grouped = {};
+      result.data.forEach(d => {
+        if (!grouped[d.witel]) grouped[d.witel] = [];
+        grouped[d.witel].push(d);
+      });
+
+      /* =====================
+         KPI GRID
+      ====================== */
+      grid.innerHTML = '';
+
+      Object.keys(grouped).forEach(witel => {
+
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="col-12">
+            <div class="region-title">${witel}</div>
+          </div>
+        `);
+
+        grouped[witel].forEach(kpi => {
+
+          const isGood = kpi.status_hi === '✅';
+          const cardStatus = isGood ? 'card-good' : 'card-bad';
+          const valStatus = isGood ? 'value-good' : 'value-bad';
+          const witelClass =
+            witel.toLowerCase() === 'banten'
+              ? 'witel-banten'
+              : 'witel-tangerang';
+
+          grid.insertAdjacentHTML('beforeend', `
+            <div class="badge-card ${cardStatus} ${witelClass}">
+              
+              <div class="badge-card-header">
+                ${kpi.indikator}
+              </div>
+
+              <div class="badge-card-body">
+
+                <div class="row-item">
+                  <span>Target</span>
+                  <span>${kpi.target ?? '-'}</span>
+                </div>
+
+                <div class="row-item">
+                  <span>Ach HI</span>
+                  <span class="${valStatus}">
+                    ${kpi.achievement_hi ?? '-'} ${kpi.status_hi}
+                  </span>
+                </div>
+
+                <div class="row-item">
+                  <span>Kategori</span>
+                  <span>${kpi.category}</span>
+                </div>
+
+              </div>
+            </div>
+          `);
+        });
+      });
+
+    })
+    .catch(err => {
+      console.error(err);
+      grid.innerHTML = `
+        <div class="alert alert-danger">
+          Gagal memuat data B2C KPI
+        </div>
+      `;
     });
-  });
-};
+}
