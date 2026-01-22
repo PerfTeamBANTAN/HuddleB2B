@@ -30,6 +30,24 @@ const getTrend = (today, yesterday) => {
 };
 
 /* ===============================
+   MINI KPI PROGRESS (INLINE SAFE)
+=============================== */
+const miniProgress = (val, target) => {
+  if (typeof val !== 'number' || typeof target !== 'number' || target === 0) {
+    return { pct: 0, color: '#ff6b6b' };
+  }
+
+  const raw = (val / target) * 100;
+  const pct = Math.min(raw, 120);
+
+  let color = '#ff6b6b'; // bad
+  if (raw >= 100) color = '#20c997';      // good
+  else if (raw >= 90) color = '#ffc107';  // warning
+
+  return { pct, color };
+};
+
+/* ===============================
    SKELETON LOADER
 =============================== */
 function showSkeleton() {
@@ -98,7 +116,6 @@ function renderSummary(api) {
     lastEl.innerText = `Last Update : ${lastUpdate}`;
   }
 
-  // 🔥 TOTAL ACH DIAMBIL DARI SUMMARY (BUKAN DATA[])
   const tangerangAch = summary.totalAch?.tangerang ?? null;
   const bantenAch    = summary.totalAch?.banten ?? null;
 
@@ -155,6 +172,9 @@ function renderKpiGrid(data) {
       const tgGood = isGood(kpi.tangerang, kpi.target);
       const bnGood = isGood(kpi.banten, kpi.target);
 
+      const tgProg = miniProgress(kpi.tangerang, kpi.target);
+      const bnProg = miniProgress(kpi.banten, kpi.target);
+
       container.insertAdjacentHTML('beforeend', `
         <div class="col-md-4 col-lg-3">
           <div class="kpi-card">
@@ -170,6 +190,10 @@ function renderKpiGrid(data) {
               <span class="${tgGood ? 'good' : 'bad'}">
                 ${fmt(kpi.tangerang)}
                 <small>${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</small>
+
+                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
+                  <div style="height:100%;width:${tgProg.pct}%;background:${tgProg.color};transition:width .4s ease;"></div>
+                </div>
               </span>
             </div>
 
@@ -178,6 +202,10 @@ function renderKpiGrid(data) {
               <span class="${bnGood ? 'good' : 'bad'}">
                 ${fmt(kpi.banten)}
                 <small>${getTrend(kpi.banten, kpi.banten_yesterday)}</small>
+
+                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
+                  <div style="height:100%;width:${bnProg.pct}%;background:${bnProg.color};transition:width .4s ease;"></div>
+                </div>
               </span>
             </div>
           </div>
@@ -210,7 +238,7 @@ window.initDashboardB2C24KPI = async function () {
     };
 
     await load();
-    setInterval(load, 5 * 60 * 1000); // auto refresh 5 menit
+    setInterval(load, 5 * 60 * 1000);
 
   } catch (err) {
     console.error('B2C Dashboard Error:', err);
