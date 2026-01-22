@@ -91,4 +91,4 @@ function initDashboardB2C24KPI(apiUrl) {
 }
 
 /* 🔥 PENTING */
-window.initDashboardB2C4KPI = initDashboardB2C4KPI;
+window.initDashboardB2C24KPI = initDashboardB2C24KPI;
