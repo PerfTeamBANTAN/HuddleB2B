@@ -234,6 +234,86 @@ function applyKpiHighlightAndTooltip() {
   });
 }
 
+/* ===============================
+   RENDER BAD KPI TABLE
+=============================== */
+function renderBadKpiTable(data) {
+
+  const tgrBody = document.getElementById('b2cKpiTableTgr');
+  const btnBody = document.getElementById('b2cKpiTableBtn');
+
+  tgrBody.innerHTML = '';
+  btnBody.innerHTML = '';
+
+  let hasBadTgr = false;
+  let hasBadBtn = false;
+
+  data.forEach(kpi => {
+
+    const target = Number(kpi.target);
+    const tgr    = Number(kpi.tangerang);
+    const btn    = Number(kpi.banten);
+
+    const tgrY   = Number(kpi.tangerang_yesterday);
+    const btnY   = Number(kpi.banten_yesterday);
+
+    /* ========== TANGERANG ========== */
+    if (!isNaN(target) && !isNaN(tgr) && tgr < target) {
+      hasBadTgr = true;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${kpi.indikator}</td>
+        <td>${fmt(target)}</td>
+        <td class="fw-bold text-danger">${fmt(tgr)}</td>
+        <td><span class="badge bg-danger">BELOW</span></td>
+        <td>${fmt(tgrY)}</td>
+        <td>
+          <span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
+            ${tgrY >= target ? 'ACH' : 'BELOW'}
+          </span>
+        </td>
+      `;
+      tgrBody.appendChild(tr);
+    }
+
+    /* ========== BANTEN ========== */
+    if (!isNaN(target) && !isNaN(btn) && btn < target) {
+      hasBadBtn = true;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${kpi.indikator}</td>
+        <td>${fmt(target)}</td>
+        <td class="fw-bold text-danger">${fmt(btn)}</td>
+        <td><span class="badge bg-danger">BELOW</span></td>
+        <td>${fmt(btnY)}</td>
+        <td>
+          <span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
+            ${btnY >= target ? 'ACH' : 'BELOW'}
+          </span>
+        </td>
+      `;
+      btnBody.appendChild(tr);
+    }
+
+  });
+
+  /* ===============================
+     LOADING → TABLE
+  =============================== */
+  document.getElementById('b2cTableLoadingTgr').classList.add('d-none');
+  document.getElementById('b2cTableLoadingBtn').classList.add('d-none');
+
+  if (hasBadTgr) {
+    document.getElementById('b2cTableWrapperTgr').classList.remove('d-none');
+  }
+
+  if (hasBadBtn) {
+    document.getElementById('b2cTableWrapperBtn').classList.remove('d-none');
+  }
+}
+
   /* ===============================
      MAIN
   =============================== */
@@ -242,9 +322,8 @@ function applyKpiHighlightAndTooltip() {
 
   renderSummary(api);
   renderKpiGrid(api.data);
-
-  // === PENTING: setelah KPI selesai dibuat ===
   applyKpiHighlightAndTooltip();
+  renderBadKpiTable(api.data);
 }
 
 
