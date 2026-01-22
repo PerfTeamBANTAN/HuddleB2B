@@ -22,14 +22,23 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      SKELETON LOADER
   =============================== */
   function showSkeleton() {
-    document.getElementById('b2cSummary').innerHTML = `
-      <div class="col-md-4 skeleton-card"></div>
-      <div class="col-md-4 skeleton-card"></div>
-      <div class="col-md-4 skeleton-card"></div>
-    `;
-    document.getElementById('b2cKpiGrid').innerHTML =
-      '<div class="col-md-3 skeleton-kpi"></div>'.repeat(8);
-  }
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+  `;
+
+  document.getElementById('b2cKpiGrid').innerHTML = `
+    <div id="b2cKpiSkeleton" class="row g-3">
+      ${'<div class="col-md-3 skeleton-kpi"></div>'.repeat(8)}
+    </div>
+  `;
+}
+ function hideSkeleton() {
+  const sk = document.getElementById('b2cKpiSkeleton');
+  if (sk) sk.remove();
+}
+
 
   /* ===============================
      GROUP BY KATEGORI
@@ -238,12 +247,16 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      MAIN
   =============================== */
   function render(api) {
-    if (!api || !Array.isArray(api.data)) return;
-    renderSummary(api);
-    renderKpiGrid(api.data);
-    applyKpiHighlightAndTooltip();
-    renderBadKpiTable(api.data);
-  }
+  if (!api || !Array.isArray(api.data)) return;
+
+  renderSummary(api);
+  renderKpiGrid(api.data);
+  applyKpiHighlightAndTooltip();
+  renderBadKpiTable(api.data);
+
+  hideSkeleton(); // <<<<<< INI KUNCI
+}
+
 
   async function init() {
     showSkeleton();
