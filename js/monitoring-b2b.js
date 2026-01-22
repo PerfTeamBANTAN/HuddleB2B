@@ -443,10 +443,14 @@ if (f.hsa) params.hsa     = f.hsa;
     20:{mode:'DATIN',gaul:'Y'}
   };
 
-  const qs = new URLSearchParams({
+  const extra = { ...(map[colIndex] || {}) };
+delete extra.mode; // ⬅️ PENTING: TOTAL TIDAK BOLEH PAKAI MODE
+
+const qs = new URLSearchParams({
   ...params,
-  ...(map[colIndex] || {})
+  ...extra
 }).toString();
+
 
   fetch(API_URL + '?' + qs)
     .then(res=>res.json())
