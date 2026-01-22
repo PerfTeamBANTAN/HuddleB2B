@@ -927,7 +927,7 @@ PERFORMANCE BAN-TAN
 Huddle Performance Khusus B2C
 </a>
 <ul class="dropdown-menu">
-<li><a class="dropdown-item menu-link" data-menu="q-hsi">Dashboard B2C 24KPI District BANTEN</a></li>
+<li><a class="dropdown-item menu-link" data-menu="dashbord-b2c">Dashboard B2C 24KPI District BANTEN</a></li>
 <li><a class="dropdown-item menu-link" data-menu="q-datin">Monitoring Tiket B2C HI</a></li>
 </ul>
 </li>
@@ -1132,6 +1132,21 @@ if (menu === 'District-Banten') {
     s.onload = () => initMonitoringB2B(B2B_API_URL);
     document.body.appendChild(s);
   });
+
+} else if (menu === 'dashbord-b2c') {
+
+  loadPartialIntoContent('partials/dashboard-b2c-24kpi.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/dashboard-b2c-24kpi.js?v=' + Date.now();
+    s.onload = () => initDashboardB2C24KPI(B2B_API_URL);
+    document.body.appendChild(s);
+  });
+
+
 
 } else {
   showUnderConstruction();
