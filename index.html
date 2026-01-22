@@ -1263,38 +1263,42 @@ td.clickable:hover {
 }
 
 /* =====================================================
-   KPI INLINE PER KATEGORI
+   KPI ROW BASED (ANTI BERANTAKAN)
 ===================================================== */
 
-.kpi-line {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  align-items: start;
+.kpi-row-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   margin-bottom: 14px;
 }
 
-/* judul kategori di kiri */
-.kpi-line-title {
+/* judul kategori */
+.kpi-row-title {
+  width: 190px;
+  flex-shrink: 0;
   font-size: 12px;
   font-weight: 700;
   color: #7dd3fc;
-  padding-top: 6px;
-  line-height: 1.2;
+  padding-top: 8px;
 }
 
-/* KPI mengalir ke kanan */
-.kpi-line-items {
+/* KPI harus satu baris */
+.kpi-row-cards {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;       /* ⛔ TIDAK BOLEH TURUN */
   gap: 10px;
+  overflow-x: auto;        /* 👉 kalau kepanjangan, scroll */
+  padding-bottom: 4px;
 }
 
-/* mini card */
+/* ukuran card konsisten */
 .kpi-card.mini {
   width: 150px;
   min-height: 82px;
-  padding: 8px 10px;
+  flex-shrink: 0;
 }
+
 
 </style>
 
