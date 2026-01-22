@@ -1,6 +1,6 @@
 /* =========================================================
    DASHBOARD B2C – 24 KPI DISTRICT BANTEN
-   Compatible with dynamic loader
+   Neon Tech Dashboard Style
 ========================================================= */
 
 let B2C_API_URL = '';
@@ -23,12 +23,14 @@ async function loadB2CData() {
 
     console.log('B2C KPI DATA:', json);
 
-    if (!json || !json.data || !json.summary) {
+    if (!json || !Array.isArray(json.data)) {
       throw new Error('Invalid API structure');
     }
 
+    const summary = buildSummary(json.data);
+
     renderLastUpdate(json.lastUpdate);
-    renderSummary(json.summary);
+    renderSummary(summary);
     renderKpiGrid(json.data);
 
     hideLoading();
@@ -39,6 +41,26 @@ async function loadB2CData() {
   }
 }
 
+/* ================= SUMMARY ================= */
+
+function buildSummary(data) {
+  let good = 0, warning = 0, bad = 0;
+
+  data.forEach(kpi => {
+    const s = kpi['Status Ach HI'];
+    if (s === '✅') good++;
+    else if (s === '⚠️') warning++;
+    else bad++;
+  });
+
+  return {
+    total: data.length,
+    good,
+    warning,
+    bad
+  };
+}
+
 /* ================= HEADER ================= */
 
 function renderLastUpdate(ts) {
@@ -47,11 +69,11 @@ function renderLastUpdate(ts) {
 
   el.innerHTML = `
     <i class="fa fa-clock me-1"></i>
-    ${new Date(ts).toLocaleString('id-ID')}
+    Updated ${new Date(ts).toLocaleString('id-ID')}
   `;
 }
 
-/* ================= SUMMARY ================= */
+/* ================= SUMMARY VIEW ================= */
 
 function renderSummary(sum) {
   const wrap = document.getElementById('b2cSummary');
@@ -59,23 +81,35 @@ function renderSummary(sum) {
 
   wrap.innerHTML = '';
 
-  const cards = [
-    { label: 'Total KPI', value: sum.totalKPI, cls: 'primary' },
-    { label: 'Good', value: sum.good, cls: 'success' },
-    { label: 'Warning', value: sum.warning, cls: 'warning' },
-    { label: 'Bad', value: sum.bad, cls: 'danger' }
+  const items = [
+    { label: 'TOTAL KPI', value: sum.total, color: 'info' },
+    { label: 'GOOD', value: sum.good, color: 'success' },
+    { label: 'WARNING', value: sum.warning, color: 'warning' },
+    { label: 'BAD', value: sum.bad, color: 'danger' }
   ];
 
-  cards.forEach(c => {
+  items.forEach(item => {
     wrap.insertAdjacentHTML('beforeend', `
-      <div class="col-md-3 col-6">
-        <div class="summary-card ${c.cls}">
-          <div class="summary-label">${c.label}</div>
-          <div class="summary-value">${c.value}</div>
+      <div class="col-xl-3 col-md-6">
+        <div class="summary-neon ${item.color}">
+          <div class="summary-title">${item.label}</div>
+          <div class="summary-value" data-val="${item.value}">0</div>
+          <div class="summary-grid">${renderGrid(item.value)}</div>
         </div>
       </div>
     `);
   });
+
+  animateNumbers();
+}
+
+function renderGrid(val) {
+  let cells = '';
+  const max = 20;
+  for (let i = 0; i < max; i++) {
+    cells += `<span class="${i < val ? 'on' : ''}"></span>`;
+  }
+  return cells;
 }
 
 /* ================= KPI GRID ================= */
@@ -87,32 +121,63 @@ function renderKpiGrid(data) {
   grid.innerHTML = '';
 
   data.forEach(kpi => {
-    const ach = kpi['Achievement HI'];
-    const target = kpi.Target;
+    const ach = Number(kpi['Achievement HI']) || 0;
+    const target = Number(kpi.Target) || 0;
     const status = kpi['Status Ach HI'];
 
+    const pct = target ? Math.round((ach / target) * 100) : 0;
     const good = status === '✅';
-    const pct = target ? ((ach / target) * 100).toFixed(1) : 0;
 
     grid.insertAdjacentHTML('beforeend', `
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-        <div class="kpi-card ${good ? 'good' : 'bad'}">
-          <div class="kpi-title">${kpi.Indikator}</div>
+        <div class="kpi-neon ${good ? 'good' : 'bad'}">
+          <div class="kpi-name">${kpi.Indikator}</div>
 
-          <div class="kpi-ach">
-            ${format(ach)}
+          <div class="kpi-circle">
+            <svg viewBox="0 0 36 36">
+              <path class="bg"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 0 1 0 31.831
+                   a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path class="progress"
+                stroke-dasharray="${pct},100"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 0 1 0 31.831
+                   a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="pct">${pct}%</div>
           </div>
 
           <div class="kpi-meta">
-            Target ${format(target)}
+            <span>ACH</span> ${format(ach)}<br>
+            <span>TGT</span> ${format(target)}
           </div>
 
-          <div class="kpi-status ${good ? 'text-success' : 'text-danger'}">
-            ${status} ${pct}%
+          <div class="kpi-status ${good ? 'ok' : 'bad'}">
+            ${status}
           </div>
         </div>
       </div>
     `);
+  });
+}
+
+/* ================= ANIMATION ================= */
+
+function animateNumbers() {
+  document.querySelectorAll('.summary-value').forEach(el => {
+    const target = Number(el.dataset.val);
+    let cur = 0;
+
+    const step = Math.max(1, Math.ceil(target / 30));
+    const timer = setInterval(() => {
+      cur += step;
+      if (cur >= target) {
+        cur = target;
+        clearInterval(timer);
+      }
+      el.textContent = cur;
+    }, 20);
   });
 }
 
@@ -148,6 +213,6 @@ function showError(msg) {
 /* ================= UTIL ================= */
 
 function format(val) {
-  if (val === null || val === undefined) return '-';
+  if (!val) return '-';
   return Number(val).toLocaleString('id-ID');
 }
