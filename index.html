@@ -1401,6 +1401,43 @@ td.clickable:hover {
   );
 }
 
+/* KPI di bawah target */
+#b2cKpiGrid .kpi-card.kpi-below-target {
+  border: 1px solid rgba(255, 80, 80, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(255, 80, 80, 0.6),
+    0 0 14px rgba(255, 80, 80, 0.35);
+}
+
+/* Optional badge */
+#b2cKpiGrid .kpi-card .kpi-alert {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 14px;
+  color: #ff6b6b;
+}
+
+#b2cKpiGrid .kpi-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 50;
+}
+
+#b2cKpiGrid .kpi-card:hover .kpi-tooltip {
+  opacity: 1;
+}
 
 </style>
 
