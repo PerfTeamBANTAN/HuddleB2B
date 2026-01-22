@@ -77,7 +77,7 @@ function renderKpiGrid(data) {
 /* ======================
    INIT
 ====================== */
-function initDashboardB2C4KPI(apiUrl) {
+function initDashboardB2C24KPI(apiUrl) {
   fetch(apiUrl)
     .then(r => r.json())
     .then(res => {
