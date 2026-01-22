@@ -1,6 +1,6 @@
 /* =========================================================
    DASHBOARD B2C – 24 KPI DISTRICT BANTEN
-   Neon Tech Dashboard Style
+   Compatible with Google AppScript API
 ========================================================= */
 
 let B2C_API_URL = '';
@@ -12,7 +12,7 @@ function initDashboardB2C24KPI(apiUrl) {
   loadB2CData();
 }
 
-/* ================= FETCH ================= */
+/* ================= FETCH DATA ================= */
 
 async function loadB2CData() {
   try {
@@ -27,38 +27,17 @@ async function loadB2CData() {
       throw new Error('Invalid API structure');
     }
 
-    const summary = buildSummary(json.data);
-
     renderLastUpdate(json.lastUpdate);
-    renderSummary(summary);
+    renderSummary(json.summary);
     renderKpiGrid(json.data);
 
     hideLoading();
 
   } catch (err) {
     console.error(err);
-    showError('Failed load KPI');
+    hideLoading();
+    showError('Failed load KPI data');
   }
-}
-
-/* ================= SUMMARY ================= */
-
-function buildSummary(data) {
-  let good = 0, warning = 0, bad = 0;
-
-  data.forEach(kpi => {
-    const s = kpi['Status Ach HI'];
-    if (s === '✅') good++;
-    else if (s === '⚠️') warning++;
-    else bad++;
-  });
-
-  return {
-    total: data.length,
-    good,
-    warning,
-    bad
-  };
 }
 
 /* ================= HEADER ================= */
@@ -73,43 +52,34 @@ function renderLastUpdate(ts) {
   `;
 }
 
-/* ================= SUMMARY VIEW ================= */
+/* ================= SUMMARY ================= */
 
 function renderSummary(sum) {
   const wrap = document.getElementById('b2cSummary');
-  if (!wrap) return;
+  if (!wrap || !sum) return;
 
   wrap.innerHTML = '';
 
-  const items = [
-    { label: 'TOTAL KPI', value: sum.total, color: 'info' },
-    { label: 'GOOD', value: sum.good, color: 'success' },
-    { label: 'WARNING', value: sum.warning, color: 'warning' },
-    { label: 'BAD', value: sum.bad, color: 'danger' }
+  const cards = [
+    { label: 'TOTAL KPI', value: sum.totalKPI ?? 0, cls: 'primary' },
+    { label: 'GOOD', value: sum.good ?? 0, cls: 'success' },
+    { label: 'WARNING', value: sum.warning ?? 0, cls: 'warning' },
+    { label: 'BAD', value: sum.bad ?? 0, cls: 'danger' }
   ];
 
-  items.forEach(item => {
+  cards.forEach(c => {
     wrap.insertAdjacentHTML('beforeend', `
       <div class="col-xl-3 col-md-6">
-        <div class="summary-neon ${item.color}">
-          <div class="summary-title">${item.label}</div>
-          <div class="summary-value" data-val="${item.value}">0</div>
-          <div class="summary-grid">${renderGrid(item.value)}</div>
+        <div class="summary-card ${c.cls}">
+          <div class="summary-label">${c.label}</div>
+          <div class="summary-value">${c.value}</div>
+          <div class="summary-bar">
+            <span style="width:${c.value * 6}px"></span>
+          </div>
         </div>
       </div>
     `);
   });
-
-  animateNumbers();
-}
-
-function renderGrid(val) {
-  let cells = '';
-  const max = 20;
-  for (let i = 0; i < max; i++) {
-    cells += `<span class="${i < val ? 'on' : ''}"></span>`;
-  }
-  return cells;
 }
 
 /* ================= KPI GRID ================= */
@@ -121,69 +91,63 @@ function renderKpiGrid(data) {
   grid.innerHTML = '';
 
   data.forEach(kpi => {
-    const ach = Number(kpi['Achievement HI']) || 0;
-    const target = Number(kpi.Target) || 0;
-    const status = kpi['Status Ach HI'];
+    const title  = kpi.Indikator || '-';
+    const ach    = Number(kpi.ach || 0);
+    const target = Number(kpi.target || 0);
+    const pct    = Number(kpi.pct || 0);
 
-    const pct = target ? Math.round((ach / target) * 100) : 0;
-    const good = status === '✅';
+    let status = 'BAD';
+    let cls = 'bad';
+
+    if (pct >= 100) {
+      status = 'GOOD';
+      cls = 'good';
+    } else if (pct >= 90) {
+      status = 'WARNING';
+      cls = 'warning';
+    }
 
     grid.insertAdjacentHTML('beforeend', `
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-        <div class="kpi-neon ${good ? 'good' : 'bad'}">
-          <div class="kpi-name">${kpi.Indikator}</div>
+        <div class="kpi-card ${cls}">
+          
+          <div class="kpi-title">${title}</div>
 
-          <div class="kpi-circle">
+          <div class="kpi-ring">
             <svg viewBox="0 0 36 36">
-              <path class="bg"
+              <path class="ring-bg"
                 d="M18 2.0845
                    a 15.9155 15.9155 0 0 1 0 31.831
-                   a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path class="progress"
+                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <path class="ring-val"
                 stroke-dasharray="${pct},100"
                 d="M18 2.0845
                    a 15.9155 15.9155 0 0 1 0 31.831
-                   a 15.9155 15.9155 0 0 1 0 -31.831" />
+                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <text x="18" y="20.35">${pct}%</text>
             </svg>
-            <div class="pct">${pct}%</div>
           </div>
 
           <div class="kpi-meta">
-            <span>ACH</span> ${format(ach)}<br>
-            <span>TGT</span> ${format(target)}
+            ACH ${format(ach)}<br>
+            TGT ${format(target)}
           </div>
 
-          <div class="kpi-status ${good ? 'ok' : 'bad'}">
+          <div class="kpi-status ${cls}">
             ${status}
           </div>
+
         </div>
       </div>
     `);
   });
 }
 
-/* ================= ANIMATION ================= */
-
-function animateNumbers() {
-  document.querySelectorAll('.summary-value').forEach(el => {
-    const target = Number(el.dataset.val);
-    let cur = 0;
-
-    const step = Math.max(1, Math.ceil(target / 30));
-    const timer = setInterval(() => {
-      cur += step;
-      if (cur >= target) {
-        cur = target;
-        clearInterval(timer);
-      }
-      el.textContent = cur;
-    }, 20);
-  });
-}
-
 /* ================= LOADING ================= */
 
 function showLoading() {
+  if (document.getElementById('b2cLoading')) return;
+
   document.body.insertAdjacentHTML('beforeend', `
     <div class="loading-overlay" id="b2cLoading">
       <div class="spinner-border text-info"></div>
@@ -204,7 +168,7 @@ function showError(msg) {
   if (!grid) return;
 
   grid.innerHTML = `
-    <div class="col-12 text-center text-danger fw-bold">
+    <div class="col-12 text-center text-danger fw-bold py-5">
       ${msg}
     </div>
   `;
@@ -213,6 +177,6 @@ function showError(msg) {
 /* ================= UTIL ================= */
 
 function format(val) {
-  if (!val) return '-';
+  if (val === null || val === undefined || isNaN(val)) return '-';
   return Number(val).toLocaleString('id-ID');
 }
