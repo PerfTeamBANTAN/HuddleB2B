@@ -91,39 +91,44 @@ function findExtremes(data, wilayah) {
    RENDER SUMMARY
 =============================== */
 function renderSummary(api) {
-  const { data, lastUpdate } = api;
+  const { summary, lastUpdate } = api;
 
-  document.getElementById('b2cLastUpdate').innerText =
-    `Last Update : ${lastUpdate}`;
+  const lastEl = document.getElementById('b2cLastUpdate');
+  if (lastEl) {
+    lastEl.innerText = `Last Update : ${lastUpdate}`;
+  }
 
-  const tgr = calcWilayah(data, 'tangerang');
-  const btn = calcWilayah(data, 'banten');
-
-  const totalKPI = data.length;
+  // 🔥 TOTAL ACH DIAMBIL DARI SUMMARY (BUKAN DATA[])
+  const tangerangAch = summary.totalAch?.tangerang ?? null;
+  const bantenAch    = summary.totalAch?.banten ?? null;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
-      <div class="summary-card ${getSummaryClass(tgr.pct)}">
+      <div class="summary-card">
         <h6>TANGERANG</h6>
-        <div class="summary-value">${fmt(tgr.pct)}%</div>
-        <div class="summary-sub">✅ ${tgr.good} ❌ ${tgr.bad}</div>
+        <div class="summary-value">${fmt(tangerangAch)}%</div>
+        <div class="summary-sub">
+          ✅ ${summary.good} ❌ ${summary.bad}
+        </div>
       </div>
     </div>
 
     <div class="col-md-4">
-      <div class="summary-card ${getSummaryClass(btn.pct)}">
+      <div class="summary-card">
         <h6>BANTEN</h6>
-        <div class="summary-value">${fmt(btn.pct)}%</div>
-        <div class="summary-sub">✅ ${btn.good} ❌ ${btn.bad}</div>
+        <div class="summary-value">${fmt(bantenAch)}%</div>
+        <div class="summary-sub">
+          ✅ ${summary.good} ❌ ${summary.bad}
+        </div>
       </div>
     </div>
 
     <div class="col-md-4">
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
-        <div class="summary-value">${totalKPI}</div>
+        <div class="summary-value">${summary.totalKPI}</div>
         <div class="summary-sub">
-          GOOD ${tgr.good + btn.good} | BAD ${tgr.bad + btn.bad}
+          GOOD ${summary.good} | BAD ${summary.bad}
         </div>
       </div>
     </div>
