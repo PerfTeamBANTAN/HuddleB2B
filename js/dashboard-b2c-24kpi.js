@@ -156,29 +156,46 @@ function applyKpiHighlightAndTooltip() {
 
   document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
 
-    const rows = Array.from(card.querySelectorAll('div'))
-      .filter(d => d.innerText.includes(':'));
+    /* ===============================
+       AMBIL BARIS KPI
+    =============================== */
+    const rows = Array.from(card.querySelectorAll('.kpi-row'));
 
-    const getVal = (label) => {
-      const row = rows.find(r => r.innerText.toLowerCase().includes(label));
+    const getNumber = (label) => {
+      const row = rows.find(r =>
+        r.innerText.toLowerCase().includes(label)
+      );
       if (!row) return null;
 
-      const raw = row.innerText.split(':')[1].trim()
-        .replace(/\./g, '')
-        .replace(',', '.')
-        .replace('%','');
+      const raw = row.innerText.split(':')[1]
+        ?.trim()
+        .replace(/\./g, '')     // hapus thousand separator
+        .replace(',', '.')      // ubah desimal ID → EN
+        .replace('%', '');
 
       const num = Number(raw);
       return isNaN(num) ? null : num;
     };
 
-    const target = getVal('target');
-    const tgr    = getVal('tangerang');
+    const target = getNumber('target');
+    const tgr    = getNumber('tangerang');
+    const btn    = getNumber('banten');
 
-    if (target === null || tgr === null) return;
+    if (target === null || tgr === null || btn === null) return;
 
-    /* ===== HIGHLIGHT ===== */
-    if (tgr < target) {
+    /* ===============================
+       LOGIC STATUS KPI
+    =============================== */
+    const badTgr = tgr < target;
+    const badBtn = btn < target;
+    const isBad  = badTgr || badBtn;
+
+    /* ===============================
+       HIGHLIGHT CARD
+    =============================== */
+    card.classList.remove('good', 'bad');
+
+    if (isBad) {
       card.classList.add('bad');
       card.style.boxShadow = '0 0 18px rgba(239,68,68,.75)';
     } else {
@@ -186,20 +203,25 @@ function applyKpiHighlightAndTooltip() {
       card.style.boxShadow = '0 0 18px rgba(34,197,94,.55)';
     }
 
-    /* ===== TOOLTIP ===== */
+    /* ===============================
+       TOOLTIP
+    =============================== */
     const tooltip = document.createElement('div');
     tooltip.className = 'kpi-tooltip';
+
     tooltip.innerHTML = `
-      <strong>${card.querySelector('.kpi-title')?.innerText}</strong><br>
+      <strong>${card.querySelector('.kpi-title')?.innerText || ''}</strong><br>
       Target : ${target}<br>
-      Tangerang : ${tgr}<br>
-      Status : ${tgr < target ? '❌ BELOW TARGET' : '✅ ACH'}
+      Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
+      Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
+      <strong>Status :</strong> ${isBad ? '❌ BELOW TARGET' : '✅ ACH'}
     `;
 
     card.style.position = 'relative';
     card.appendChild(tooltip);
   });
 }
+
  
   /* ===============================
      MAIN
