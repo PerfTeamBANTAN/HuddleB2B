@@ -1,6 +1,6 @@
 /* =====================================================
    B2C DASHBOARD RENDER SCRIPT
-   NEXT × NEXT LEVEL • V3 • OPERATIONAL INTELLIGENCE
+   NEXT LEVEL • PRODUCTION SAFE (V2)
 ===================================================== */
 
 /* ===============================
@@ -11,48 +11,60 @@ const fmt = (v) => {
   return Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 };
 
-const getTrend = (t, y) => {
-  if (typeof t !== 'number' || typeof y !== 'number') return '■';
-  if (t > y) return '▲';
-  if (t < y) return '▼';
+const isGood = (val, target) =>
+  typeof val === 'number' &&
+  typeof target === 'number' &&
+  val >= target;
+
+const getTrend = (today, yesterday) => {
+  if (typeof today !== 'number' || typeof yesterday !== 'number') return '';
+  if (today > yesterday) return '▲';
+  if (today < yesterday) return '▼';
   return '■';
 };
 
+/* ===============================
+   MINI KPI PROGRESS (NEXT LEVEL)
+=============================== */
 const miniProgress = (val, target) => {
-  if (typeof val !== 'number' || typeof target !== 'number' || target === 0)
-    return { raw: 0, pct: 0, color: '#ff6b6b' };
+  if (typeof val !== 'number' || typeof target !== 'number' || target === 0) {
+    return { raw: 0, pct: 0, color: '#ff6b6b', glow: '' };
+  }
 
   const raw = (val / target) * 100;
-  const pct = Math.min(raw, 130);
+  const pct = Math.min(raw, 120);
 
-  if (raw >= 100) return { raw, pct, color: '#20c997' };
-  if (raw >= 90)  return { raw, pct, color: '#ffc107' };
-  return { raw, pct, color: '#ff6b6b' };
-};
+  let color = '#ff6b6b';
+  let glow  = '0 0 0 transparent';
 
-const getBadge = (raw) => {
-  if (raw < 85) return `<span style="color:#ff6b6b;font-size:10px;">🔴 CRITICAL</span>`;
-  if (raw < 100) return `<span style="color:#ffc107;font-size:10px;">🟠 WATCH</span>`;
-  return `<span style="color:#20c997;font-size:10px;">🟢 SAFE</span>`;
+  if (raw >= 100) {
+    color = '#20c997';
+    glow  = '0 0 6px rgba(32,201,151,.65)';
+  } else if (raw >= 90) {
+    color = '#ffc107';
+    glow  = '0 0 6px rgba(255,193,7,.55)';
+  } else {
+    glow  = '0 0 8px rgba(255,107,107,.85)';
+  }
+
+  return { raw, pct, color, glow };
 };
 
 /* ===============================
-   PRIORITY SCORE (AUTO SORT)
+   SKELETON LOADER
 =============================== */
-const priorityScore = (kpi) => {
-  let score = 0;
-
-  if (kpi.tangerang < kpi.target) score += 30;
-  if (kpi.banten < kpi.target) score += 30;
-
-  if (getTrend(kpi.tangerang, kpi.tangerang_yesterday) === '▼') score += 20;
-  if (getTrend(kpi.banten, kpi.banten_yesterday) === '▼') score += 20;
-
-  return score;
-};
+function showSkeleton() {
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+  `;
+  document.getElementById('b2cKpiGrid').innerHTML =
+    '<div class="col-md-3 skeleton-kpi"></div>'.repeat(8);
+}
 
 /* ===============================
-   GROUP & SORT
+   GROUP BY KATEGORI
 =============================== */
 function groupByKategori(data) {
   return data.reduce((acc, item) => {
@@ -63,7 +75,46 @@ function groupByKategori(data) {
 }
 
 /* ===============================
-   KPI GRID – INTELLIGENT
+   RENDER SUMMARY
+=============================== */
+function renderSummary(api) {
+  const { summary, lastUpdate } = api;
+
+  const lastEl = document.getElementById('b2cLastUpdate');
+  if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
+
+  const tangerangAch = summary.totalAch?.tangerang ?? null;
+  const bantenAch    = summary.totalAch?.banten ?? null;
+
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>TANGERANG</h6>
+        <div class="summary-value">${fmt(tangerangAch)}%</div>
+        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>BANTEN</h6>
+        <div class="summary-value">${fmt(bantenAch)}%</div>
+        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="summary-card">
+        <h6>TOTAL KPI</h6>
+        <div class="summary-value">${summary.totalKPI}</div>
+        <div class="summary-sub">GOOD ${summary.good} | BAD ${summary.bad}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ===============================
+   RENDER KPI GRID (NEXT LEVEL)
 =============================== */
 function renderKpiGrid(data) {
   const container = document.getElementById('b2cKpiGrid');
@@ -72,8 +123,6 @@ function renderKpiGrid(data) {
   const grouped = groupByKategori(data);
 
   Object.entries(grouped).forEach(([kategori, items]) => {
-    items.sort((a, b) => priorityScore(b) - priorityScore(a));
-
     container.insertAdjacentHTML('beforeend', `
       <div class="col-12">
         <div class="kategori-title">${kategori}</div>
@@ -81,36 +130,66 @@ function renderKpiGrid(data) {
     `);
 
     items.forEach(kpi => {
+      const tgGood = isGood(kpi.tangerang, kpi.target);
+      const bnGood = isGood(kpi.banten, kpi.target);
+
       const tg = miniProgress(kpi.tangerang, kpi.target);
       const bn = miniProgress(kpi.banten, kpi.target);
+
+      const totalStack = tg.pct + bn.pct || 1;
 
       container.insertAdjacentHTML('beforeend', `
         <div class="col-md-4 col-lg-3">
           <div class="kpi-card">
-            <div class="kpi-title">
-              ${kpi.indikator}<br/>
-              ${getBadge(Math.min(tg.raw, bn.raw))}
-            </div>
+            <div class="kpi-title">${kpi.indikator}</div>
 
             <div class="kpi-row">
               <span>Target</span>
               <span>${fmt(kpi.target)}</span>
             </div>
 
-            <div class="kpi-row">
-              <span>Tangerang ${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</span>
-              <span>${fmt(kpi.tangerang)}</span>
-            </div>
-            <div style="height:4px;background:#222;border-radius:6px;overflow:hidden;">
-              <div style="height:100%;width:${tg.pct}%;background:${tg.color};"></div>
+            <!-- STACKED COMPARISON -->
+            <div style="margin:6px 0;height:5px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;">
+              <div style="height:100%;width:${(tg.pct/totalStack)*100}%;background:${tg.color};float:left"></div>
+              <div style="height:100%;width:${(bn.pct/totalStack)*100}%;background:${bn.color};float:left"></div>
             </div>
 
             <div class="kpi-row">
-              <span>Banten ${getTrend(kpi.banten, kpi.banten_yesterday)}</span>
-              <span>${fmt(kpi.banten)}</span>
+              <span>Tangerang</span>
+              <span class="${tgGood ? 'good' : 'bad'}"
+                    title="${tg.raw.toFixed(1)}%">
+                ${fmt(kpi.tangerang)}
+                <small>${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</small>
+
+                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
+                  <div style="
+                    height:100%;
+                    width:${tg.pct}%;
+                    background:${tg.color};
+                    box-shadow:${tg.glow};
+                    transition:width .4s ease;">
+                  </div>
+                </div>
+              </span>
             </div>
-            <div style="height:4px;background:#222;border-radius:6px;overflow:hidden;">
-              <div style="height:100%;width:${bn.pct}%;background:${bn.color};"></div>
+
+            <div class="kpi-row">
+              <span>Banten</span>
+              <span class="${bnGood ? 'good' : 'bad'}"
+                    title="${bn.raw.toFixed(1)}%">
+                ${fmt(kpi.banten)}
+                <small>${getTrend(kpi.banten, kpi.banten_yesterday)}</small>
+
+                <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
+                  <div style="
+                    height:100%;
+                    width:${bn.pct}%;
+                    background:${bn.color};
+                    box-shadow:${bn.glow};
+                    transition:width .4s ease;">
+                  </div>
+                </div>
+              </span>
             </div>
           </div>
         </div>
@@ -120,9 +199,30 @@ function renderKpiGrid(data) {
 }
 
 /* ===============================
-   MAIN
+   MAIN RENDER
 =============================== */
 function renderB2CDashboard(api) {
   if (!api || !Array.isArray(api.data)) return;
+  renderSummary(api);
   renderKpiGrid(api.data);
 }
+
+/* ===============================
+   INIT + AUTO REFRESH
+=============================== */
+window.initDashboardB2C24KPI = async function () {
+  try {
+    showSkeleton();
+
+    const load = async () => {
+      const res = await fetch(`${B2B_API_URL}?type=b2c_24kpi_banten`);
+      const json = await res.json();
+      renderB2CDashboard(json);
+    };
+
+    await load();
+    setInterval(load, 5 * 60 * 1000);
+  } catch (err) {
+    console.error('B2C Dashboard Error:', err);
+  }
+};
