@@ -1,6 +1,6 @@
 /* =========================================================
    DASHBOARD B2C – 24 KPI DISTRICT BANTEN
-   Compatible with index.html loader
+   Compatible with dynamic loader
 ========================================================= */
 
 let B2C_API_URL = '';
@@ -9,106 +9,137 @@ let B2C_API_URL = '';
 
 function initDashboardB2C24KPI(apiUrl) {
   B2C_API_URL = apiUrl;
-  fetchB2CData();
+  loadB2CData();
 }
 
 /* ================= FETCH ================= */
 
-async function fetchB2CData() {
-  const content = document.getElementById('content-area');
-
+async function loadB2CData() {
   try {
     showLoading();
 
     const res = await fetch(B2C_API_URL);
     const json = await res.json();
 
-    console.log('B2C RESPONSE:', json);
+    console.log('B2C KPI DATA:', json);
 
-    if (!json || !json.data) {
-      throw new Error('Invalid B2C API response');
+    if (!json || !json.data || !json.summary) {
+      throw new Error('Invalid API structure');
     }
 
-    renderSummary(json.summary, json.lastUpdate);
-    renderKPIGrid(json.data);
+    renderLastUpdate(json.lastUpdate);
+    renderSummary(json.summary);
+    renderKpiGrid(json.data);
 
     hideLoading();
 
   } catch (err) {
     console.error(err);
-    showError('Failed load KPI B2C');
+    showError('Failed load KPI');
   }
 }
 
-/* ================= LOADING ================= */
+/* ================= HEADER ================= */
 
-function showLoading() {
-  const content = document.getElementById('content-area');
-  content.insertAdjacentHTML('beforeend', `
-    <div class="loading-overlay" id="loading-b2c">
-      <div class="spinner-border text-light"></div>
-      <div class="loading-text">Loading KPI B2C...</div>
-    </div>
-  `);
-}
+function renderLastUpdate(ts) {
+  const el = document.getElementById('b2cLastUpdate');
+  if (!el || !ts) return;
 
-function hideLoading() {
-  const el = document.getElementById('loading-b2c');
-  if (el) el.remove();
+  el.innerHTML = `
+    <i class="fa fa-clock me-1"></i>
+    ${new Date(ts).toLocaleString('id-ID')}
+  `;
 }
 
 /* ================= SUMMARY ================= */
 
-function renderSummary(summary, lastUpdate) {
-  if (!summary) return;
-
-  setText('sum-total', summary.totalKPI);
-  setText('sum-good', summary.good);
-  setText('sum-warning', summary.warning);
-  setText('sum-bad', summary.bad);
-
-  if (lastUpdate) {
-    setText(
-      'last-update',
-      new Date(lastUpdate).toLocaleString('id-ID')
-    );
-  }
-}
-
-/* ================= KPI GRID ================= */
-
-function renderKPIGrid(rows) {
-  const wrap = document.getElementById('kpi-grid');
+function renderSummary(sum) {
+  const wrap = document.getElementById('b2cSummary');
   if (!wrap) return;
 
   wrap.innerHTML = '';
 
-  rows.forEach(kpi => {
-    const status = kpi['Status Ach HI'];
-    const isGood = status === '✅';
+  const cards = [
+    { label: 'Total KPI', value: sum.totalKPI, cls: 'primary' },
+    { label: 'Good', value: sum.good, cls: 'success' },
+    { label: 'Warning', value: sum.warning, cls: 'warning' },
+    { label: 'Bad', value: sum.bad, cls: 'danger' }
+  ];
 
+  cards.forEach(c => {
     wrap.insertAdjacentHTML('beforeend', `
-      <div class="kpi-card ${isGood ? 'kpi-good' : 'kpi-bad'}">
-        <div class="kpi-title">${kpi.Indikator}</div>
-
-        <div class="kpi-value">
-          ${formatNumber(kpi['Achievement HI'])}
-        </div>
-
-        <div class="kpi-trend ${isGood ? 'up' : 'down'}">
-          Target ${kpi.Target} ${status}
+      <div class="col-md-3 col-6">
+        <div class="summary-card ${c.cls}">
+          <div class="summary-label">${c.label}</div>
+          <div class="summary-value">${c.value}</div>
         </div>
       </div>
     `);
   });
 }
 
+/* ================= KPI GRID ================= */
+
+function renderKpiGrid(data) {
+  const grid = document.getElementById('b2cKpiGrid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+
+  data.forEach(kpi => {
+    const ach = kpi['Achievement HI'];
+    const target = kpi.Target;
+    const status = kpi['Status Ach HI'];
+
+    const good = status === '✅';
+    const pct = target ? ((ach / target) * 100).toFixed(1) : 0;
+
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+        <div class="kpi-card ${good ? 'good' : 'bad'}">
+          <div class="kpi-title">${kpi.Indikator}</div>
+
+          <div class="kpi-ach">
+            ${format(ach)}
+          </div>
+
+          <div class="kpi-meta">
+            Target ${format(target)}
+          </div>
+
+          <div class="kpi-status ${good ? 'text-success' : 'text-danger'}">
+            ${status} ${pct}%
+          </div>
+        </div>
+      </div>
+    `);
+  });
+}
+
+/* ================= LOADING ================= */
+
+function showLoading() {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="loading-overlay" id="b2cLoading">
+      <div class="spinner-border text-info"></div>
+      <div class="mt-2">Loading KPI...</div>
+    </div>
+  `);
+}
+
+function hideLoading() {
+  const el = document.getElementById('b2cLoading');
+  if (el) el.remove();
+}
+
 /* ================= ERROR ================= */
 
 function showError(msg) {
-  const content = document.getElementById('content-area');
-  content.innerHTML = `
-    <div class="text-danger text-center mt-5 fw-bold">
+  const grid = document.getElementById('b2cKpiGrid');
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="col-12 text-center text-danger fw-bold">
       ${msg}
     </div>
   `;
@@ -116,12 +147,7 @@ function showError(msg) {
 
 /* ================= UTIL ================= */
 
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.innerText = val ?? '-';
-}
-
-function formatNumber(val) {
+function format(val) {
   if (val === null || val === undefined) return '-';
   return Number(val).toLocaleString('id-ID');
 }
