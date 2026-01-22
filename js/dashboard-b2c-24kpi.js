@@ -110,6 +110,8 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      RENDER KPI GRID
   =============================== */
   function renderKpiGrid(data) {
+  console.log('RENDER KPI GRID BARU JALAN');
+
   const container = document.getElementById('b2cKpiGrid');
   container.innerHTML = '';
 
@@ -122,7 +124,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
     const title = document.createElement('div');
     title.className = 'kpi-category-title';
-    title.innerText = kategori;
+    title.textContent = kategori;
 
     const cards = document.createElement('div');
     cards.className = 'kpi-category-cards';
@@ -144,10 +146,6 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     container.appendChild(row);
   });
 }
-
-
-
-
 
   /* ===============================
      MAIN
