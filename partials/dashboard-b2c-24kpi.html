@@ -1,19 +1,118 @@
 <div class="dashboard-dark container-fluid px-3 px-lg-4">
 
-  <!-- HEADER -->
+  <!-- ================= HEADER ================= -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">DASHBOARD B2C DISTRICT BANTEN</h4>
-    <div class="last-update small text-muted" id="b2cLastUpdate"></div>
+    <div class="last-update small text-muted" id="b2cLastUpdate">
+      Loading...
+    </div>
   </div>
 
-  <!-- SUMMARY -->
+  <!-- ================= SUMMARY ================= -->
   <div class="row g-3 mb-4" id="b2cSummary">
-    <!-- JS inject -->
+    <!-- LOADING SUMMARY -->
+    <div class="col-12">
+      <div class="loading-card text-center py-4">
+        <div class="spinner-border text-info mb-2"></div>
+        <div class="small text-muted">Loading summary data...</div>
+      </div>
+    </div>
   </div>
 
-  <!-- KPI GRID -->
-  <div id="b2cKpiGrid" class="kpi-grid">
-    <!-- JS inject -->
+  <!-- ================= KPI + TABLE ================= -->
+  <div class="row g-3">
+
+    <!-- ========== LEFT : KPI GRID ========== -->
+    <div class="col-lg-8 col-xl-8">
+
+      <!-- KPI LOADING -->
+      <div id="b2cKpiLoading" class="loading-card text-center py-5">
+        <div class="spinner-border text-info mb-2"></div>
+        <div class="small text-muted">Loading KPI data...</div>
+      </div>
+
+      <!-- KPI GRID -->
+      <div id="b2cKpiGrid" class="kpi-grid d-none">
+        <!-- JS inject KPI cards -->
+      </div>
+    </div>
+
+    <!-- ========== RIGHT : KPI TABLE ========== -->
+<div class="col-lg-4 col-xl-4">
+
+  <div id="b2cTablePanel">
+
+    <!-- ================= TANGERANG ================= -->
+    <div class="table-card mb-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold text-warning mb-0">KPI BELOW TARGET - TANGERANG</h6>
+        <span class="badge bg-danger">BAD KPI</span>
+      </div>
+
+      <!-- LOADING -->
+      <div id="b2cTableLoadingTgr" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
+        <div class="small text-muted">Loading table...</div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-responsive d-none" id="b2cTableWrapperTgr">
+        <table class="table table-dark table-sm align-middle kpi-table">
+          <thead>
+            <tr>
+              <th>Indikator</th>
+              <th>Target</th>
+              <th>Ach HI</th>
+              <th>Status</th>
+              <th>Ach Kemarin</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="b2cKpiTableTgr">
+            <!-- JS inject -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ================= BANTEN ================= -->
+    <div class="table-card">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold text-info mb-0">KPI BELOW TARGET - BANTEN</h6>
+        <span class="badge bg-danger">BAD KPI</span>
+      </div>
+
+      <!-- LOADING -->
+      <div id="b2cTableLoadingBtn" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-info mb-2"></div>
+        <div class="small text-muted">Loading table...</div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-responsive d-none" id="b2cTableWrapperBtn">
+        <table class="table table-dark table-sm align-middle kpi-table">
+          <thead>
+            <tr>
+              <th>Indikator</th>
+              <th>Target</th>
+              <th>Ach HI</th>
+              <th>Status</th>
+              <th>Ach Kemarin</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="b2cKpiTableBtn">
+            <!-- JS inject -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
   </div>
 
 </div>
+
