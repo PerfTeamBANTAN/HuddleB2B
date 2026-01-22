@@ -1,6 +1,6 @@
 /* =====================================================
    B2C DASHBOARD RENDER SCRIPT
-   NEXT LEVEL • PRODUCTION SAFE
+   NEXT LEVEL • PRODUCTION SAFE (V2)
 ===================================================== */
 
 /* ===============================
@@ -16,12 +16,6 @@ const isGood = (val, target) =>
   typeof target === 'number' &&
   val >= target;
 
-const getSummaryClass = (val) => {
-  if (val >= 95) return 'summary-good';
-  if (val >= 90) return 'summary-warning';
-  return 'summary-bad';
-};
-
 const getTrend = (today, yesterday) => {
   if (typeof today !== 'number' || typeof yesterday !== 'number') return '';
   if (today > yesterday) return '▲';
@@ -30,21 +24,30 @@ const getTrend = (today, yesterday) => {
 };
 
 /* ===============================
-   MINI KPI PROGRESS (INLINE SAFE)
+   MINI KPI PROGRESS (NEXT LEVEL)
 =============================== */
 const miniProgress = (val, target) => {
   if (typeof val !== 'number' || typeof target !== 'number' || target === 0) {
-    return { pct: 0, color: '#ff6b6b' };
+    return { raw: 0, pct: 0, color: '#ff6b6b', glow: '' };
   }
 
   const raw = (val / target) * 100;
   const pct = Math.min(raw, 120);
 
-  let color = '#ff6b6b'; // bad
-  if (raw >= 100) color = '#20c997';      // good
-  else if (raw >= 90) color = '#ffc107';  // warning
+  let color = '#ff6b6b';
+  let glow  = '0 0 0 transparent';
 
-  return { pct, color };
+  if (raw >= 100) {
+    color = '#20c997';
+    glow  = '0 0 6px rgba(32,201,151,.65)';
+  } else if (raw >= 90) {
+    color = '#ffc107';
+    glow  = '0 0 6px rgba(255,193,7,.55)';
+  } else {
+    glow  = '0 0 8px rgba(255,107,107,.85)';
+  }
+
+  return { raw, pct, color, glow };
 };
 
 /* ===============================
@@ -72,49 +75,13 @@ function groupByKategori(data) {
 }
 
 /* ===============================
-   CALCULATE WILAYAH SUMMARY
-=============================== */
-function calcWilayah(data, wilayah) {
-  const valid = data.filter(
-    d => typeof d[wilayah] === 'number' && typeof d.target === 'number'
-  );
-
-  const good = valid.filter(d => d[wilayah] >= d.target).length;
-  const total = valid.length;
-  const pct = total ? (good / total) * 100 : null;
-
-  return { good, bad: total - good, pct };
-}
-
-/* ===============================
-   FIND BEST & WORST KPI
-=============================== */
-function findExtremes(data, wilayah) {
-  const scored = data
-    .filter(d => typeof d[wilayah] === 'number' && typeof d.target === 'number')
-    .map(d => ({
-      indikator: d.indikator,
-      diff: d[wilayah] - d.target
-    }));
-
-  scored.sort((a, b) => b.diff - a.diff);
-
-  return {
-    best: scored[0],
-    worst: scored[scored.length - 1]
-  };
-}
-
-/* ===============================
    RENDER SUMMARY
 =============================== */
 function renderSummary(api) {
   const { summary, lastUpdate } = api;
 
   const lastEl = document.getElementById('b2cLastUpdate');
-  if (lastEl) {
-    lastEl.innerText = `Last Update : ${lastUpdate}`;
-  }
+  if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
 
   const tangerangAch = summary.totalAch?.tangerang ?? null;
   const bantenAch    = summary.totalAch?.banten ?? null;
@@ -124,9 +91,7 @@ function renderSummary(api) {
       <div class="summary-card">
         <h6>TANGERANG</h6>
         <div class="summary-value">${fmt(tangerangAch)}%</div>
-        <div class="summary-sub">
-          ✅ ${summary.good} ❌ ${summary.bad}
-        </div>
+        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
       </div>
     </div>
 
@@ -134,9 +99,7 @@ function renderSummary(api) {
       <div class="summary-card">
         <h6>BANTEN</h6>
         <div class="summary-value">${fmt(bantenAch)}%</div>
-        <div class="summary-sub">
-          ✅ ${summary.good} ❌ ${summary.bad}
-        </div>
+        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
       </div>
     </div>
 
@@ -144,16 +107,14 @@ function renderSummary(api) {
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
         <div class="summary-value">${summary.totalKPI}</div>
-        <div class="summary-sub">
-          GOOD ${summary.good} | BAD ${summary.bad}
-        </div>
+        <div class="summary-sub">GOOD ${summary.good} | BAD ${summary.bad}</div>
       </div>
     </div>
   `;
 }
 
 /* ===============================
-   RENDER KPI GRID
+   RENDER KPI GRID (NEXT LEVEL)
 =============================== */
 function renderKpiGrid(data) {
   const container = document.getElementById('b2cKpiGrid');
@@ -172,8 +133,10 @@ function renderKpiGrid(data) {
       const tgGood = isGood(kpi.tangerang, kpi.target);
       const bnGood = isGood(kpi.banten, kpi.target);
 
-      const tgProg = miniProgress(kpi.tangerang, kpi.target);
-      const bnProg = miniProgress(kpi.banten, kpi.target);
+      const tg = miniProgress(kpi.tangerang, kpi.target);
+      const bn = miniProgress(kpi.banten, kpi.target);
+
+      const totalStack = tg.pct + bn.pct || 1;
 
       container.insertAdjacentHTML('beforeend', `
         <div class="col-md-4 col-lg-3">
@@ -185,26 +148,46 @@ function renderKpiGrid(data) {
               <span>${fmt(kpi.target)}</span>
             </div>
 
+            <!-- STACKED COMPARISON -->
+            <div style="margin:6px 0;height:5px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;">
+              <div style="height:100%;width:${(tg.pct/totalStack)*100}%;background:${tg.color};float:left"></div>
+              <div style="height:100%;width:${(bn.pct/totalStack)*100}%;background:${bn.color};float:left"></div>
+            </div>
+
             <div class="kpi-row">
               <span>Tangerang</span>
-              <span class="${tgGood ? 'good' : 'bad'}">
+              <span class="${tgGood ? 'good' : 'bad'}"
+                    title="${tg.raw.toFixed(1)}%">
                 ${fmt(kpi.tangerang)}
                 <small>${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</small>
 
                 <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
-                  <div style="height:100%;width:${tgProg.pct}%;background:${tgProg.color};transition:width .4s ease;"></div>
+                  <div style="
+                    height:100%;
+                    width:${tg.pct}%;
+                    background:${tg.color};
+                    box-shadow:${tg.glow};
+                    transition:width .4s ease;">
+                  </div>
                 </div>
               </span>
             </div>
 
             <div class="kpi-row">
               <span>Banten</span>
-              <span class="${bnGood ? 'good' : 'bad'}">
+              <span class="${bnGood ? 'good' : 'bad'}"
+                    title="${bn.raw.toFixed(1)}%">
                 ${fmt(kpi.banten)}
                 <small>${getTrend(kpi.banten, kpi.banten_yesterday)}</small>
 
                 <div style="margin-top:4px;height:4px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden;">
-                  <div style="height:100%;width:${bnProg.pct}%;background:${bnProg.color};transition:width .4s ease;"></div>
+                  <div style="
+                    height:100%;
+                    width:${bn.pct}%;
+                    background:${bn.color};
+                    box-shadow:${bn.glow};
+                    transition:width .4s ease;">
+                  </div>
                 </div>
               </span>
             </div>
@@ -239,7 +222,6 @@ window.initDashboardB2C24KPI = async function () {
 
     await load();
     setInterval(load, 5 * 60 * 1000);
-
   } catch (err) {
     console.error('B2C Dashboard Error:', err);
   }
