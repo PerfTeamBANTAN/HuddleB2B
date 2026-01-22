@@ -136,9 +136,9 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       card.className = 'kpi-card mini';
       card.innerHTML = `
         <div class="kpi-title">${kpi.indikator}</div>
-        <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
-        <div class="kpi-row"><span>Tgr</span><span>${fmt(kpi.tangerang)}</span></div>
-        <div class="kpi-row"><span>Bnt</span><span>${fmt(kpi.banten)}</span></div>
+        <div class="kpi-row"><span>Target :</span><span>${fmt(kpi.target)}</span></div>
+        <div class="kpi-row"><span>Tangerang :</span><span>${fmt(kpi.tangerang)}</span></div>
+        <div class="kpi-row"><span>Banten :</span><span>${fmt(kpi.banten)}</span></div>
       `;
       cards.appendChild(card);
     });
