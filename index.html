@@ -1262,46 +1262,38 @@ td.clickable:hover {
     0 8px 18px rgba(0,0,0,.75);
 }
 
-/* container utama */
 .kpi-grid {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
-/* 1 kategori = 1 baris */
 .kpi-category-row {
   display: flex;
   gap: 16px;
-  align-items: flex-start;
 }
 
-/* judul kategori kiri */
 .kpi-category-title {
   width: 260px;
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 700;
   color: #6ee7ff;
+  font-weight: 700;
+  font-size: 13px;
   padding-top: 10px;
+  flex-shrink: 0;
 }
 
-/* KPI kanan, horizontal */
 .kpi-category-cards {
   display: flex;
-  flex-wrap: nowrap;      /* ⛔ TIDAK BOLEH TURUN */
   gap: 10px;
+  flex-wrap: nowrap;
   overflow-x: auto;
 }
 
-/* kartu kecil */
 .kpi-card.mini {
   width: 150px;
   min-height: 80px;
   flex-shrink: 0;
 }
-
-
 
 </style>
 
