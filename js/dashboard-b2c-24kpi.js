@@ -156,19 +156,26 @@ function applyKpiHighlightAndTooltip() {
 
   document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
 
+    /* ===============================
+       CLEAN PREVIOUS STATE (WAJIB)
+    =============================== */
+    card.classList.remove('good', 'bad');
+    card.style.boxShadow = '';
+
+    const oldTooltip = card.querySelector('.kpi-tooltip');
+    if (oldTooltip) oldTooltip.remove();
+
+    /* ===============================
+       GET ROWS
+    =============================== */
     const rows = Array.from(card.querySelectorAll('.kpi-row'));
 
-    const parseNumber = (text) => {
-      return Number(
-        text
-          .replace(/\./g, '')
-          .replace(',', '.')
-          .replace('%', '')
-      );
-    };
-
     const getRow = (label) =>
-      rows.find(r => r.innerText.toLowerCase().includes(label));
+      rows.find(r =>
+        r.querySelector('span:first-child')
+          ?.innerText.toLowerCase()
+          .includes(label)
+      );
 
     const targetRow = getRow('target');
     const tgrRow    = getRow('tangerang');
@@ -176,9 +183,25 @@ function applyKpiHighlightAndTooltip() {
 
     if (!targetRow || !tgrRow || !btnRow) return;
 
-    const target = parseNumber(targetRow.innerText.split(':')[1]);
-    const tgr    = parseNumber(tgrRow.innerText.split(':')[1]);
-    const btn    = parseNumber(btnRow.innerText.split(':')[1]);
+    /* ===============================
+       SAFE NUMBER PARSER
+    =============================== */
+    const parseValue = (row) => {
+      const valEl = row.querySelector('span:last-child');
+      if (!valEl) return NaN;
+
+      return Number(
+        valEl.innerText
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .replace('%', '')
+          .trim()
+      );
+    };
+
+    const target = parseValue(targetRow);
+    const tgr    = parseValue(tgrRow);
+    const btn    = parseValue(btnRow);
 
     if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
 
@@ -192,8 +215,6 @@ function applyKpiHighlightAndTooltip() {
     /* ===============================
        CARD HIGHLIGHT
     =============================== */
-    card.classList.remove('good', 'bad');
-
     if (isBad) {
       card.classList.add('bad');
       card.style.boxShadow = '0 0 18px rgba(239,68,68,.75)';
@@ -203,21 +224,21 @@ function applyKpiHighlightAndTooltip() {
     }
 
     /* ===============================
-       ANGKA COLOR (INI KUNCI)
+       ANGKA COLOR (CLEAR & APPLY)
     =============================== */
-    const colorize = (row, isBad) => {
+    const colorize = (row, bad) => {
       const valueEl = row.querySelector('span:last-child');
       if (!valueEl) return;
 
       valueEl.style.fontWeight = '700';
-      valueEl.style.color = isBad ? '#ef4444' : '#22c55e';
+      valueEl.style.color = bad ? '#ef4444' : '#22c55e';
     };
 
     colorize(tgrRow, badTgr);
     colorize(btnRow, badBtn);
 
     /* ===============================
-       TOOLTIP
+       TOOLTIP (SINGLE INSTANCE)
     =============================== */
     const tooltip = document.createElement('div');
     tooltip.className = 'kpi-tooltip';
@@ -231,73 +252,10 @@ function applyKpiHighlightAndTooltip() {
 
     card.style.position = 'relative';
     card.appendChild(tooltip);
+
   });
 }
 
-/* ===============================
-   RENDER BAD KPI TABLE
-=============================== */
-function renderBadKpiTable(data) {
-
-  const tgrBody = document.getElementById('b2cKpiTableTgr');
-  const btnBody = document.getElementById('b2cKpiTableBtn');
-
-  tgrBody.innerHTML = '';
-  btnBody.innerHTML = '';
-
-  let hasBadTgr = false;
-  let hasBadBtn = false;
-
-  data.forEach(kpi => {
-
-    const target = Number(kpi.target);
-    const tgr    = Number(kpi.tangerang);
-    const btn    = Number(kpi.banten);
-
-    const tgrY   = Number(kpi.tangerang_yesterday);
-    const btnY   = Number(kpi.banten_yesterday);
-
-    /* ========== TANGERANG ========== */
-    if (!isNaN(target) && !isNaN(tgr) && tgr < target) {
-      hasBadTgr = true;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${kpi.indikator}</td>
-        <td>${fmt(target)}</td>
-        <td class="fw-bold text-danger">${fmt(tgr)}</td>
-        <td><span class="badge bg-danger">BELOW</span></td>
-        <td>${fmt(tgrY)}</td>
-        <td>
-          <span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
-            ${tgrY >= target ? 'ACH' : 'BELOW'}
-          </span>
-        </td>
-      `;
-      tgrBody.appendChild(tr);
-    }
-
-    /* ========== BANTEN ========== */
-    if (!isNaN(target) && !isNaN(btn) && btn < target) {
-      hasBadBtn = true;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${kpi.indikator}</td>
-        <td>${fmt(target)}</td>
-        <td class="fw-bold text-danger">${fmt(btn)}</td>
-        <td><span class="badge bg-danger">BELOW</span></td>
-        <td>${fmt(btnY)}</td>
-        <td>
-          <span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
-            ${btnY >= target ? 'ACH' : 'BELOW'}
-          </span>
-        </td>
-      `;
-      btnBody.appendChild(tr);
-    }
-
-  });
 
   /* ===============================
      LOADING → TABLE
