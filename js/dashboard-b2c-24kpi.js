@@ -156,42 +156,41 @@ function applyKpiHighlightAndTooltip() {
 
   document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
 
-    /* ===============================
-       AMBIL BARIS KPI
-    =============================== */
     const rows = Array.from(card.querySelectorAll('.kpi-row'));
 
-    const getNumber = (label) => {
-      const row = rows.find(r =>
-        r.innerText.toLowerCase().includes(label)
+    const parseNumber = (text) => {
+      return Number(
+        text
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .replace('%', '')
       );
-      if (!row) return null;
-
-      const raw = row.innerText.split(':')[1]
-        ?.trim()
-        .replace(/\./g, '')     // hapus thousand separator
-        .replace(',', '.')      // ubah desimal ID → EN
-        .replace('%', '');
-
-      const num = Number(raw);
-      return isNaN(num) ? null : num;
     };
 
-    const target = getNumber('target');
-    const tgr    = getNumber('tangerang');
-    const btn    = getNumber('banten');
+    const getRow = (label) =>
+      rows.find(r => r.innerText.toLowerCase().includes(label));
 
-    if (target === null || tgr === null || btn === null) return;
+    const targetRow = getRow('target');
+    const tgrRow    = getRow('tangerang');
+    const btnRow    = getRow('banten');
+
+    if (!targetRow || !tgrRow || !btnRow) return;
+
+    const target = parseNumber(targetRow.innerText.split(':')[1]);
+    const tgr    = parseNumber(tgrRow.innerText.split(':')[1]);
+    const btn    = parseNumber(btnRow.innerText.split(':')[1]);
+
+    if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
 
     /* ===============================
-       LOGIC STATUS KPI
+       STATUS LOGIC
     =============================== */
     const badTgr = tgr < target;
     const badBtn = btn < target;
     const isBad  = badTgr || badBtn;
 
     /* ===============================
-       HIGHLIGHT CARD
+       CARD HIGHLIGHT
     =============================== */
     card.classList.remove('good', 'bad');
 
@@ -204,13 +203,26 @@ function applyKpiHighlightAndTooltip() {
     }
 
     /* ===============================
+       ANGKA COLOR (INI KUNCI)
+    =============================== */
+    const colorize = (row, isBad) => {
+      const valueEl = row.querySelector('span:last-child');
+      if (!valueEl) return;
+
+      valueEl.style.fontWeight = '700';
+      valueEl.style.color = isBad ? '#ef4444' : '#22c55e';
+    };
+
+    colorize(tgrRow, badTgr);
+    colorize(btnRow, badBtn);
+
+    /* ===============================
        TOOLTIP
     =============================== */
     const tooltip = document.createElement('div');
     tooltip.className = 'kpi-tooltip';
-
     tooltip.innerHTML = `
-      <strong>${card.querySelector('.kpi-title')?.innerText || ''}</strong><br>
+      <strong>${card.querySelector('.kpi-title')?.innerText}</strong><br>
       Target : ${target}<br>
       Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
       Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
@@ -222,7 +234,6 @@ function applyKpiHighlightAndTooltip() {
   });
 }
 
- 
   /* ===============================
      MAIN
   =============================== */
