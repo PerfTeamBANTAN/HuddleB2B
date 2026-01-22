@@ -1,9 +1,7 @@
 /* =====================================================
-   B2C DISTRICT KPI DASHBOARD – FINAL NEON VERSION
-   COMPATIBLE WITH EXISTING CSS
+   B2C DISTRICT KPI DASHBOARD – FINAL FIXED
 ===================================================== */
 
-/* ================= UTIL ================= */
 const $ = id => document.getElementById(id);
 
 function num(v) {
@@ -15,7 +13,6 @@ function fmt(v) {
   return Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 }
 
-/* ================= STATUS ================= */
 function getStatus(target, ach) {
   if (!target) return 'NA';
   return ach >= target ? 'GOOD' : 'BAD';
@@ -32,29 +29,18 @@ function renderSummary(data) {
       <div class="summary-neon">
         <div class="summary-title">TOTAL KPI</div>
         <div class="summary-value">${total}</div>
-        <div class="summary-grid">
-          ${Array.from({length:10}).map(()=>'<span class="on"></span>').join('')}
-        </div>
       </div>
     </div>
-
     <div class="col-md-4">
       <div class="summary-neon">
         <div class="summary-title">ACHIEVE</div>
-        <div class="summary-value" style="color:#22c55e">${good}</div>
-        <div class="summary-grid">
-          ${Array.from({length:good}).map(()=>'<span class="on"></span>').join('')}
-        </div>
+        <div class="summary-value text-success">${good}</div>
       </div>
     </div>
-
     <div class="col-md-4">
       <div class="summary-neon">
         <div class="summary-title">NOT ACHIEVE</div>
-        <div class="summary-value" style="color:#ef4444">${bad}</div>
-        <div class="summary-grid">
-          ${Array.from({length:bad}).map(()=>'<span class="on"></span>').join('')}
-        </div>
+        <div class="summary-value text-danger">${bad}</div>
       </div>
     </div>
   `;
@@ -70,41 +56,15 @@ function renderKPI(data) {
       ? Math.min(100, Math.round((kpi.ach / kpi.target) * 100))
       : 0;
 
-    const dash = 2 * Math.PI * 42;
-    const offset = dash * (1 - pct / 100);
-
     wrap.insertAdjacentHTML('beforeend', `
       <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
         <div class="kpi-neon ${kpi.status === 'GOOD' ? 'good' : 'bad'}">
-
           <div class="kpi-name">${kpi.indikator}</div>
-
-          <div class="kpi-circle">
-            <svg viewBox="0 0 36 36">
-              <path class="bg"
-                d="M18 2.0845
-                   a 15.9155 15.9155 0 0 1 0 31.831
-                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
-              <path class="progress"
-                stroke="${kpi.status === 'GOOD' ? '#22c55e' : '#ef4444'}"
-                stroke-dasharray="${dash}"
-                stroke-dashoffset="${offset}"
-                d="M18 2.0845
-                   a 15.9155 15.9155 0 0 1 0 31.831
-                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
-            </svg>
-            <div class="pct">${pct}%</div>
-          </div>
-
-          <div class="kpi-meta">
-            TGT ${fmt(kpi.target)}<br>
-            HI ${fmt(kpi.ach)}
-          </div>
-
+          <div class="kpi-value">${fmt(kpi.ach)}</div>
+          <div class="kpi-target">TGT ${fmt(kpi.target)}</div>
           <div class="kpi-status ${kpi.status === 'GOOD' ? 'ok' : 'bad'}">
-            ${kpi.status === 'GOOD' ? '✔' : '✖'}
+            ${kpi.status}
           </div>
-
         </div>
       </div>
     `);
@@ -118,21 +78,22 @@ function normalize(raw) {
     const ach = num(r['Achievement HI']);
 
     return {
-      indikator: r.Indikator ?? r['Indikator '] ?? '-',
+      indikator: r.Indikator || r['Indikator '] || '-',
       target,
       ach,
-      status: getStatus(target, ach),
-      kategori: r['Katagori KPI'] ?? '-'
+      status: getStatus(target, ach)
     };
   });
 }
 
-/* ================= INIT ================= */
-function initDashboardB2C4KPI(apiUrl) {
+/* =====================================================
+   ✅ INI YANG DIPANGGIL OLEH SYSTEM KAMU
+===================================================== */
+function initDashboardB2C24KPI(apiUrl) {
   fetch(apiUrl)
     .then(r => r.json())
     .then(res => {
-      const data = normalize(res.data);
+      const data = normalize(res.data || []);
 
       $('b2cLastUpdate').innerText =
         `Updated ${new Date(res.lastUpdate).toLocaleString('id-ID')}`;
@@ -140,7 +101,5 @@ function initDashboardB2C4KPI(apiUrl) {
       renderSummary(data);
       renderKPI(data);
     })
-    .catch(err => {
-      console.error('B2C KPI ERROR', err);
-    });
+    .catch(err => console.error('B2C KPI ERROR', err));
 }
