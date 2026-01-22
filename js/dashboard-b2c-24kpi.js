@@ -18,40 +18,6 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     typeof target === 'number' &&
     val >= target;
 
-  const getTrend = (today, yesterday) => {
-    if (typeof today !== 'number' || typeof yesterday !== 'number') return '';
-    if (today > yesterday) return '▲';
-    if (today < yesterday) return '▼';
-    return '■';
-  };
-
-  /* ===============================
-     MINI KPI PROGRESS
-  =============================== */
-  const miniProgress = (val, target) => {
-    if (typeof val !== 'number' || typeof target !== 'number' || target === 0) {
-      return { raw: 0, pct: 0, color: '#ff6b6b', glow: '' };
-    }
-
-    const raw = (val / target) * 100;
-    const pct = Math.min(raw, 120);
-
-    let color = '#ff6b6b';
-    let glow  = '0 0 0 transparent';
-
-    if (raw >= 100) {
-      color = '#20c997';
-      glow  = '0 0 6px rgba(32,201,151,.65)';
-    } else if (raw >= 90) {
-      color = '#ffc107';
-      glow  = '0 0 6px rgba(255,193,7,.55)';
-    } else {
-      glow  = '0 0 8px rgba(255,107,107,.85)';
-    }
-
-    return { raw, pct, color, glow };
-  };
-
   /* ===============================
      SKELETON LOADER
   =============================== */
@@ -110,190 +76,180 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      RENDER KPI GRID
   =============================== */
   function renderKpiGrid(data) {
-  console.log('RENDER KPI GRID BARU JALAN');
+    const container = document.getElementById('b2cKpiGrid');
+    container.innerHTML = '<div class="b2c-kpi-wrapper"></div>';
+    const wrapper = container.querySelector('.b2c-kpi-wrapper');
 
-  const container = document.getElementById('b2cKpiGrid');
-   container.innerHTML = '<div class="b2c-kpi-wrapper"></div>';
+    const grouped = groupByKategori(data);
 
-   const wrapper = container.querySelector('.b2c-kpi-wrapper');
+    Object.entries(grouped).forEach(([kategori, items]) => {
+      const row = document.createElement('div');
+      row.className = 'kpi-category-row';
 
-  const grouped = groupByKategori(data);
+      const title = document.createElement('div');
+      title.className = 'kpi-category-title';
+      title.textContent = kategori;
 
-  Object.entries(grouped).forEach(([kategori, items]) => {
+      const cards = document.createElement('div');
+      cards.className = 'kpi-category-cards';
 
-    const row = document.createElement('div');
-    row.className = 'kpi-category-row';
+      items.forEach(kpi => {
+        const card = document.createElement('div');
+        card.className = 'kpi-card mini';
+        card.innerHTML = `
+          <div class="kpi-title">${kpi.indikator}</div>
+          <div class="kpi-row"><span>Target :</span><span>${fmt(kpi.target)}</span></div>
+          <div class="kpi-row"><span>Tangerang :</span><span>${fmt(kpi.tangerang)}</span></div>
+          <div class="kpi-row"><span>Banten :</span><span>${fmt(kpi.banten)}</span></div>
+        `;
+        cards.appendChild(card);
+      });
 
-    const title = document.createElement('div');
-    title.className = 'kpi-category-title';
-    title.textContent = kategori;
-
-    const cards = document.createElement('div');
-    cards.className = 'kpi-category-cards';
-
-    items.forEach(kpi => {
-      const card = document.createElement('div');
-      card.className = 'kpi-card mini';
-      card.innerHTML = `
-        <div class="kpi-title">${kpi.indikator}</div>
-        <div class="kpi-row"><span>Target :</span><span>${fmt(kpi.target)}</span></div>
-        <div class="kpi-row"><span>Tangerang :</span><span>${fmt(kpi.tangerang)}</span></div>
-        <div class="kpi-row"><span>Banten :</span><span>${fmt(kpi.banten)}</span></div>
-      `;
-      cards.appendChild(card);
+      row.appendChild(title);
+      row.appendChild(cards);
+      wrapper.appendChild(row);
     });
-
-    row.appendChild(title);
-    row.appendChild(cards);
-    wrapper.appendChild(row);
-  });
-}
-
-/* ===============================
-   AUTO KPI CHECK + TOOLTIP
-=============================== */
-function applyKpiHighlightAndTooltip() {
-
-  document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
-
-    /* ===============================
-       CLEAN PREVIOUS STATE (WAJIB)
-    =============================== */
-    card.classList.remove('good', 'bad');
-    card.style.boxShadow = '';
-
-    const oldTooltip = card.querySelector('.kpi-tooltip');
-    if (oldTooltip) oldTooltip.remove();
-
-    /* ===============================
-       GET ROWS
-    =============================== */
-    const rows = Array.from(card.querySelectorAll('.kpi-row'));
-
-    const getRow = (label) =>
-      rows.find(r =>
-        r.querySelector('span:first-child')
-          ?.innerText.toLowerCase()
-          .includes(label)
-      );
-
-    const targetRow = getRow('target');
-    const tgrRow    = getRow('tangerang');
-    const btnRow    = getRow('banten');
-
-    if (!targetRow || !tgrRow || !btnRow) return;
-
-    /* ===============================
-       SAFE NUMBER PARSER
-    =============================== */
-    const parseValue = (row) => {
-      const valEl = row.querySelector('span:last-child');
-      if (!valEl) return NaN;
-
-      return Number(
-        valEl.innerText
-          .replace(/\./g, '')
-          .replace(',', '.')
-          .replace('%', '')
-          .trim()
-      );
-    };
-
-    const target = parseValue(targetRow);
-    const tgr    = parseValue(tgrRow);
-    const btn    = parseValue(btnRow);
-
-    if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
-
-    /* ===============================
-       STATUS LOGIC
-    =============================== */
-    const badTgr = tgr < target;
-    const badBtn = btn < target;
-    const isBad  = badTgr || badBtn;
-
-    /* ===============================
-       CARD HIGHLIGHT
-    =============================== */
-    if (isBad) {
-      card.classList.add('bad');
-      card.style.boxShadow = '0 0 18px rgba(239,68,68,.75)';
-    } else {
-      card.classList.add('good');
-      card.style.boxShadow = '0 0 18px rgba(34,197,94,.55)';
-    }
-
-    /* ===============================
-       ANGKA COLOR (CLEAR & APPLY)
-    =============================== */
-    const colorize = (row, bad) => {
-      const valueEl = row.querySelector('span:last-child');
-      if (!valueEl) return;
-
-      valueEl.style.fontWeight = '700';
-      valueEl.style.color = bad ? '#ef4444' : '#22c55e';
-    };
-
-    colorize(tgrRow, badTgr);
-    colorize(btnRow, badBtn);
-
-    /* ===============================
-       TOOLTIP (SINGLE INSTANCE)
-    =============================== */
-    const tooltip = document.createElement('div');
-    tooltip.className = 'kpi-tooltip';
-    tooltip.innerHTML = `
-      <strong>${card.querySelector('.kpi-title')?.innerText}</strong><br>
-      Target : ${target}<br>
-      Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
-      Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
-      <strong>Status :</strong> ${isBad ? '❌ BELOW TARGET' : '✅ ACH'}
-    `;
-
-    card.style.position = 'relative';
-    card.appendChild(tooltip);
-
-  });
-}
-
+  }
 
   /* ===============================
-     LOADING → TABLE
+     KPI HIGHLIGHT + TOOLTIP
   =============================== */
-  document.getElementById('b2cTableLoadingTgr').classList.add('d-none');
-  document.getElementById('b2cTableLoadingBtn').classList.add('d-none');
+  function applyKpiHighlightAndTooltip() {
+    document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
 
-  if (hasBadTgr) {
-    document.getElementById('b2cTableWrapperTgr').classList.remove('d-none');
+      card.classList.remove('good', 'bad');
+      card.style.boxShadow = '';
+
+      const oldTooltip = card.querySelector('.kpi-tooltip');
+      if (oldTooltip) oldTooltip.remove();
+
+      const rows = Array.from(card.querySelectorAll('.kpi-row'));
+
+      const getRow = (label) =>
+        rows.find(r =>
+          r.querySelector('span:first-child')?.innerText.toLowerCase().includes(label)
+        );
+
+      const targetRow = getRow('target');
+      const tgrRow = getRow('tangerang');
+      const btnRow = getRow('banten');
+
+      if (!targetRow || !tgrRow || !btnRow) return;
+
+      const parseVal = (row) =>
+        Number(row.querySelector('span:last-child').innerText.replace(/\./g, '').replace(',', '.'));
+
+      const target = parseVal(targetRow);
+      const tgr = parseVal(tgrRow);
+      const btn = parseVal(btnRow);
+
+      if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
+
+      const badTgr = tgr < target;
+      const badBtn = btn < target;
+      const isBad = badTgr || badBtn;
+
+      card.classList.add(isBad ? 'bad' : 'good');
+      card.style.boxShadow = isBad
+        ? '0 0 18px rgba(239,68,68,.75)'
+        : '0 0 18px rgba(34,197,94,.55)';
+
+      const colorize = (row, bad) => {
+        const el = row.querySelector('span:last-child');
+        el.style.fontWeight = '700';
+        el.style.color = bad ? '#ef4444' : '#22c55e';
+      };
+
+      colorize(tgrRow, badTgr);
+      colorize(btnRow, badBtn);
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'kpi-tooltip';
+      tooltip.innerHTML = `
+        <strong>${card.querySelector('.kpi-title').innerText}</strong><br>
+        Target : ${target}<br>
+        Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
+        Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
+        <strong>Status :</strong> ${isBad ? '❌ BELOW TARGET' : '✅ ACH'}
+      `;
+      card.appendChild(tooltip);
+    });
   }
 
-  if (hasBadBtn) {
-    document.getElementById('b2cTableWrapperBtn').classList.remove('d-none');
+  /* ===============================
+     BAD KPI TABLE
+  =============================== */
+  function renderBadKpiTable(data) {
+    const tgrBody = document.getElementById('b2cKpiTableTgr');
+    const btnBody = document.getElementById('b2cKpiTableBtn');
+
+    tgrBody.innerHTML = '';
+    btnBody.innerHTML = '';
+
+    let hasBadTgr = false;
+    let hasBadBtn = false;
+
+    data.forEach(kpi => {
+      const target = Number(kpi.target);
+      const tgr = Number(kpi.tangerang);
+      const btn = Number(kpi.banten);
+      const tgrY = Number(kpi.tangerang_yesterday);
+      const btnY = Number(kpi.banten_yesterday);
+
+      if (tgr < target) {
+        hasBadTgr = true;
+        tgrBody.innerHTML += `
+          <tr>
+            <td>${kpi.indikator}</td>
+            <td>${fmt(target)}</td>
+            <td class="text-danger fw-bold">${fmt(tgr)}</td>
+            <td><span class="badge bg-danger">BELOW</span></td>
+            <td>${fmt(tgrY)}</td>
+            <td><span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
+              ${tgrY >= target ? 'ACH' : 'BELOW'}
+            </span></td>
+          </tr>`;
+      }
+
+      if (btn < target) {
+        hasBadBtn = true;
+        btnBody.innerHTML += `
+          <tr>
+            <td>${kpi.indikator}</td>
+            <td>${fmt(target)}</td>
+            <td class="text-danger fw-bold">${fmt(btn)}</td>
+            <td><span class="badge bg-danger">BELOW</span></td>
+            <td>${fmt(btnY)}</td>
+            <td><span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
+              ${btnY >= target ? 'ACH' : 'BELOW'}
+            </span></td>
+          </tr>`;
+      }
+    });
+
+    document.getElementById('b2cTableLoadingTgr').classList.add('d-none');
+    document.getElementById('b2cTableLoadingBtn').classList.add('d-none');
+
+    if (hasBadTgr) document.getElementById('b2cTableWrapperTgr').classList.remove('d-none');
+    if (hasBadBtn) document.getElementById('b2cTableWrapperBtn').classList.remove('d-none');
   }
-}
 
   /* ===============================
      MAIN
   =============================== */
   function render(api) {
-  if (!api || !Array.isArray(api.data)) return;
-
-  renderSummary(api);
-  renderKpiGrid(api.data);
-  applyKpiHighlightAndTooltip();
-
-  // === TABLE BAD KPI ===
-  renderBadKpiTable(api.data);
-}
-
-
+    if (!api || !Array.isArray(api.data)) return;
+    renderSummary(api);
+    renderKpiGrid(api.data);
+    applyKpiHighlightAndTooltip();
+    renderBadKpiTable(api.data);
+  }
 
   async function init() {
     showSkeleton();
     const res = await fetch(`${B2B_API_URL}?type=b2c_24kpi_banten`);
     const json = await res.json();
     render(json);
-    setInterval(init, 5 * 60 * 1000);
   }
 
   return { init };
