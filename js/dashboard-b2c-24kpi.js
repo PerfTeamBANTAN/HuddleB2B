@@ -1,11 +1,5 @@
 /* =====================================================
    B2C DASHBOARD RENDER SCRIPT
-   Compatible with API:
-   {
-     lastUpdate,
-     summary,
-     data:[{ kategori, indikator, target, banten, tangerang }]
-   }
 ===================================================== */
 
 /* ===============================
@@ -14,7 +8,6 @@
 const fmt = (v) => {
   if (v === null || v === undefined || isNaN(v)) return '-';
   return Number(v).toLocaleString('id-ID', {
-    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   });
 };
@@ -29,7 +22,7 @@ const isGood = (val, target) =>
 =============================== */
 function groupByKategori(data) {
   return data.reduce((acc, item) => {
-    if (!acc[item.kategori]) acc[item.kategori] = [];
+    acc[item.kategori] ??= [];
     acc[item.kategori].push(item);
     return acc;
   }, {});
@@ -44,38 +37,24 @@ function renderSummary(api) {
   document.getElementById('b2cLastUpdate').innerText =
     `Last Update : ${lastUpdate}`;
 
-  const tangerangGood = data.filter(d =>
-    isGood(d.tangerang, d.target)
-  ).length;
-
-  const bantenGood = data.filter(d =>
-    isGood(d.banten, d.target)
-  ).length;
-
+  const tangerangGood = data.filter(d => isGood(d.tangerang, d.target)).length;
+  const bantenGood = data.filter(d => isGood(d.banten, d.target)).length;
   const total = summary.totalKPI;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
       <div class="summary-card">
         <h6>TANGERANG</h6>
-        <div class="summary-value">
-          ${fmt((tangerangGood / total) * 100)}%
-        </div>
-        <div class="summary-sub">
-          ✅ ${tangerangGood} &nbsp; ❌ ${total - tangerangGood}
-        </div>
+        <div class="summary-value">${fmt(tangerangGood / total * 100)}%</div>
+        <div class="summary-sub">✅ ${tangerangGood} ❌ ${total - tangerangGood}</div>
       </div>
     </div>
 
     <div class="col-md-4">
       <div class="summary-card">
         <h6>BANTEN</h6>
-        <div class="summary-value">
-          ${fmt((bantenGood / total) * 100)}%
-        </div>
-        <div class="summary-sub">
-          ✅ ${bantenGood} &nbsp; ❌ ${total - bantenGood}
-        </div>
+        <div class="summary-value">${fmt(bantenGood / total * 100)}%</div>
+        <div class="summary-sub">✅ ${bantenGood} ❌ ${total - bantenGood}</div>
       </div>
     </div>
 
@@ -83,9 +62,7 @@ function renderSummary(api) {
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
         <div class="summary-value">${total}</div>
-        <div class="summary-sub">
-          GOOD ${summary.good} | BAD ${summary.bad}
-        </div>
+        <div class="summary-sub">GOOD ${summary.good} | BAD ${summary.bad}</div>
       </div>
     </div>
   `;
@@ -100,56 +77,32 @@ function renderKpiGrid(data) {
 
   const grouped = groupByKategori(data);
 
-  Object.keys(grouped).forEach(kategori => {
-
-    /* ===== KATEGORI HEADER ===== */
-    container.insertAdjacentHTML(
-      'beforeend',
-      `
+  Object.entries(grouped).forEach(([kategori, items]) => {
+    container.insertAdjacentHTML('beforeend', `
       <div class="col-12">
-        <div class="kategori-title">
-          ${kategori}
-        </div>
+        <div class="kategori-title">${kategori}</div>
       </div>
-      `
-    );
+    `);
 
-    /* ===== KPI CARDS ===== */
-    grouped[kategori].forEach(kpi => {
+    items.forEach(kpi => {
       const tgGood = isGood(kpi.tangerang, kpi.target);
       const bnGood = isGood(kpi.banten, kpi.target);
 
-      container.insertAdjacentHTML(
-        'beforeend',
-        `
+      container.insertAdjacentHTML('beforeend', `
         <div class="col-md-4 col-lg-3">
           <div class="kpi-card">
-            <div class="kpi-title">
-              ${kpi.indikator}
-            </div>
+            <div class="kpi-title">${kpi.indikator}</div>
 
-            <div class="kpi-row">
-              <span>Target</span>
-              <span>${fmt(kpi.target)}</span>
+            <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
+            <div class="kpi-row"><span>Tangerang</span>
+              <span class="${tgGood ? 'good' : 'bad'}">${fmt(kpi.tangerang)}</span>
             </div>
-
-            <div class="kpi-row">
-              <span>Tangerang</span>
-              <span class="${tgGood ? 'good' : 'bad'}">
-                ${fmt(kpi.tangerang)}
-              </span>
-            </div>
-
-            <div class="kpi-row">
-              <span>Banten</span>
-              <span class="${bnGood ? 'good' : 'bad'}">
-                ${fmt(kpi.banten)}
-              </span>
+            <div class="kpi-row"><span>Banten</span>
+              <span class="${bnGood ? 'good' : 'bad'}">${fmt(kpi.banten)}</span>
             </div>
           </div>
         </div>
-        `
-      );
+      `);
     });
   });
 }
@@ -158,7 +111,7 @@ function renderKpiGrid(data) {
    MAIN RENDER
 =============================== */
 function renderB2CDashboard(apiResponse) {
-  if (!apiResponse || !apiResponse.data) {
+  if (!apiResponse?.data) {
     console.error('Invalid API Response', apiResponse);
     return;
   }
@@ -167,11 +120,16 @@ function renderB2CDashboard(apiResponse) {
   renderKpiGrid(apiResponse.data);
 }
 
-/* ===============================
-   FETCH & INIT
-=============================== */
-// contoh
-// fetch(API_URL)
-//   .then(res => res.json())
-//   .then(renderB2CDashboard)
-//   .catch(console.error);
+/* =====================================================
+   🔥 INIT FUNCTION (WAJIB ADA)
+   Dipanggil oleh loader HTML kamu
+===================================================== */
+window.initDashboardB2C24KPI = async function () {
+  try {
+    const res = await fetch(API_URL_B2C); // ganti sesuai endpoint kamu
+    const json = await res.json();
+    renderB2CDashboard(json);
+  } catch (err) {
+    console.error('B2C Dashboard Error:', err);
+  }
+};
