@@ -156,38 +156,44 @@ function applyKpiHighlightAndTooltip() {
 
   document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
 
-    const rows = card.querySelectorAll('.kpi-row');
-    if (rows.length < 2) return;
+    const rows = Array.from(card.querySelectorAll('div'))
+      .filter(d => d.innerText.includes(':'));
 
-    const target = parseFloat(
-      rows[0].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.')
-    );
-    const tgr = parseFloat(
-      rows[1].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.')
-    );
-    const btn = rows[2]
-      ? parseFloat(rows[2].querySelector('span:last-child')?.innerText.replace(/\./g,'').replace(',','.'))
-      : null;
+    const getVal = (label) => {
+      const row = rows.find(r => r.innerText.toLowerCase().includes(label));
+      if (!row) return null;
 
-    if (isNaN(target) || isNaN(tgr)) return;
+      const raw = row.innerText.split(':')[1].trim()
+        .replace(/\./g, '')
+        .replace(',', '.')
+        .replace('%','');
 
-    /* === BELOW TARGET === */
+      const num = Number(raw);
+      return isNaN(num) ? null : num;
+    };
+
+    const target = getVal('target');
+    const tgr    = getVal('tangerang');
+
+    if (target === null || tgr === null) return;
+
+    /* ===== HIGHLIGHT ===== */
     if (tgr < target) {
-      card.classList.add('bad');   // reuse existing style (AMAN)
+      card.classList.add('bad');
+      card.style.boxShadow = '0 0 18px rgba(239,68,68,.75)';
     } else {
       card.classList.add('good');
+      card.style.boxShadow = '0 0 18px rgba(34,197,94,.55)';
     }
 
-    /* === TOOLTIP === */
+    /* ===== TOOLTIP ===== */
     const tooltip = document.createElement('div');
     tooltip.className = 'kpi-tooltip';
-
     tooltip.innerHTML = `
       <strong>${card.querySelector('.kpi-title')?.innerText}</strong><br>
-      Target : ${fmt(target)}<br>
-      Tangerang : ${fmt(tgr)}<br>
-      ${btn !== null ? `Banten : ${fmt(btn)}<br>` : ''}
-      Status : ${tgr >= target ? 'ACH' : 'BELOW TARGET'}
+      Target : ${target}<br>
+      Tangerang : ${tgr}<br>
+      Status : ${tgr < target ? '❌ BELOW TARGET' : '✅ ACH'}
     `;
 
     card.style.position = 'relative';
@@ -195,7 +201,6 @@ function applyKpiHighlightAndTooltip() {
   });
 }
  
-   
   /* ===============================
      MAIN
   =============================== */
