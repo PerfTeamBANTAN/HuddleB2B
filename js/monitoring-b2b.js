@@ -85,11 +85,11 @@ function initMonitoringB2B(API_URL) {
         const tr = document.createElement('tr');
         tr.dataset.sto   = row[0] || '';
         tr.dataset.witel = row[1] || '';
-        tr.dataset.hsa   = row[2] || '';
+        tr.dataset.hsa = (row[2] || '').toString().trim().toUpperCase();
 
         setSto.add(row[0]);
         setWitel.add(row[1]);
-        setHsa.add(row[2]);
+        setHsa.add((row[2] || '').toString().trim().toUpperCase());
 
         tr.innerHTML = `
           <td>${row[0] || '-'}</td>
@@ -226,7 +226,7 @@ function applyB2BDropdownFilter(){
 
   const sto   = filterSto.value || '';
   const witel = filterWitel.value || '';
-  const hsa   = filterHsa.value || '';
+  const hsa = (filterHsa.value || '').trim().toUpperCase();
 
   B2B_ACTIVE_FILTER = { sto, witel, hsa };
 
