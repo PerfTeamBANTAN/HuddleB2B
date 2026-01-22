@@ -123,8 +123,8 @@ window.B2C24KPI = window.B2C24KPI || (function () {
         const bn = miniProgress(kpi.banten, kpi.target);
 
         container.insertAdjacentHTML('beforeend', `
-          <div class="col-md-4 col-lg-3">
-            <div class="kpi-card">
+          <div class="kpi-mini-col">
+            <div class="kpi-card mini">
               <div class="kpi-title">${kpi.indikator}</div>
               <div class="kpi-row"><span>Target</span><span>${fmt(kpi.target)}</span></div>
               <div class="kpi-row"><span>Tangerang</span><span>${fmt(kpi.tangerang)}</span></div>
