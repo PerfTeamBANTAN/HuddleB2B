@@ -113,7 +113,9 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   console.log('RENDER KPI GRID BARU JALAN');
 
   const container = document.getElementById('b2cKpiGrid');
-  container.innerHTML = '';
+   container.innerHTML = '<div class="b2c-kpi-wrapper"></div>';
+
+   const wrapper = container.querySelector('.b2c-kpi-wrapper');
 
   const grouped = groupByKategori(data);
 
@@ -143,7 +145,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
     row.appendChild(title);
     row.appendChild(cards);
-    container.appendChild(row);
+    wrapper.appendChild(row);
   });
 }
 
