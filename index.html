@@ -1262,40 +1262,46 @@ td.clickable:hover {
     0 8px 18px rgba(0,0,0,.75);
 }
 
-/* =====================================================
-   KPI ROW BASED (ANTI BERANTAKAN)
-===================================================== */
+/* ================================
+   KPI PER KATEGORI (ROW BASED)
+================================ */
 
-.kpi-row-line {
+#b2cKpiGrid {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 14px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* judul kategori */
-.kpi-row-title {
-  width: 190px;
+/* 1 kategori = 1 baris */
+.kpi-category-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* judul kiri */
+.kpi-category-title {
+  width: 220px;
   flex-shrink: 0;
   font-size: 12px;
   font-weight: 700;
-  color: #7dd3fc;
-  padding-top: 8px;
+  color: #6ee7ff;
+  padding-top: 10px;
 }
 
-/* KPI harus satu baris */
-.kpi-row-cards {
+/* KPI harus lurus satu baris */
+.kpi-category-cards {
   display: flex;
-  flex-wrap: nowrap;       /* ⛔ TIDAK BOLEH TURUN */
+  flex-wrap: nowrap;        /* ⛔ jangan turun */
   gap: 10px;
-  overflow-x: auto;        /* 👉 kalau kepanjangan, scroll */
+  overflow-x: auto;         /* scroll kalau kepanjangan */
   padding-bottom: 4px;
 }
 
-/* ukuran card konsisten */
+/* ukuran card kecil */
 .kpi-card.mini {
   width: 150px;
-  min-height: 82px;
+  min-height: 80px;
   flex-shrink: 0;
 }
 
