@@ -85,11 +85,11 @@ function initMonitoringB2B(API_URL) {
         const tr = document.createElement('tr');
         tr.dataset.sto   = row[0] || '';
         tr.dataset.witel = row[1] || '';
-        tr.dataset.hsa = (row[2] || '').toString().trim().toUpperCase();
+        tr.dataset.hsa   = row[2] || '';
 
         setSto.add(row[0]);
         setWitel.add(row[1]);
-        setHsa.add((row[2] || '').toString().trim().toUpperCase());
+        setHsa.add(row[2]);
 
         tr.innerHTML = `
           <td>${row[0] || '-'}</td>
@@ -226,7 +226,7 @@ function applyB2BDropdownFilter(){
 
   const sto   = filterSto.value || '';
   const witel = filterWitel.value || '';
-  const hsa = (filterHsa.value || '').trim().toUpperCase();
+  const hsa   = filterHsa.value || '';
 
   B2B_ACTIVE_FILTER = { sto, witel, hsa };
 
@@ -443,14 +443,10 @@ if (f.hsa) params.hsa     = f.hsa;
     20:{mode:'DATIN',gaul:'Y'}
   };
 
-  const extra = { ...(map[colIndex] || {}) };
-delete extra.mode; // ⬅️ PENTING: TOTAL TIDAK BOLEH PAKAI MODE
-
-const qs = new URLSearchParams({
+  const qs = new URLSearchParams({
   ...params,
-  ...extra
+  ...(map[colIndex] || {})
 }).toString();
-
 
   fetch(API_URL + '?' + qs)
     .then(res=>res.json())
