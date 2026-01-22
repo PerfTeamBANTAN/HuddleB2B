@@ -998,6 +998,207 @@ td.clickable:hover::after{
 .kpi-status.ok { color: #22c55e; font-size: 18px; }
 .kpi-status.bad { color: #ef4444; font-size: 18px; }
 
+/* =====================================================
+   FUTURISTIC CORE LAYER (NON-DESTRUCTIVE)
+===================================================== */
+
+/* GLOBAL GLOW */
+:root {
+  --neon-cyan: #22d3ee;
+  --neon-green: #22c55e;
+  --neon-red: #ef4444;
+  --neon-purple: #a855f7;
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+}
+
+/* HALUSKAN SEMUA TRANSISI */
+* {
+  transition: 
+    background-color .25s ease,
+    box-shadow .25s ease,
+    transform .25s ease,
+    color .25s ease;
+}
+
+/* =====================================================
+   NAVBAR – GLASS NEON
+===================================================== */
+.navbar {
+  box-shadow:
+    0 0 18px rgba(34,211,238,.25),
+    inset 0 -1px 0 rgba(255,255,255,.12);
+}
+
+/* =====================================================
+   CONTENT BACKDROP
+===================================================== */
+#content-area.show-grid {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(34,211,238,.06), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(168,85,247,.05), transparent 45%),
+    #000;
+}
+
+/* =====================================================
+   FUTURISTIC KPI CARD (REUSE EXISTING)
+===================================================== */
+.kpi-card,
+.kpi-neon,
+.district-kpi-card,
+.badge-card {
+  position: relative;
+}
+
+.kpi-card::after,
+.kpi-neon::after,
+.district-kpi-card::after,
+.badge-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 0 18px rgba(34,211,238,.15);
+}
+
+/* HOVER FLOAT */
+.kpi-card:hover,
+.kpi-neon:hover,
+.district-kpi-card:hover,
+.badge-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 0 28px rgba(34,211,238,.35),
+    0 12px 28px rgba(0,0,0,.8);
+}
+
+/* =====================================================
+   KPI VALUE GLOW
+===================================================== */
+.kpi-value,
+.summary-value,
+.val-district,
+.val-banten,
+.val-tangerang {
+  text-shadow: 0 0 12px currentColor;
+}
+
+/* =====================================================
+   BADGE HEADER – NEON EDGE
+===================================================== */
+.badge-card-header {
+  position: relative;
+}
+
+.badge-card-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.35),
+    transparent
+  );
+  opacity: .35;
+}
+
+/* =====================================================
+   TABLE – FUTURISTIC SCANLINE
+===================================================== */
+.table-dark tbody tr {
+  position: relative;
+}
+
+.table-dark tbody tr::after {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.08),
+    transparent
+  );
+  opacity: 0;
+}
+
+.table-dark tbody tr:hover::after {
+  animation: scanline 1.2s ease;
+}
+
+/* =====================================================
+   CLICKABLE CELL – NEON PULSE
+===================================================== */
+td.clickable {
+  text-shadow: 0 0 8px rgba(239,68,68,.85);
+}
+
+td.clickable:hover {
+  background: rgba(239,68,68,.18);
+  box-shadow: inset 0 0 12px rgba(239,68,68,.45);
+}
+
+/* =====================================================
+   LOADING OVERLAY – CYBER
+===================================================== */
+.loading-overlay {
+  background:
+    radial-gradient(circle at center, rgba(34,211,238,.15), rgba(0,0,0,.75));
+}
+
+.loading-text {
+  letter-spacing: .5px;
+  text-shadow: 0 0 12px rgba(34,211,238,.85);
+}
+
+/* =====================================================
+   FUTURISTIC ANIMATION
+===================================================== */
+@keyframes scanline {
+  0%   { left:-100%; opacity:0; }
+  40%  { opacity:1; }
+  100% { left:100%; opacity:0; }
+}
+
+/* =====================================================
+   SKELETON – NEON SHIMMER
+===================================================== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(34,211,238,.15) 25%,
+    rgba(255,255,255,.25) 37%,
+    rgba(34,211,238,.15) 63%
+  );
+  background-size: 400% 100%;
+}
+
+/* =====================================================
+   DROPDOWN – CYBER MENU
+===================================================== */
+.navbar .dropdown-menu {
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 25px rgba(34,211,238,.25),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* =====================================================
+   FOOTER / EMPTY SPACE GLOW
+===================================================== */
+#content-area::after {
+  content:"";
+  display:block;
+  height:40px;
+}
+
 
 </style>
 
