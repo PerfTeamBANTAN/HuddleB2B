@@ -37,15 +37,36 @@ function renderSummary(api) {
   const lastEl = document.getElementById('b2cLastUpdate');
   if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
 
-  const tangerangGood = data.filter(d => isGood(d.tangerang, d.target)).length;
-  const bantenGood = data.filter(d => isGood(d.banten, d.target)).length;
-  const total = summary.totalKPI || data.length;
+  // 🔥 AMBIL TOTAL ACH DARI BARIS KHUSUS
+  const totalTangerang = data.find(
+    d => d.indikator === 'TOTAL ACH B2C TANGERANG'
+  );
+
+  const totalBanten = data.find(
+    d => d.indikator === 'TOTAL ACH B2C BANTEN'
+  );
+
+  const tangerangAch = totalTangerang?.tangerang ?? null;
+  const bantenAch = totalBanten?.banten ?? null;
+
+  // hitung good/bad tetap dari KPI detail
+  const tangerangGood = data.filter(
+    d => d.indikator.indexOf('TOTAL ACH') === -1 &&
+         isGood(d.tangerang, d.target)
+  ).length;
+
+  const bantenGood = data.filter(
+    d => d.indikator.indexOf('TOTAL ACH') === -1 &&
+         isGood(d.banten, d.target)
+  ).length;
+
+  const total = summary.totalKPI;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
       <div class="summary-card">
         <h6>TANGERANG</h6>
-        <div class="summary-value">${fmt(tangerangGood / total * 100)}%</div>
+        <div class="summary-value">${fmt(tangerangAch)}%</div>
         <div class="summary-sub">✅ ${tangerangGood} ❌ ${total - tangerangGood}</div>
       </div>
     </div>
@@ -53,7 +74,7 @@ function renderSummary(api) {
     <div class="col-md-4">
       <div class="summary-card">
         <h6>BANTEN</h6>
-        <div class="summary-value">${fmt(bantenGood / total * 100)}%</div>
+        <div class="summary-value">${fmt(bantenAch)}%</div>
         <div class="summary-sub">✅ ${bantenGood} ❌ ${total - bantenGood}</div>
       </div>
     </div>
@@ -69,6 +90,7 @@ function renderSummary(api) {
     </div>
   `;
 }
+
 
 /* ===============================
    RENDER KPI GRID
