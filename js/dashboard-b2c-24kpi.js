@@ -1,6 +1,6 @@
 /* =====================================================
    B2C DASHBOARD RENDER SCRIPT
-   FINAL • STABLE • CLEAN
+   OPTIMIZED • STABLE • SAFE
 ===================================================== */
 
 /* ===============================
@@ -8,9 +8,7 @@
 =============================== */
 const fmt = (v) => {
   if (v === null || v === undefined || isNaN(v)) return '-';
-  return Number(v).toLocaleString('id-ID', {
-    maximumFractionDigits: 2
-  });
+  return Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 };
 
 const isGood = (val, target) =>
@@ -18,8 +16,36 @@ const isGood = (val, target) =>
   typeof target === 'number' &&
   val >= target;
 
+const getSummaryClass = (val) => {
+  if (val >= 95) return 'summary-good';
+  if (val >= 90) return 'summary-warning';
+  return 'summary-bad';
+};
+
+const getTrend = (today, yesterday) => {
+  if (typeof today !== 'number' || typeof yesterday !== 'number') return '';
+  if (today > yesterday) return '▲';
+  if (today < yesterday) return '▼';
+  return '■';
+};
+
 /* ===============================
-   GROUP KPI BY KATEGORI
+   SKELETON LOADER
+=============================== */
+function showSkeleton() {
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+    <div class="col-md-4 skeleton-card"></div>
+  `;
+
+  document.getElementById('b2cKpiGrid').innerHTML = `
+    ${'<div class="col-md-3 skeleton-kpi"></div>'.repeat(8)}
+  `;
+}
+
+/* ===============================
+   GROUP BY KATEGORI
 =============================== */
 function groupByKategori(data) {
   return data.reduce((acc, item) => {
@@ -30,37 +56,44 @@ function groupByKategori(data) {
 }
 
 /* ===============================
-   RENDER SUMMARY (FIXED)
+   RENDER SUMMARY (ADVANCED)
 =============================== */
 function renderSummary(api) {
-  const { summary, lastUpdate } = api;
+  const { summary, data, lastUpdate } = api;
 
-  const lastEl = document.getElementById('b2cLastUpdate');
-  if (lastEl) {
-    lastEl.innerText = `Last Update : ${lastUpdate}`;
-  }
+  document.getElementById('b2cLastUpdate').innerText =
+    `Last Update : ${lastUpdate}`;
 
-  // 🔥 TOTAL ACH DIAMBIL DARI SUMMARY (BUKAN DATA[])
-  const tangerangAch = summary.totalAch?.tangerang ?? null;
-  const bantenAch    = summary.totalAch?.banten ?? null;
+  const tangerangGood = data.filter(d =>
+    isGood(d.tangerang, d.target)
+  ).length;
+
+  const bantenGood = data.filter(d =>
+    isGood(d.banten, d.target)
+  ).length;
+
+  const total = summary.totalKPI;
+
+  const tangerangPct = (tangerangGood / total) * 100;
+  const bantenPct = (bantenGood / total) * 100;
 
   document.getElementById('b2cSummary').innerHTML = `
     <div class="col-md-4">
-      <div class="summary-card">
+      <div class="summary-card ${getSummaryClass(tangerangPct)}">
         <h6>TANGERANG</h6>
-        <div class="summary-value">${fmt(tangerangAch)}%</div>
+        <div class="summary-value">${fmt(tangerangPct)}%</div>
         <div class="summary-sub">
-          ✅ ${summary.good} ❌ ${summary.bad}
+          ✅ ${tangerangGood} ❌ ${total - tangerangGood}
         </div>
       </div>
     </div>
 
     <div class="col-md-4">
-      <div class="summary-card">
+      <div class="summary-card ${getSummaryClass(bantenPct)}">
         <h6>BANTEN</h6>
-        <div class="summary-value">${fmt(bantenAch)}%</div>
+        <div class="summary-value">${fmt(bantenPct)}%</div>
         <div class="summary-sub">
-          ✅ ${summary.good} ❌ ${summary.bad}
+          ✅ ${bantenGood} ❌ ${total - bantenGood}
         </div>
       </div>
     </div>
@@ -68,7 +101,7 @@ function renderSummary(api) {
     <div class="col-md-4">
       <div class="summary-card">
         <h6>TOTAL KPI</h6>
-        <div class="summary-value">${summary.totalKPI}</div>
+        <div class="summary-value">${total}</div>
         <div class="summary-sub">
           GOOD ${summary.good} | BAD ${summary.bad}
         </div>
@@ -78,12 +111,10 @@ function renderSummary(api) {
 }
 
 /* ===============================
-   RENDER KPI GRID
+   RENDER KPI GRID + TREND
 =============================== */
 function renderKpiGrid(data) {
   const container = document.getElementById('b2cKpiGrid');
-  if (!container) return;
-
   container.innerHTML = '';
 
   const grouped = groupByKategori(data);
@@ -113,6 +144,7 @@ function renderKpiGrid(data) {
               <span>Tangerang</span>
               <span class="${tgGood ? 'good' : 'bad'}">
                 ${fmt(kpi.tangerang)}
+                <small>${getTrend(kpi.tangerang, kpi.tangerang_yesterday)}</small>
               </span>
             </div>
 
@@ -120,6 +152,7 @@ function renderKpiGrid(data) {
               <span>Banten</span>
               <span class="${bnGood ? 'good' : 'bad'}">
                 ${fmt(kpi.banten)}
+                <small>${getTrend(kpi.banten, kpi.banten_yesterday)}</small>
               </span>
             </div>
           </div>
@@ -133,27 +166,17 @@ function renderKpiGrid(data) {
    MAIN RENDER
 =============================== */
 function renderB2CDashboard(apiResponse) {
-  if (
-    !apiResponse ||
-    !Array.isArray(apiResponse.data) ||
-    !apiResponse.summary
-  ) {
-    console.error('Invalid B2C API Response', apiResponse);
-    return;
-  }
-
+  if (!apiResponse || !Array.isArray(apiResponse.data)) return;
   renderSummary(apiResponse);
   renderKpiGrid(apiResponse.data);
 }
 
 /* =====================================================
-   🔥 INIT FUNCTION (WAJIB SESUAI LOADER)
+   INIT (COMPATIBLE DENGAN LOADER LAMA)
 ===================================================== */
 window.initDashboardB2C24KPI = async function () {
   try {
-    if (typeof B2B_API_URL === 'undefined') {
-      throw new Error('B2B_API_URL tidak tersedia');
-    }
+    showSkeleton();
 
     const url = `${B2B_API_URL}?type=b2c_24kpi_banten`;
     const res = await fetch(url);
