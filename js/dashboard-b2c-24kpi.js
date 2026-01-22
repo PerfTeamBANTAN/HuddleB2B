@@ -1,142 +1,137 @@
-/* =====================================================
-   B2C DISTRICT KPI DASHBOARD – FINAL PRO
-===================================================== */
+<script>
+/* ================================
+   B2C KPI DASHBOARD – FINAL JS
+   ================================ */
 
-const $ = id => document.getElementById(id);
+function initDashboardB2C24KPI(result) {
 
-/* ================= UTIL ================= */
-function toNum(v) {
-  if (v === null || v === undefined) return 0;
-  if (typeof v === 'number') return v;
-  return Number(String(v).replace(/,/g,'').replace('%','')) || 0;
-}
+  /* ------------------------------
+     COLOR THEME (IMAGE #1 STYLE)
+  ------------------------------ */
+  const COLORS = {
+    bgCard: 'linear-gradient(145deg, #0b2a3f, #081c2c)',
+    borderGood: '#00e5ff',
+    borderBad: '#ff5252',
+    textPrimary: '#e0f7fa',
+    textSecondary: '#9fdfff'
+  };
 
-function fmt(v) {
-  return v.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-}
+  /* ------------------------------
+     LAST UPDATE
+  ------------------------------ */
+  const lastUpdateEl = document.getElementById('b2cLastUpdate');
+  lastUpdateEl.innerHTML = `
+    <small class="text-info fst-italic">
+      Updated ${new Date(result.lastUpdate).toLocaleString('id-ID')}
+    </small>
+  `;
 
-function status(target, ach) {
-  if (!target) return 'NA';
-  return ach >= target ? 'GOOD' : 'BAD';
-}
-
-/* ================= FIELD AUTO DETECT ================= */
-function pick(obj, keys) {
-  for (const k of keys) {
-    if (obj[k] !== undefined && obj[k] !== '') return obj[k];
-  }
-  return null;
-}
-
-/* ================= NORMALIZE DATA ================= */
-function normalize(rows) {
-  return rows.map(r => {
-    const target = toNum(pick(r, [
-      'Target', 'TARGET', 'TGT', 'Target KPI'
-    ]));
-
-    const ach = toNum(pick(r, [
-      'Achievement HI', 'ACH HI', 'Actual', 'Realisasi'
-    ]));
-
-    const indikator = pick(r, [
-      'Indikator', 'KPI', 'Nama KPI'
-    ]) || 'KPI';
-
-    return {
-      indikator,
-      target,
-      ach,
-      status: status(target, ach)
-    };
-  }).filter(d => d.target > 0 || d.ach > 0);
-}
-
-/* ================= SUMMARY ================= */
-function renderSummary(data) {
-  const total = data.length;
-  const good = data.filter(d => d.status === 'GOOD').length;
-  const bad  = data.filter(d => d.status === 'BAD').length;
-
-  $('b2cSummary').innerHTML = `
+  /* ------------------------------
+     SUMMARY (TOP BOX)
+  ------------------------------ */
+  const summaryEl = document.getElementById('b2cSummary');
+  summaryEl.innerHTML = `
     <div class="col-md-4">
-      <div class="summary-neon">
-        <div class="summary-title">TOTAL KPI</div>
-        <div class="summary-value">${total}</div>
+      <div class="p-3 rounded" style="background:${COLORS.bgCard}">
+        <div class="text-secondary small">TOTAL KPI</div>
+        <div class="fs-3 fw-bold text-info">${result.summary.totalKPI}</div>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="summary-neon">
-        <div class="summary-title">ACHIEVE</div>
-        <div class="summary-value text-success">${good}</div>
+      <div class="p-3 rounded" style="background:${COLORS.bgCard}">
+        <div class="text-secondary small">ACHIEVE</div>
+        <div class="fs-3 fw-bold text-success">${result.summary.good}</div>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="summary-neon">
-        <div class="summary-title">NOT ACHIEVE</div>
-        <div class="summary-value text-danger">${bad}</div>
+      <div class="p-3 rounded" style="background:${COLORS.bgCard}">
+        <div class="text-secondary small">NOT ACHIEVE</div>
+        <div class="fs-3 fw-bold text-danger">${result.summary.bad}</div>
       </div>
     </div>
   `;
-}
 
-/* ================= KPI CARD ================= */
-function renderKPI(data) {
-  const wrap = $('b2cKpiGrid');
-  wrap.innerHTML = '';
+  /* ------------------------------
+     GROUP DATA BY WITEL
+  ------------------------------ */
+  const grouped = {};
+  result.data.forEach(d => {
+    if (!grouped[d.witel]) grouped[d.witel] = [];
+    grouped[d.witel].push(d);
+  });
 
-  data.forEach(d => {
-    const pct = d.target
-      ? Math.min(100, Math.round(d.ach / d.target * 100))
-      : 0;
+  /* ------------------------------
+     KPI GRID
+  ------------------------------ */
+  const grid = document.getElementById('b2cKpiGrid');
+  grid.innerHTML = '';
 
-    const stroke = 283 - (pct / 100) * 283;
+  Object.keys(grouped).forEach(witel => {
 
-    wrap.insertAdjacentHTML('beforeend', `
-      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-        <div class="kpi-neon ${d.status === 'GOOD' ? 'good' : 'bad'}">
-          <div class="kpi-name">${d.indikator}</div>
+    const achTotal = grouped[witel].find(d => d.indikator.includes('TOTAL ACH'));
+    const achValue = achTotal ? achTotal.achievement_hi : '-';
 
-          <div class="kpi-circle">
-            <svg viewBox="0 0 100 100">
-              <circle class="bg" cx="50" cy="50" r="45"/>
-              <circle class="progress"
-                cx="50" cy="50" r="45"
-                stroke-dasharray="283"
-                stroke-dashoffset="${stroke}"/>
-            </svg>
-            <div class="pct">${pct}%</div>
+    grid.innerHTML += `
+      <div class="col-12 mb-4">
+        <div class="p-4 rounded" style="background:${COLORS.bgCard}">
+          <h5 class="fw-bold text-info mb-3">${witel}</h5>
+          <div class="fs-2 fw-bold text-white mb-3">
+            ${achValue}
           </div>
 
-          <div class="kpi-meta">
-            <div>ACH ${fmt(d.ach)}</div>
-            <div>TGT ${fmt(d.target)}</div>
-          </div>
-
-          <div class="kpi-status ${d.status === 'GOOD' ? 'ok' : 'bad'}">
-            ${d.status}
-          </div>
+          <div class="row g-3" id="kpi-${witel}"></div>
         </div>
       </div>
-    `);
+    `;
+
+    const kpiContainer = document.getElementById(`kpi-${witel}`);
+
+    grouped[witel]
+      .filter(d => !d.indikator.includes('TOTAL ACH'))
+      .forEach(kpi => {
+
+        const isGood = kpi.status_hi === 'GOOD';
+        const borderColor = isGood ? COLORS.borderGood : COLORS.borderBad;
+
+        kpiContainer.innerHTML += `
+          <div class="col-md-3">
+            <div class="p-3 rounded h-100"
+              style="
+                background:${COLORS.bgCard};
+                border:2px solid ${borderColor};
+              ">
+
+              <div class="fw-bold text-info small mb-1">
+                ${kpi.indikator}
+              </div>
+
+              <div class="text-secondary small">
+                Target : ${kpi.target ?? 'NA'}
+              </div>
+
+              <div class="fs-4 fw-bold text-white">
+                ${kpi.achievement_hi ?? 'NA'}
+              </div>
+
+              <div class="small ${isGood ? 'text-success' : 'text-danger'}">
+                ${isGood ? '✔ Achieve' : '✖ Not Achieve'}
+              </div>
+
+              <div class="text-secondary small mt-1">
+                ${kpi.category}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
   });
 }
 
-/* ================= INIT ================= */
-function initDashboardB2C24KPI(apiUrl) {
-  fetch(apiUrl)
-    .then(r => r.json())
-    .then(res => {
-      const rows = res.data || res;
-      const data = normalize(rows);
-
-      $('b2cLastUpdate').innerText =
-        `Updated ${new Date().toLocaleString('id-ID')}`;
-
-      renderSummary(data);
-      renderKPI(data);
-    })
-    .catch(err => {
-      console.error('B2C KPI ERROR', err);
-    });
+/* ===============================
+   AUTO INIT (PASTIKAN result ADA)
+================================ */
+if (typeof result !== 'undefined') {
+  initDashboardB2C24KPI(result);
 }
+</script>
