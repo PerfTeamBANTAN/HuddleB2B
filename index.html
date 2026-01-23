@@ -1682,9 +1682,11 @@ body {
 
 /* NILAI MERAH */
 .kpi-not-ach {
-  color: #ef4444;
+  color: #ef4444 !important;
   font-weight: 700;
+  text-shadow: 0 0 6px rgba(239,68,68,.45);
 }
+
 
 /* NILAI HIJAU */
 .kpi-ach {
@@ -1692,6 +1694,29 @@ body {
   font-weight: 600;
 }
 
+/* ===== COMPACT KPI TABLE ===== */
+.kpi-th {
+  font-size: 11.5px;
+  padding: 6px 6px;
+  white-space: nowrap;
+}
+
+.kpi-td {
+  font-size: 11.5px;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+/* kolom KPI lebih sempit */
+.kpi-col {
+  min-width: 64px;
+}
+
+/* angka */
+.kpi-td {
+  color: #e5e7eb;
+}
+  
 </style>
 
 </head>
