@@ -236,69 +236,42 @@ function renderBadKpiTable(data) {
 
   data.forEach(kpi => {
 
+    const target = Number(kpi.target);
+    const tgr = Number(kpi.tangerang);
+    const btn = Number(kpi.banten);
+
     /* ======================
        TANGERANG
     ====================== */
-    if (kpi['Status Ach HI'] === '❌') {
+    if (!isNaN(tgr) && tgr < target) {
       hasBadTgr = true;
 
-      const today = Number(kpi.tangerang);
-      const yesterday = Number(kpi.tangerang_yesterday);
-      const g = getGrowthMeta(today, yesterday);
-
       tgrBody.innerHTML += `
-      <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
-        <td>${kpi.indikator}</td>
-        <td>${fmt(kpi.target)}</td>
-        <td class="fw-bold text-danger">${fmt(today)}</td>
-        <td><span class="badge bg-danger">Not Ach</span></td>
-
-        <td class="text-center">
-          <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
-            ${g.icon}
-          </span>
-        </td>
-
-        <td>${fmt(yesterday)}</td>
-        <td>
-          <span class="badge ${kpi['Status Ach Kemarin'] === '✅' ? 'bg-success' : 'bg-danger'}">
-            ${kpi['Status Ach Kemarin'] === '✅' ? 'Ach' : 'Not Ach'}
-          </span>
-        </td>
-      </tr>`;
+        <tr class="table-danger">
+          <td>${kpi.indikator}</td>
+          <td>${fmt(target)}</td>
+          <td class="fw-bold text-danger">${fmt(tgr)}</td>
+          <td><span class="badge bg-danger">Not Ach</span></td>
+        </tr>
+      `;
     }
 
     /* ======================
        BANTEN
     ====================== */
-    if (kpi['Status Ach HI BTN'] === '❌') {
+    if (!isNaN(btn) && btn < target) {
       hasBadBtn = true;
 
-      const today = Number(kpi.banten);
-      const yesterday = Number(kpi.banten_yesterday);
-      const g = getGrowthMeta(today, yesterday);
-
       btnBody.innerHTML += `
-      <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
-        <td>${kpi.indikator}</td>
-        <td>${fmt(kpi.target)}</td>
-        <td class="fw-bold text-danger">${fmt(today)}</td>
-        <td><span class="badge bg-danger">Not Ach</span></td>
-
-        <td class="text-center">
-          <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
-            ${g.icon}
-          </span>
-        </td>
-
-        <td>${fmt(yesterday)}</td>
-        <td>
-          <span class="badge ${kpi['Status Ach Kemarin BTN'] === '✅' ? 'bg-success' : 'bg-danger'}">
-            ${kpi['Status Ach Kemarin BTN'] === '✅' ? 'Ach' : 'Not Ach'}
-          </span>
-        </td>
-      </tr>`;
+        <tr class="table-danger">
+          <td>${kpi.indikator}</td>
+          <td>${fmt(target)}</td>
+          <td class="fw-bold text-danger">${fmt(btn)}</td>
+          <td><span class="badge bg-danger">Not Ach</span></td>
+        </tr>
+      `;
     }
+
   });
 
   document.getElementById('b2cTableLoadingTgr')?.classList.add('d-none');
@@ -312,6 +285,7 @@ function renderBadKpiTable(data) {
     document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
   }
 }
+
 
      /* ===============================
      KPI GRID DETAIL TABLE (NEW)
