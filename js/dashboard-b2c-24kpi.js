@@ -56,21 +56,20 @@ window.B2C24KPI = window.B2C24KPI || (function () {
    KPI HELPER (WAJIB DI ATAS)
 ================================ */
 
-function isLowerBetter(indikator = '') {
+function isReverseKPI(indikator = '') {
   const key = indikator.toLowerCase();
   return (
-    key.includes('gangguan') ||
-    key.includes('unspec') ||
-    key.includes('aging')
+    key.includes('q gangguan') ||
+    key.includes('unspec non warranty')
   );
 }
 
 function isNotAch(value, target, indikator) {
   if (isNaN(value) || isNaN(target)) return false;
 
-  return isLowerBetter(indikator)
-    ? value > target    // LOWER is BETTER
-    : value < target;   // HIGHER is BETTER
+  return isReverseKPI(indikator)
+    ? value > target    // khusus KPI ini, makin kecil makin bagus
+    : value < target;   // KPI normal
 }
 
   /* ===============================
@@ -110,31 +109,25 @@ function isNotAch(value, target, indikator) {
      RENDER SUMMARY
   =============================== */
   function renderSummary(api) {
-    const { summary, lastUpdate } = api;
+  const { summary, lastUpdate } = api;
 
-    const lastEl = document.getElementById('b2cLastUpdate');
-    if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
+  const lastEl = document.getElementById('b2cLastUpdate');
+  if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
 
-    document.getElementById('b2cSummary').innerHTML = `
-      <div class="col-md-4"><div class="summary-card">
-        <h6>TANGERANG</h6>
-        <div class="summary-value">${fmt(summary.totalAch?.tangerang)}%</div>
-        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
-      </div></div>
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-6"><div class="summary-card">
+      <h6>TANGERANG</h6>
+      <div class="summary-value">${fmt(summary.totalAch?.tangerang)}%</div>
+      <div class="summary-sub">✅ ${summary.good_tangerang} ❌ ${summary.bad_tangerang}</div>
+    </div></div>
 
-      <div class="col-md-4"><div class="summary-card">
-        <h6>BANTEN</h6>
-        <div class="summary-value">${fmt(summary.totalAch?.banten)}%</div>
-        <div class="summary-sub">✅ ${summary.good} ❌ ${summary.bad}</div>
-      </div></div>
-
-      <div class="col-md-4"><div class="summary-card">
-        <h6>TOTAL KPI</h6>
-        <div class="summary-value">${summary.totalKPI}</div>
-        <div class="summary-sub">GOOD ${summary.good} | BAD ${summary.bad}</div>
-      </div></div>
-    `;
-  }
+    <div class="col-md-6"><div class="summary-card">
+      <h6>BANTEN</h6>
+      <div class="summary-value">${fmt(summary.totalAch?.banten)}%</div>
+      <div class="summary-sub">✅ ${summary.good_banten} ❌ ${summary.bad_banten}</div>
+    </div></div>
+  `;
+}
 
    /* ===============================
      RENDER KPI GRID
