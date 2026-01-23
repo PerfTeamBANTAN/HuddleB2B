@@ -362,33 +362,39 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      MAIN
   =============================== */
     function render(api) {
-    if (!api || !Array.isArray(api.data)) return;
+  if (!api || !Array.isArray(api.data)) return;
 
-    renderSummary(api);
-    renderKpiGrid(api.data);
-    applyKpiHighlightAndTooltip();
-    renderBadKpiTable(api.data);
+  renderSummary(api);
+  renderKpiGrid(api.data);
+  applyKpiHighlightAndTooltip();
+  renderBadKpiTable(api.data);
 
-    document.getElementById('b2cKpiLoading')?.classList.add('d-none');
-    document.getElementById('b2cKpiGrid')?.classList.remove('d-none');
+  document.getElementById('b2cKpiLoading')?.classList.add('d-none');
+  document.getElementById('b2cKpiGrid')?.classList.remove('d-none');
 
-    hideSkeleton();
+  hideSkeleton();
 
-    // 🔥 LOAD KPI GRID DETAIL TABLE (NEW)
-    loadKpiGridDetailTable();
+  document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    .forEach(el => new bootstrap.Tooltip(el));
+}
 
-    // INIT TOOLTIP
-    document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      .forEach(el => new bootstrap.Tooltip(el));
-  }
 
 
   async function init() {
-    showSkeleton();
+  showSkeleton();
+
+  try {
     const res = await fetch(`${B2B_API_URL}?type=b2c_24kpi_banten`);
     const json = await res.json();
     render(json);
+  } catch (err) {
+    console.error('Main KPI API failed', err);
   }
+
+  // 🔥 KPI GRID DETAIL FULL WIDTH
+  loadKpiGridDetailTable();
+}
+
 
      async function loadKpiGridDetailTable() {
     try {
