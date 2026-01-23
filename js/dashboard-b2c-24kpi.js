@@ -333,63 +333,101 @@ function isNotAch(value, target, indikator) {
      KPI GRID DETAIL TABLE (NEW)
      SOURCE : type=kpi_grid_table
   =============================== */
-  function renderKpiGridDetailTable(headers, data) {
-
-    const wrapper = document.getElementById('b2cKpiGridTableWrapper');
-    const loading = document.getElementById('b2cKpiGridTableLoading');
-    const content = document.getElementById('b2cKpiGridTableContent');
-    const thead = document.getElementById('b2cKpiGridTableHead');
-    const tbody = document.getElementById('b2cKpiGridTableBody');
-
-    if (!wrapper || !thead || !tbody) return;
-
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
-
-    /* ---------- HEADER ---------- */
-    const trHead = document.createElement('tr');
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      trHead.appendChild(th);
-    });
-    thead.appendChild(trHead);
-
-    /* ---------- BODY ---------- */
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-
-      headers.forEach(h => {
-        const td = document.createElement('td');
-        const val = row[h];
-
-        td.textContent = val ?? '-';
-
-        if (!['Indikator', 'Bobot'].includes(h)) {
-          const num = Number(val);
-          if (!isNaN(num)) {
-            td.classList.add('text-end');
-
-            if (
-  (h === 'TANGERANG' || h === 'BANTEN') &&
-  isNotAch(num, Number(row.Target), row.Indikator)
-) {
-  td.classList.add('text-danger', 'fw-bold');
+function isLowerBetterTable(indikator = '') {
+  const key = indikator.toLowerCase();
+  return (
+    key.includes('q gangguan') ||
+    key.includes('unspec non warranty')
+  );
 }
 
+function isNotAchTable(value, target, indikator) {
+  if (isNaN(value) || isNaN(target)) return false;
+
+  return isLowerBetterTable(indikator)
+    ? value > target     // LOWER is BETTER
+    : value < target;    // HIGHER is BETTER
+}
+   
+function renderKpiGridDetailTable(headers, data) {
+
+  const wrapper = document.getElementById('b2cKpiGridTableWrapper');
+  const loading = document.getElementById('b2cKpiGridTableLoading');
+  const content = document.getElementById('b2cKpiGridTableContent');
+  const thead   = document.getElementById('b2cKpiGridTableHead');
+  const tbody   = document.getElementById('b2cKpiGridTableBody');
+
+  if (!wrapper || !thead || !tbody) return;
+
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+
+  /* ===============================
+     HEADER
+  =============================== */
+  const trHead = document.createElement('tr');
+
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.className = 'text-center fw-semibold';
+    trHead.appendChild(th);
+  });
+
+  thead.appendChild(trHead);
+
+  /* ===============================
+     BODY
+  =============================== */
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+
+    headers.forEach(h => {
+      const td  = document.createElement('td');
+      const val = row[h];
+
+      td.textContent = val ?? '-';
+
+      if (!['Indikator', 'Bobot'].includes(h)) {
+        const num = Number(val);
+
+        if (!isNaN(num)) {
+          td.classList.add('text-end');
+
+          /* ===== KPI VALUE ===== */
+          if (h === 'TANGERANG' || h === 'BANTEN') {
+            const target = Number(row.Target);
+            const notAch = isNotAchTable(num, target, row.Indikator);
+
+            td.innerHTML = `
+              <span class="${notAch ? 'kpi-not-ach' : 'kpi-ach'}">
+                ${num}
+              </span>
+              <span class="kpi-badge ${notAch ? 'not-ach' : 'ach'}">
+                ${notAch ? '❌ Not Ach' : '✅ Ach'}
+              </span>
+            `;
+          }
+          /* ===== NORMAL NUMBER ===== */
+          else {
+            td.textContent = num;
           }
         }
+      }
 
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
+      tr.appendChild(td);
     });
 
-    loading.classList.add('d-none');
-    content.classList.remove('d-none');
-    wrapper.classList.remove('d-none');
-  }
+    tbody.appendChild(tr);
+  });
+
+  /* ===============================
+     SHOW TABLE
+  =============================== */
+  loading?.classList.add('d-none');
+  content?.classList.remove('d-none');
+  wrapper?.classList.remove('d-none');
+}
 
    /* ===============================
    KPI GRID DETAIL TABLE - BANTEN
