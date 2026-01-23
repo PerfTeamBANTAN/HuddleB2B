@@ -359,13 +359,6 @@ function isNotAchTable(value, target, indikator) {
   return isNotAch(value, target, indikator);
 }
 
-function isNotAchTable(value, target, indikator) {
-  if (isNaN(value) || isNaN(target)) return false;
-
-  return isLowerBetterTable(indikator)
-    ? value > target     // LOWER is BETTER
-    : value < target;    // HIGHER is BETTER
-}
    
 /* ===============================
    KPI GRID DETAIL TABLE - TANGERANG
