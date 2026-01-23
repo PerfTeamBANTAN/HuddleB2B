@@ -433,8 +433,8 @@ tr.tr-pragnosa-bad td::before {
 }
 
 .kpi-title {
-  font-size: 13px;
-  opacity: .85;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .kpi-value {
@@ -1466,28 +1466,51 @@ td.clickable:hover {
 /* ===============================
    KPI GRID – INDIKATOR STYLE
 =============================== */
+/* BADGE NETRAL */
 .indikator-badge {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 6px 14px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   border-radius: 999px;
-  background: linear-gradient(135deg, #1e293b, #334155);
+  background: #020617;
   color: #e5e7eb;
-  letter-spacing: .3px;
-  box-shadow: 0 0 8px rgba(59,130,246,.35);
+  border: 1px solid rgba(148,163,184,.25);
+  letter-spacing: .25px;
+  white-space: nowrap;
 }
 
-/* card BAD → indikator merah */
-.kpi-card.bad .indikator-badge {
-  background: linear-gradient(135deg, #7f1d1d, #dc2626);
-  box-shadow: 0 0 10px rgba(239,68,68,.6);
-}
-
-/* card GOOD → indikator hijau */
+/* GOOD → aksen hijau tipis */
 .kpi-card.good .indikator-badge {
-  background: linear-gradient(135deg, #064e3b, #16a34a);
-  box-shadow: 0 0 10px rgba(34,197,94,.6);
+  border-color: rgba(34,197,94,.6);
+  color: #bbf7d0;
+}
+
+/* BAD → aksen merah tipis */
+.kpi-card.bad .indikator-badge {
+  border-color: rgba(239,68,68,.6);
+  color: #fecaca;
+}
+
+/* Wrapper kategori */
+.kpi-category-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Card */
+.kpi-card.mini {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 14px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  border: 1px solid rgba(148,163,184,.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  transition: all .25s ease;
 }
 
 </style>
