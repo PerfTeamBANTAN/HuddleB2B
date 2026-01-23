@@ -52,6 +52,26 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       tooltip: `Stagnan (${today}%)`
     };
   };
+/* ===============================
+   KPI HELPER (WAJIB DI ATAS)
+================================ */
+
+function isLowerBetter(indikator = '') {
+  const key = indikator.toLowerCase();
+  return (
+    key.includes('gangguan') ||
+    key.includes('unspec') ||
+    key.includes('aging')
+  );
+}
+
+function isNotAch(value, target, indikator) {
+  if (isNaN(value) || isNaN(target)) return false;
+
+  return isLowerBetter(indikator)
+    ? value > target    // LOWER is BETTER
+    : value < target;   // HIGHER is BETTER
+}
 
   /* ===============================
      SKELETON LOADER
@@ -189,8 +209,8 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
       if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
 
-      const badTgr = tgr < target;
-      const badBtn = btn < target;
+      const badTgr = isNotAch(tgr, target, card.querySelector('.indikator-badge').innerText);
+      const badBtn = isNotAch(btn, target, card.querySelector('.indikator-badge').innerText);
       const isBad = badTgr || badBtn;
 
       card.classList.add(isBad ? 'bad' : 'good');
@@ -350,9 +370,13 @@ window.B2C24KPI = window.B2C24KPI || (function () {
           if (!isNaN(num)) {
             td.classList.add('text-end');
 
-            if (h === 'TANGERANG' && num < Number(row.Target)) {
-              td.classList.add('text-danger', 'fw-bold');
-            }
+            if (
+  (h === 'TANGERANG' || h === 'BANTEN') &&
+  isNotAch(num, Number(row.Target), row.Indikator)
+) {
+  td.classList.add('text-danger', 'fw-bold');
+}
+
           }
         }
 
@@ -408,9 +432,13 @@ function renderKpiGridDetailTableBtn(headers, data) {
         if (!isNaN(num)) {
           td.classList.add('text-end');
 
-          if (h === 'BANTEN' && num < Number(row.Target)) {
-            td.classList.add('text-danger', 'fw-bold');
-          }
+          if (
+  h === 'BANTEN' &&
+  isNotAch(num, Number(row.Target), row.Indikator)
+) {
+  td.classList.add('text-danger', 'fw-bold');
+}
+
         }
       }
 
