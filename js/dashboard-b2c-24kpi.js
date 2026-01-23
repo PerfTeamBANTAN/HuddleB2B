@@ -496,15 +496,6 @@ function renderKpiGridDetailTableBtn(headers, data) {
   wrapper?.classList.remove('d-none');
 }
 
-  /* ===============================
-     SHOW TABLE
-  =============================== */
-  loading?.classList.add('d-none');
-  content?.classList.remove('d-none');
-  wrapper?.classList.remove('d-none');
-}
-
-
 /* ===============================
    KPI RANKING TABLE (HSA & MITRA)
 =============================== */
