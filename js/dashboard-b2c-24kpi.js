@@ -222,6 +222,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
   /* ===============================
    BAD KPI TABLE (STATUS BASED)
+   TANGERANG + BANTEN
 ================================ */
 function renderBadKpiTable(data) {
   const tgrBody = document.getElementById('b2cKpiTableTgr');
@@ -235,20 +236,21 @@ function renderBadKpiTable(data) {
 
   data.forEach(kpi => {
 
-    /* ===== TANGERANG ===== */
-    if (kpi.status_ach_hi_tgr === '❌') {
+    /* ======================
+       TANGERANG
+    ====================== */
+    if (kpi['Status Ach HI'] === '❌') {
       hasBadTgr = true;
 
-      const g = getGrowthMeta(
-        Number(kpi.tangerang),
-        Number(kpi.tangerang_yesterday)
-      );
+      const today = Number(kpi.tangerang);
+      const yesterday = Number(kpi.tangerang_yesterday);
+      const g = getGrowthMeta(today, yesterday);
 
       tgrBody.innerHTML += `
       <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
         <td>${kpi.indikator}</td>
         <td>${fmt(kpi.target)}</td>
-        <td class="fw-bold text-danger">${fmt(kpi.tangerang)}</td>
+        <td class="fw-bold text-danger">${fmt(today)}</td>
         <td><span class="badge bg-danger">Not Ach</span></td>
 
         <td class="text-center">
@@ -257,29 +259,30 @@ function renderBadKpiTable(data) {
           </span>
         </td>
 
-        <td>${fmt(kpi.tangerang_yesterday)}</td>
+        <td>${fmt(yesterday)}</td>
         <td>
-          <span class="badge ${kpi.status_ach_kemarin_tgr === '✅' ? 'bg-success' : 'bg-danger'}">
-            ${kpi.status_ach_kemarin_tgr === '✅' ? 'Ach' : 'Not Ach'}
+          <span class="badge ${kpi['Status Ach Kemarin'] === '✅' ? 'bg-success' : 'bg-danger'}">
+            ${kpi['Status Ach Kemarin'] === '✅' ? 'Ach' : 'Not Ach'}
           </span>
         </td>
       </tr>`;
     }
 
-    /* ===== BANTEN ===== */
-    if (kpi.status_ach_hi_btn === '❌') {
+    /* ======================
+       BANTEN
+    ====================== */
+    if (kpi['Status Ach HI BTN'] === '❌') {
       hasBadBtn = true;
 
-      const g = getGrowthMeta(
-        Number(kpi.banten),
-        Number(kpi.banten_yesterday)
-      );
+      const today = Number(kpi.banten);
+      const yesterday = Number(kpi.banten_yesterday);
+      const g = getGrowthMeta(today, yesterday);
 
       btnBody.innerHTML += `
       <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
         <td>${kpi.indikator}</td>
         <td>${fmt(kpi.target)}</td>
-        <td class="fw-bold text-danger">${fmt(kpi.banten)}</td>
+        <td class="fw-bold text-danger">${fmt(today)}</td>
         <td><span class="badge bg-danger">Not Ach</span></td>
 
         <td class="text-center">
@@ -288,10 +291,10 @@ function renderBadKpiTable(data) {
           </span>
         </td>
 
-        <td>${fmt(kpi.banten_yesterday)}</td>
+        <td>${fmt(yesterday)}</td>
         <td>
-          <span class="badge ${kpi.status_ach_kemarin_btn === '✅' ? 'bg-success' : 'bg-danger'}">
-            ${kpi.status_ach_kemarin_btn === '✅' ? 'Ach' : 'Not Ach'}
+          <span class="badge ${kpi['Status Ach Kemarin BTN'] === '✅' ? 'bg-success' : 'bg-danger'}">
+            ${kpi['Status Ach Kemarin BTN'] === '✅' ? 'Ach' : 'Not Ach'}
           </span>
         </td>
       </tr>`;
@@ -301,8 +304,13 @@ function renderBadKpiTable(data) {
   document.getElementById('b2cTableLoadingTgr')?.classList.add('d-none');
   document.getElementById('b2cTableLoadingBtn')?.classList.add('d-none');
 
-  if (hasBadTgr) document.getElementById('b2cTableWrapperTgr')?.classList.remove('d-none');
-  if (hasBadBtn) document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
+  if (hasBadTgr) {
+    document.getElementById('b2cTableWrapperTgr')?.classList.remove('d-none');
+  }
+
+  if (hasBadBtn) {
+    document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
+  }
 }
 
      /* ===============================
