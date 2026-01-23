@@ -459,14 +459,20 @@ function renderKpiGridDetailTableBtn(headers, data) {
 function parseIDNumber(val) {
   if (val === null || val === undefined) return NaN;
 
-  return Number(
+  const num = Number(
     String(val)
       .replace('%', '')
       .replace(/\./g, '')
       .replace(',', '.')
       .trim()
   );
+
+  if (isNaN(num)) return NaN;
+
+  // 👉 kalau <= 1, anggap rasio (0.97 → 97%)
+  return num <= 1 ? num * 100 : num;
 }
+
 
 function renderRankingTable({
   data,
