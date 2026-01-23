@@ -300,10 +300,68 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     if (hasBadBtn) document.getElementById('b2cTableWrapperBtn').classList.remove('d-none');
   }
 
+     /* ===============================
+     KPI GRID DETAIL TABLE (NEW)
+     SOURCE : type=kpi_grid_table
+  =============================== */
+  function renderKpiGridDetailTable(headers, data) {
+
+    const wrapper = document.getElementById('b2cKpiGridTableWrapper');
+    const loading = document.getElementById('b2cKpiGridTableLoading');
+    const content = document.getElementById('b2cKpiGridTableContent');
+    const thead = document.getElementById('b2cKpiGridTableHead');
+    const tbody = document.getElementById('b2cKpiGridTableBody');
+
+    if (!wrapper || !thead || !tbody) return;
+
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+
+    /* ---------- HEADER ---------- */
+    const trHead = document.createElement('tr');
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+
+    /* ---------- BODY ---------- */
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+
+      headers.forEach(h => {
+        const td = document.createElement('td');
+        const val = row[h];
+
+        td.textContent = val ?? '-';
+
+        if (!['Indikator', 'Bobot'].includes(h)) {
+          const num = Number(val);
+          if (!isNaN(num)) {
+            td.classList.add('text-end');
+
+            if (h === 'TANGERANG' && num < Number(row.Target)) {
+              td.classList.add('text-danger', 'fw-bold');
+            }
+          }
+        }
+
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    loading.classList.add('d-none');
+    content.classList.remove('d-none');
+    wrapper.classList.remove('d-none');
+  }
+
   /* ===============================
      MAIN
   =============================== */
-  function render(api) {
+    function render(api) {
     if (!api || !Array.isArray(api.data)) return;
 
     renderSummary(api);
@@ -316,10 +374,14 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
     hideSkeleton();
 
+    // 🔥 LOAD KPI GRID DETAIL TABLE (NEW)
+    loadKpiGridDetailTable();
+
     // INIT TOOLTIP
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
       .forEach(el => new bootstrap.Tooltip(el));
   }
+
 
   async function init() {
     showSkeleton();
@@ -327,6 +389,21 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     const json = await res.json();
     render(json);
   }
+
+     async function loadKpiGridDetailTable() {
+    try {
+      const res = await fetch(`${B2B_API_URL}?type=kpi_grid_table`);
+      const json = await res.json();
+
+      if (!json || !Array.isArray(json.data)) return;
+
+      renderKpiGridDetailTable(json.headers, json.data);
+
+    } catch (err) {
+      console.error('Failed load KPI GRID DETAIL TABLE', err);
+    }
+  }
+
 
   return { init };
 
