@@ -43,9 +43,7 @@
               <div class="small text-muted">Loading KPI data...</div>
             </div>
 
-            <div id="b2cKpiGrid" class="kpi-grid d-none">
-              <!-- JS inject KPI cards -->
-            </div>
+            <div id="b2cKpiGrid" class="kpi-grid d-none"></div>
           </div>
         </div>
       </div>
@@ -120,7 +118,83 @@
       </div>
     </div>
 
-    <!-- ================= KPI GRID DETAIL TABLE - TANGERANG ================= -->
+    <!-- ================= B2C RANKING HSA & MITRA ================= -->
+    <div class="row g-3 mt-4">
+      <div class="col-12">
+
+        <div class="panel-card">
+          <div class="panel-header">
+            <span class="text-success fw-bold">B2C PERFORMANCE HSA & MITRA</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="row g-3">
+
+              <!-- ===== RANKING HSA ===== -->
+              <div class="col-lg-6">
+                <div class="panel-card h-100">
+                  <div class="panel-header py-2">
+                    <span class="small text-success">RANKING B2C HSA</span>
+                  </div>
+
+                  <div class="panel-body p-0">
+                    <div id="b2bTable1Loading" class="table-loading text-center py-4">
+                      <div class="spinner-border spinner-border-sm text-success mb-2"></div>
+                      <div class="small text-muted">Loading table...</div>
+                    </div>
+
+                    <div class="table-responsive d-none" id="b2bTable1Wrapper">
+                      <table class="table table-dark table-sm align-middle kpi-table mb-0">
+                        <thead>
+                          <tr>
+                            <th>HSA</th>
+                            <th>TOTAL ACHe</th>
+                          </tr>
+                        </thead>
+                        <tbody id="b2bTable1Body"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== RANKING MITRA ===== -->
+              <div class="col-lg-6">
+                <div class="panel-card h-100">
+                  <div class="panel-header py-2">
+                    <span class="small text-success">RANKING B2C MITRA</span>
+                  </div>
+
+                  <div class="panel-body p-0">
+                    <div id="b2bTable2Loading" class="table-loading text-center py-4">
+                      <div class="spinner-border spinner-border-sm text-success mb-2"></div>
+                      <div class="small text-muted">Loading table...</div>
+                    </div>
+
+                    <div class="table-responsive d-none" id="b2bTable2Wrapper">
+                      <table class="table table-dark table-sm align-middle kpi-table mb-0">
+                        <thead>
+                          <tr>
+                            <th>MITRA</th>
+                            <th>TOTAL ACH</th>
+                          </tr>
+                        </thead>
+                        <tbody id="b2bTable2Body"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= KPI GRID DETAIL TABLES (UNCHANGED) ================= -->
+    <!-- TANGERANG -->
     <div class="row g-3 mt-4">
       <div class="col-12">
         <div id="b2cKpiGridTableWrapper" class="d-none">
@@ -165,14 +239,13 @@
             <div class="table-responsive d-none" id="b2cKpiGridTableBtnContent">
               <table class="table table-dark table-sm align-middle kpi-table mb-0">
                 <thead id="b2cKpiGridTableBtnHead"></thead>
-                  <tbody id="b2cKpiGridTableBtnBody"></tbody>
-            </table>
+                <tbody id="b2cKpiGridTableBtnBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
   </div>
-  <!-- ================= END SAFE CONTENT WRAPPER ================= -->
-
 </div>
