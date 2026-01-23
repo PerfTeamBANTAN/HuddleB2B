@@ -1463,6 +1463,33 @@ td.clickable:hover {
   width: 100%;
 }
 
+/* ===============================
+   KPI GRID – INDIKATOR STYLE
+=============================== */
+.indikator-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: #e5e7eb;
+  letter-spacing: .3px;
+  box-shadow: 0 0 8px rgba(59,130,246,.35);
+}
+
+/* card BAD → indikator merah */
+.kpi-card.bad .indikator-badge {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  box-shadow: 0 0 10px rgba(239,68,68,.6);
+}
+
+/* card GOOD → indikator hijau */
+.kpi-card.good .indikator-badge {
+  background: linear-gradient(135deg, #064e3b, #16a34a);
+  box-shadow: 0 0 10px rgba(34,197,94,.6);
+}
+
 </style>
 
 </head>
