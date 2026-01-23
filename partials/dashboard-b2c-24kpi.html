@@ -16,13 +16,11 @@
       <div class="panel-card">
         <div class="panel-body text-center py-4">
 
-          <!-- loading state -->
           <div class="summary-loading loading-card">
             <div class="spinner-border text-info mb-2"></div>
             <div class="small text-muted">Loading summary data...</div>
           </div>
 
-          <!-- summary KPI inject here -->
         </div>
       </div>
     </div>
@@ -33,7 +31,6 @@
 
     <!-- ========== LEFT : KPI GRID ========== -->
     <div class="col-lg-8 col-xl-8">
-
       <div class="panel-card h-100">
 
         <div class="panel-header">
@@ -42,56 +39,17 @@
 
         <div class="panel-body">
 
-          <!-- KPI LOADING -->
           <div id="b2cKpiLoading" class="kpi-loading loading-card text-center py-5">
             <div class="spinner-border text-info mb-2"></div>
             <div class="small text-muted">Loading KPI data...</div>
           </div>
 
-          <!-- KPI GRID -->
           <div id="b2cKpiGrid" class="kpi-grid d-none">
             <!-- JS inject KPI cards -->
           </div>
 
-          <!-- ================================================= -->
-          <!-- ========== KPI GRID DETAIL TABLE (NEW) ========== -->
-          <!-- ================================================= -->
-          <div id="b2cKpiGridTableWrapper" class="mt-4 d-none">
-
-            <div class="panel-card">
-              <div class="panel-header">
-                <span>KPI GRID DETAIL (STO / WITEL)</span>
-              </div>
-
-              <div class="panel-body p-0">
-
-                <!-- LOADING -->
-                <div id="b2cKpiGridTableLoading" class="text-center py-4">
-                  <div class="spinner-border spinner-border-sm text-info mb-2"></div>
-                  <div class="small text-muted">Loading table...</div>
-                </div>
-
-                <!-- TABLE -->
-                <div class="table-responsive d-none" id="b2cKpiGridTableContent">
-                  <table class="table table-dark table-sm align-middle kpi-table mb-0">
-                    <thead id="b2cKpiGridTableHead">
-                      <!-- JS inject header -->
-                    </thead>
-                    <tbody id="b2cKpiGridTableBody">
-                      <!-- JS inject body -->
-                    </tbody>
-                  </table>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-          <!-- ========== END KPI GRID DETAIL TABLE ========== -->
-
         </div>
       </div>
-
     </div>
 
     <!-- ========== RIGHT : TABLES ========== -->
@@ -106,13 +64,11 @@
 
         <div class="panel-body p-0">
 
-          <!-- LOADING -->
           <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
             <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
             <div class="small text-muted">Loading table...</div>
           </div>
 
-          <!-- TABLE -->
           <div class="table-responsive d-none" id="b2cTableWrapperTgr">
             <table class="table table-dark table-sm align-middle kpi-table mb-0">
               <thead>
@@ -126,9 +82,7 @@
                   <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="b2cKpiTableTgr">
-                <!-- JS inject -->
-              </tbody>
+              <tbody id="b2cKpiTableTgr"></tbody>
             </table>
           </div>
 
@@ -144,13 +98,11 @@
 
         <div class="panel-body p-0">
 
-          <!-- LOADING -->
           <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
             <div class="spinner-border spinner-border-sm text-info mb-2"></div>
             <div class="small text-muted">Loading table...</div>
           </div>
 
-          <!-- TABLE -->
           <div class="table-responsive d-none" id="b2cTableWrapperBtn">
             <table class="table table-dark table-sm align-middle kpi-table mb-0">
               <thead>
@@ -164,13 +116,48 @@
                   <th>Status</th>
                 </tr>
               </thead>
-              <tbody id="b2cKpiTableBtn">
-                <!-- JS inject -->
-              </tbody>
+              <tbody id="b2cKpiTableBtn"></tbody>
             </table>
           </div>
 
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================================= -->
+  <!-- ========== KPI GRID DETAIL TABLE (FULL WIDTH) ==== -->
+  <!-- ================================================= -->
+  <div class="row g-3 mt-4">
+
+    <div class="col-12">
+
+      <div id="b2cKpiGridTableWrapper" class="d-none">
+
+        <div class="panel-card">
+
+          <div class="panel-header">
+            <span>KPI B2C TANGERANG</span>
+          </div>
+
+          <div class="panel-body p-0">
+
+            <div id="b2cKpiGridTableLoading" class="text-center py-4">
+              <div class="spinner-border spinner-border-sm text-info mb-2"></div>
+              <div class="small text-muted">Loading table...</div>
+            </div>
+
+            <div class="table-responsive d-none" id="b2cKpiGridTableContent">
+              <table class="table table-dark table-sm align-middle kpi-table mb-0">
+                <thead id="b2cKpiGridTableHead"></thead>
+                <tbody id="b2cKpiGridTableBody"></tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
     </div>
