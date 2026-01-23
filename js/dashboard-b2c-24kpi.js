@@ -358,6 +358,65 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     wrapper.classList.remove('d-none');
   }
 
+   /* ===============================
+   KPI GRID DETAIL TABLE - BANTEN
+   SOURCE : type=kpi_grid_table_btn
+================================ */
+function renderKpiGridDetailTableBtn(headers, data) {
+
+  const wrapper = document.getElementById('b2cKpiGridTableBtnWrapper');
+  const loading = document.getElementById('b2cKpiGridTableBtnLoading');
+  const content = document.getElementById('b2cKpiGridTableBtnContent');
+  const thead = document.getElementById('b2cKpiGridTableBtnHead');
+  const tbody = document.getElementById('b2cKpiGridTableBtnBody');
+
+  if (!wrapper || !thead || !tbody) return;
+
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+
+  /* ---------- HEADER ---------- */
+  const trHead = document.createElement('tr');
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+
+  /* ---------- BODY ---------- */
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+
+    headers.forEach(h => {
+      const td = document.createElement('td');
+      const val = row[h];
+
+      td.textContent = val ?? '-';
+
+      if (!['Indikator', 'Bobot'].includes(h)) {
+        const num = Number(val);
+        if (!isNaN(num)) {
+          td.classList.add('text-end');
+
+          if (h === 'BANTEN' && num < Number(row.Target)) {
+            td.classList.add('text-danger', 'fw-bold');
+          }
+        }
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  loading.classList.add('d-none');
+  content.classList.remove('d-none');
+  wrapper.classList.remove('d-none');
+}
+
+
   /* ===============================
      MAIN
   =============================== */
@@ -391,9 +450,11 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     console.error('Main KPI API failed', err);
   }
 
-  // 🔥 KPI GRID DETAIL FULL WIDTH
+  // 🔥 FULL WIDTH TABLES
   loadKpiGridDetailTable();
+  loadKpiGridDetailTableBtn();
 }
+
 
 
      async function loadKpiGridDetailTable() {
@@ -409,6 +470,21 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       console.error('Failed load KPI GRID DETAIL TABLE', err);
     }
   }
+
+   async function loadKpiGridDetailTableBtn() {
+  try {
+    const res = await fetch(`${B2B_API_URL}?type=kpi_grid_table_btn`);
+    const json = await res.json();
+
+    if (!json || !Array.isArray(json.headers) || !Array.isArray(json.data)) return;
+
+    renderKpiGridDetailTableBtn(json.headers, json.data);
+
+  } catch (err) {
+    console.error('Failed load KPI GRID DETAIL TABLE BANTEN', err);
+    document.getElementById('b2cKpiGridTableBtnLoading')?.classList.add('d-none');
+  }
+}
 
 
   return { init };
