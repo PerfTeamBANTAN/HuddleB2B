@@ -1583,6 +1583,42 @@ body {
   background: rgba(255,255,255,.1);
 }
 
+/* =====================================================
+   FIX SCROLL MACET SEBELUM UJUNG KANAN
+===================================================== */
+
+/* 1. JANGAN BATASI LEBAR SCROLL CONTAINER */
+#b2cKpiGridTableContent,
+#b2cKpiGridTableBtnContent {
+  width: auto !important;
+  max-width: none !important;
+  overflow-x: auto !important;
+}
+
+/* 2. PARENT HARUS BOLEH MELEBAR */
+#b2cKpiGridTableWrapper,
+#b2cKpiGridTableBtnWrapper,
+.panel-body,
+.panel-card {
+  max-width: none !important;
+  overflow-x: visible !important;
+}
+
+/* 3. TABLE HARUS JELAS LEBIH LEBAR DARI VIEWPORT */
+#b2cKpiGridTableContent table,
+#b2cKpiGridTableBtnContent table {
+  width: max-content !important;   /* 🔥 INI KUNCI */
+  min-width: 2400px;               /* boleh naik */
+}
+
+/* 4. MATIKAN PEMOTONG BOOTSTRAP */
+.row,
+.container,
+.container-fluid {
+  max-width: none !important;
+}
+
+
 </style>
 
 </head>
