@@ -1618,6 +1618,80 @@ body {
   max-width: none !important;
 }
 
+/* =====================================================
+   KPI DETAIL TABLE – CLEAN & COMPACT (ISOLATED)
+===================================================== */
+#b2cKpiGridTableWrapper table {
+  font-size: 11.5px;
+  border-collapse: separate;
+  border-spacing: 0;
+  white-space: nowrap;
+}
+
+/* HEADER */
+#b2cKpiGridTableWrapper thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: linear-gradient(180deg, #111827, #020617);
+  color: #e5e7eb;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(148,163,184,.25);
+  text-align: center;
+}
+
+/* BODY */
+#b2cKpiGridTableWrapper tbody td {
+  padding: 5px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(148,163,184,.12);
+}
+
+/* ANGKA */
+#b2cKpiGridTableWrapper td.text-end {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ROW HOVER */
+#b2cKpiGridTableWrapper tbody tr:hover {
+  background: rgba(59,130,246,.08);
+}
+
+/* KPI BADGE STATUS */
+.kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  line-height: 1.4;
+}
+
+.kpi-badge.ach {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.kpi-badge.not-ach {
+  background: rgba(239,68,68,.18);
+  color: #ef4444;
+}
+
+/* NILAI MERAH */
+.kpi-not-ach {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* NILAI HIJAU */
+.kpi-ach {
+  color: #22c55e;
+  font-weight: 600;
+}
+
 </style>
 
 </head>
