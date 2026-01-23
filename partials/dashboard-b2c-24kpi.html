@@ -10,191 +10,168 @@
     </div>
   </div>
 
-  <!-- ================= SUMMARY KPI ================= -->
-  <div class="row g-3 mb-4" id="b2cSummary">
-    <div class="col-12">
-      <div class="panel-card">
-        <div class="panel-body text-center py-4">
+  <!-- ================= SAFE CONTENT WRAPPER ================= -->
+  <div id="content-area" class="safe-scroll-wrapper">
 
-          <div class="summary-loading loading-card">
-            <div class="spinner-border text-info mb-2"></div>
-            <div class="small text-muted">Loading summary data...</div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MAIN CONTENT ================= -->
-  <div class="row g-3">
-
-    <!-- ========== LEFT : KPI GRID ========== -->
-    <div class="col-lg-8 col-xl-8">
-      <div class="panel-card h-100">
-
-        <div class="panel-header">
-          <span>KPI PERFORMANCE</span>
-        </div>
-
-        <div class="panel-body">
-
-          <div id="b2cKpiLoading" class="kpi-loading loading-card text-center py-5">
-            <div class="spinner-border text-info mb-2"></div>
-            <div class="small text-muted">Loading KPI data...</div>
-          </div>
-
-          <div id="b2cKpiGrid" class="kpi-grid d-none">
-            <!-- JS inject KPI cards -->
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== RIGHT : TABLES ========== -->
-    <div class="col-lg-4 col-xl-4">
-
-      <!-- ================= TANGERANG ================= -->
-      <div class="panel-card mb-4">
-        <div class="panel-header">
-          <span class="text-warning">KPI NOT ACH - TANGERANG</span>
-          <span class="badge bg-danger">Not Ach</span>
-        </div>
-
-        <div class="panel-body p-0">
-
-          <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
-            <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
-            <div class="small text-muted">Loading table...</div>
-          </div>
-
-          <div class="table-responsive d-none" id="b2cTableWrapperTgr">
-            <table class="table table-dark table-sm align-middle kpi-table mb-0">
-              <thead>
-                <tr>
-                  <th>Indikator</th>
-                  <th>Target</th>
-                  <th>Ach HI</th>
-                  <th>Status</th>
-                  <th>Growth</th>
-                  <th>Ach Kemarin</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="b2cKpiTableTgr"></tbody>
-            </table>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ================= BANTEN ================= -->
-      <div class="panel-card">
-        <div class="panel-header">
-          <span class="text-info">KPI NOT ACH - BANTEN</span>
-          <span class="badge bg-danger">Not Ach</span>
-        </div>
-
-        <div class="panel-body p-0">
-
-          <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
-            <div class="spinner-border spinner-border-sm text-info mb-2"></div>
-            <div class="small text-muted">Loading table...</div>
-          </div>
-
-          <div class="table-responsive d-none" id="b2cTableWrapperBtn">
-            <table class="table table-dark table-sm align-middle kpi-table mb-0">
-              <thead>
-                <tr>
-                  <th>Indikator</th>
-                  <th>Target</th>
-                  <th>Ach HI</th>
-                  <th>Status</th>
-                  <th>Growth</th>
-                  <th>Ach Kemarin</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="b2cKpiTableBtn"></tbody>
-            </table>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ================================================= -->
-  <!-- ========== KPI GRID DETAIL TABLE (FULL WIDTH) ==== -->
-  <!-- ================================================= -->
-  <div class="row g-3 mt-4">
-
-    <div class="col-12">
-
-      <div id="b2cKpiGridTableWrapper" class="d-none">
-
+    <!-- ================= SUMMARY KPI ================= -->
+    <div class="row g-3 mb-4" id="b2cSummary">
+      <div class="col-12">
         <div class="panel-card">
+          <div class="panel-body text-center py-4">
+            <div class="summary-loading loading-card">
+              <div class="spinner-border text-info mb-2"></div>
+              <div class="small text-muted">Loading summary data...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="row g-3">
+
+      <!-- ========== LEFT : KPI GRID ========== -->
+      <div class="col-lg-8 col-xl-8">
+        <div class="panel-card h-100">
           <div class="panel-header">
-            <span>KPI B2C TANGERANG</span>
+            <span>KPI PERFORMANCE</span>
+          </div>
+
+          <div class="panel-body">
+            <div id="b2cKpiLoading" class="kpi-loading loading-card text-center py-5">
+              <div class="spinner-border text-info mb-2"></div>
+              <div class="small text-muted">Loading KPI data...</div>
+            </div>
+
+            <div id="b2cKpiGrid" class="kpi-grid d-none">
+              <!-- JS inject KPI cards -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== RIGHT : TABLES ========== -->
+      <div class="col-lg-4 col-xl-4">
+
+        <!-- ================= TANGERANG ================= -->
+        <div class="panel-card mb-4">
+          <div class="panel-header">
+            <span class="text-warning">KPI NOT ACH - TANGERANG</span>
+            <span class="badge bg-danger">Not Ach</span>
           </div>
 
           <div class="panel-body p-0">
+            <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
+              <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
+              <div class="small text-muted">Loading table...</div>
+            </div>
 
-            <div id="b2cKpiGridTableLoading" class="text-center py-4">
+            <div class="table-responsive d-none" id="b2cTableWrapperTgr">
+              <table class="table table-dark table-sm align-middle kpi-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Indikator</th>
+                    <th>Target</th>
+                    <th>Ach HI</th>
+                    <th>Status</th>
+                    <th>Growth</th>
+                    <th>Ach Kemarin</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="b2cKpiTableTgr"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= BANTEN ================= -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <span class="text-info">KPI NOT ACH - BANTEN</span>
+            <span class="badge bg-danger">Not Ach</span>
+          </div>
+
+          <div class="panel-body p-0">
+            <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
               <div class="spinner-border spinner-border-sm text-info mb-2"></div>
               <div class="small text-muted">Loading table...</div>
             </div>
 
-            <div class="table-responsive d-none" id="b2cKpiGridTableContent">
+            <div class="table-responsive d-none" id="b2cTableWrapperBtn">
               <table class="table table-dark table-sm align-middle kpi-table mb-0">
-                <thead id="b2cKpiGridTableHead"></thead>
-                <tbody id="b2cKpiGridTableBody"></tbody>
+                <thead>
+                  <tr>
+                    <th>Indikator</th>
+                    <th>Target</th>
+                    <th>Ach HI</th>
+                    <th>Status</th>
+                    <th>Growth</th>
+                    <th>Ach Kemarin</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="b2cKpiTableBtn"></tbody>
               </table>
             </div>
-
           </div>
         </div>
 
       </div>
+    </div>
 
+    <!-- ================= KPI GRID DETAIL TABLE - TANGERANG ================= -->
+    <div class="row g-3 mt-4">
+      <div class="col-12">
+        <div id="b2cKpiGridTableWrapper" class="d-none">
+          <div class="panel-card">
+            <div class="panel-header">
+              <span>KPI B2C TANGERANG</span>
+            </div>
+
+            <div class="panel-body p-0">
+              <div id="b2cKpiGridTableLoading" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-info mb-2"></div>
+                <div class="small text-muted">Loading table...</div>
+              </div>
+
+              <div class="table-responsive d-none" id="b2cKpiGridTableContent">
+                <table class="table table-dark table-sm align-middle kpi-table mb-0">
+                  <thead id="b2cKpiGridTableHead"></thead>
+                  <tbody id="b2cKpiGridTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= KPI GRID DETAIL TABLE - BANTEN ================= -->
+    <div id="b2cKpiGridTableBtnWrapper" class="mt-4 d-none">
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>KPI B2C BANTEN</span>
+        </div>
+
+        <div class="panel-body p-0">
+          <div id="b2cKpiGridTableBtnLoading" class="text-center py-4">
+            <div class="spinner-border spinner-border-sm text-info mb-2"></div>
+            <div class="small text-muted">Loading table...</div>
+          </div>
+
+          <div class="table-responsive d-none" id="b2cKpiGridTableBtnContent">
+            <table class="table table-dark table-sm align-middle kpi-table mb-0">
+              <thead id="b2cKpiGridTableBtnHead"></thead>
+              <tbody id="b2cKpiGridTableBtnBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
+  <!-- ================= END SAFE CONTENT WRAPPER ================= -->
 
 </div>
-
-  <!-- ================================================= -->
-<!-- ========== KPI GRID DETAIL TABLE - BANTEN ======= -->
-<!-- ================================================= -->
-<div id="b2cKpiGridTableBtnWrapper" class="mt-4 d-none">
-
-  <div class="panel-card">
-    <div class="panel-header">
-      <span>KPI B2C BANTEN</span>
-    </div>
-
-    <div class="panel-body p-0">
-
-      <!-- LOADING -->
-      <div id="b2cKpiGridTableBtnLoading" class="text-center py-4">
-        <div class="spinner-border spinner-border-sm text-info mb-2"></div>
-        <div class="small text-muted">Loading table...</div>
-      </div>
-
-      <!-- TABLE -->
-      <div class="table-responsive d-none" id="b2cKpiGridTableBtnContent">
-        <table class="table table-dark table-sm align-middle kpi-table mb-0">
-          <thead id="b2cKpiGridTableBtnHead"></thead>
-          <tbody id="b2cKpiGridTableBtnBody"></tbody>
-        </table>
-      </div>
-
-    </div>
-  </div>
-
-</div>
-<!-- ========== END KPI GRID DETAIL TABLE - BANTEN ===== -->
-
