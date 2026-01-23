@@ -326,12 +326,8 @@ function isNotAch(value, target, indikator) {
      KPI GRID DETAIL TABLE (NEW)
      SOURCE : type=kpi_grid_table
   =============================== */
-function isLowerBetterTable(indikator = '') {
-  const key = indikator.toLowerCase();
-  return (
-    key.includes('q gangguan') ||
-    key.includes('unspec non warranty')
-  );
+function isNotAchTable(value, target, indikator) {
+  return isNotAch(value, target, indikator);
 }
 
 function isNotAchTable(value, target, indikator) {
