@@ -349,6 +349,10 @@ function isNotAchTable(value, target, indikator) {
     : value < target;    // HIGHER is BETTER
 }
    
+/* ===============================
+   KPI GRID DETAIL TABLE - TANGERANG
+   FINAL COMPACT VERSION
+================================ */
 function renderKpiGridDetailTable(headers, data) {
 
   const wrapper = document.getElementById('b2cKpiGridTableWrapper');
@@ -362,56 +366,47 @@ function renderKpiGridDetailTable(headers, data) {
   thead.innerHTML = '';
   tbody.innerHTML = '';
 
-  /* ===============================
-     HEADER
-  =============================== */
+  /* KPI mulai setelah Target */
+  const kpiStartIndex = headers.indexOf('Target') + 1;
+
+  /* ================= HEADER ================= */
   const trHead = document.createElement('tr');
 
-  headers.forEach(h => {
+  headers.forEach((h, i) => {
     const th = document.createElement('th');
     th.textContent = h;
-    th.className = 'text-center fw-semibold';
+    th.className = `
+      text-center
+      fw-semibold
+      kpi-th
+      ${i >= kpiStartIndex ? 'kpi-col' : ''}
+    `;
     trHead.appendChild(th);
   });
 
   thead.appendChild(trHead);
 
-  /* ===============================
-     BODY
-  =============================== */
+  /* ================= BODY ================= */
   data.forEach(row => {
     const tr = document.createElement('tr');
 
-    headers.forEach(h => {
+    headers.forEach((h, i) => {
       const td  = document.createElement('td');
       const val = row[h];
 
       td.textContent = val ?? '-';
+      td.classList.add('kpi-td');
 
-      if (!['Indikator', 'Bobot'].includes(h)) {
+      /* KPI ONLY */
+      if (i >= kpiStartIndex) {
         const num = Number(val);
+        const target = Number(row.Target);
 
         if (!isNaN(num)) {
           td.classList.add('text-end');
 
-          /* ===== KPI VALUE ===== */
-          if (h === 'TANGERANG' || h === 'BANTEN') {
-            const target = Number(row.Target);
-            const notAch = isNotAchTable(num, target, row.Indikator);
-
-            td.innerHTML = `
-              <span class="${notAch ? 'kpi-not-ach' : 'kpi-ach'}">
-                ${num}
-              </span>
-              <span class="kpi-badge ${notAch ? 'not-ach' : 'ach'}">
-                ${notAch ? '❌ Not Ach' : '✅ Ach'}
-              </span>
-            `;
-          }
-          /* ===== NORMAL NUMBER ===== */
-          else {
-            td.textContent = num;
-          }
+          const notAch = isNotAchTable(num, target, row.Indikator);
+          if (notAch) td.classList.add('kpi-not-ach');
         }
       }
 
@@ -421,17 +416,15 @@ function renderKpiGridDetailTable(headers, data) {
     tbody.appendChild(tr);
   });
 
-  /* ===============================
-     SHOW TABLE
-  =============================== */
+  /* ================= SHOW ================= */
   loading?.classList.add('d-none');
   content?.classList.remove('d-none');
   wrapper?.classList.remove('d-none');
 }
 
    /* ===============================
-   KPI GRID DETAIL TABLE - BANTEN
-   CLEAN & FINAL VERSION
+   KPI GRID DETAIL TABLE - FINAL
+   CLEAN, COMPACT, ALL KPI COLUMN
 ================================ */
 function renderKpiGridDetailTableBtn(headers, data) {
 
@@ -446,56 +439,47 @@ function renderKpiGridDetailTableBtn(headers, data) {
   thead.innerHTML = '';
   tbody.innerHTML = '';
 
-  /* ===============================
-     HEADER
-  =============================== */
+  const kpiStartIndex = headers.indexOf('Target') + 1;
+
+  /* ================= HEADER ================= */
   const trHead = document.createElement('tr');
 
-  headers.forEach(h => {
+  headers.forEach((h, i) => {
     const th = document.createElement('th');
     th.textContent = h;
-    th.className = 'text-center fw-semibold small';
+    th.className = `
+      text-center 
+      fw-semibold 
+      kpi-th 
+      ${i >= kpiStartIndex ? 'kpi-col' : ''}
+    `;
     trHead.appendChild(th);
   });
 
   thead.appendChild(trHead);
 
-  /* ===============================
-     BODY
-  =============================== */
+  /* ================= BODY ================= */
   data.forEach(row => {
     const tr = document.createElement('tr');
 
-    headers.forEach(h => {
+    headers.forEach((h, i) => {
       const td  = document.createElement('td');
       const val = row[h];
 
       td.textContent = val ?? '-';
-      td.classList.add('small');
+      td.classList.add('kpi-td');
 
-      if (!['Indikator', 'Bobot'].includes(h)) {
+      if (i >= kpiStartIndex) {
         const num = Number(val);
+        const target = Number(row.Target);
 
         if (!isNaN(num)) {
           td.classList.add('text-end');
 
-          /* ===== KPI VALUE (BANTEN ONLY) ===== */
-          if (h === 'BANTEN') {
-            const target = Number(row.Target);
-            const notAch = isNotAchTable(num, target, row.Indikator);
+          const notAch = isNotAchTable(num, target, row.Indikator);
 
-            td.innerHTML = `
-              <span class="${notAch ? 'kpi-not-ach' : 'kpi-ach'}">
-                ${num}
-              </span>
-              <span class="kpi-badge ${notAch ? 'not-ach' : 'ach'}">
-                ${notAch ? '❌ Not Ach' : '✅ Ach'}
-              </span>
-            `;
-          }
-          /* ===== OTHER NUMERIC COLUMNS ===== */
-          else {
-            td.textContent = num;
+          if (notAch) {
+            td.classList.add('kpi-not-ach');
           }
         }
       }
@@ -505,6 +489,12 @@ function renderKpiGridDetailTableBtn(headers, data) {
 
     tbody.appendChild(tr);
   });
+
+  /* ================= SHOW ================= */
+  loading?.classList.add('d-none');
+  content?.classList.remove('d-none');
+  wrapper?.classList.remove('d-none');
+}
 
   /* ===============================
      SHOW TABLE
