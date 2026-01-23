@@ -456,6 +456,17 @@ function renderKpiGridDetailTableBtn(headers, data) {
 /* ===============================
    KPI RANKING TABLE (HSA & MITRA)
 =============================== */
+function parseIDNumber(val) {
+  if (val === null || val === undefined) return NaN;
+
+  return Number(
+    String(val)
+      .replace('%', '')
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .trim()
+  );
+}
 
 function renderRankingTable({
   data,
@@ -474,25 +485,28 @@ function renderRankingTable({
   tbody.innerHTML = '';
 
   data.forEach((row, index) => {
-    const raw = row[valueKey];
-    const num = Number(String(raw).replace('%', '').replace(',', '.'));
+    const label = row[labelKey?.trim()] ?? '-';
+    const rawValue = row[valueKey?.trim()];
+    const num = parseIDNumber(rawValue);
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="fw-semibold">
         <span class="text-muted me-2">${index + 1}.</span>
-        ${row[labelKey] ?? '-'}
+        ${label}
       </td>
-      <td class="text-end fw-bold text-success">
-        ${isNaN(num) ? raw : num.toFixed(2) + '%'}
+      <td class="text-end fw-bold ${isNaN(num) ? '' : 'text-success'}">
+        ${isNaN(num) ? rawValue ?? '-' : num.toFixed(2) + '%'}
       </td>
     `;
+
     tbody.appendChild(tr);
   });
 
   loading.classList.add('d-none');
   wrapper.classList.remove('d-none');
 }
+
 
 
 /* ===============================
@@ -504,15 +518,15 @@ async function loadKpiRankingHSA() {
     const res = await fetch(`${B2B_API_URL}?type=kpi_ranking_table_hsa`);
     const json = await res.json();
 
-    if (!json || !Array.isArray(json.data)) return;
+    if (!json?.headers || !json?.data?.length) return;
 
     renderRankingTable({
       data: json.data,
       bodyId: 'b2bTable1Body',
       loadingId: 'b2bTable1Loading',
       wrapperId: 'b2bTable1Wrapper',
-      labelKey: json.headers[0],   // HSA
-      valueKey: json.headers[1]    // TOTAL ACH
+      labelKey: json.headers[0],
+      valueKey: json.headers[1]
     });
 
   } catch (err) {
