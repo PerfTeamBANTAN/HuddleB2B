@@ -116,66 +116,44 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     `;
   }
 
-  /* ===============================
-   RENDER KPI GRID (FIX FINAL)
-================================ */
-function renderKpiGrid(data) {
-  const container = document.getElementById('b2cKpiGrid');
-  container.innerHTML = ''; // bersih total
+   /* ===============================
+     RENDER KPI GRID
+  =============================== */
+  function renderKpiGrid(data) {
+    const container = document.getElementById('b2cKpiGrid');
+    container.innerHTML = '<div class="b2c-kpi-wrapper"></div>';
+    const wrapper = container.querySelector('.b2c-kpi-wrapper');
 
-  const grouped = groupByKategori(data);
+    const grouped = groupByKategori(data);
 
-  Object.entries(grouped).forEach(([kategori, items]) => {
+    Object.entries(grouped).forEach(([kategori, items]) => {
+      const row = document.createElement('div');
+      row.className = 'kpi-category-row';
 
-    /* ===== ROW PER KATEGORI ===== */
-    const row = document.createElement('div');
-    row.className = 'kpi-row';
+      const title = document.createElement('div');
+      title.className = 'kpi-category-title';
+      title.textContent = kategori;
 
-    /* ===== TITLE KATEGORI ===== */
-    const title = document.createElement('div');
-    title.className = 'kpi-category-title';
-    title.textContent = kategori;
+      const cards = document.createElement('div');
+      cards.className = 'kpi-category-cards';
 
-    /* ===== KPI CARDS WRAPPER ===== */
-    const cards = document.createElement('div');
-    cards.className = 'kpi-cards';
+      items.forEach(kpi => {
+        const card = document.createElement('div');
+        card.className = 'kpi-card mini';
+        card.innerHTML = `
+          <div class="kpi-title"><span class="indikator-badge">${kpi.indikator}</span></div>
+          <div class="kpi-row"><span>Target :</span><span>${fmt(kpi.target)}</span></div>
+          <div class="kpi-row"><span>Tangerang :</span><span>${fmt(kpi.tangerang)}</span></div>
+          <div class="kpi-row"><span>Banten :</span><span>${fmt(kpi.banten)}</span></div>
+        `;
+        cards.appendChild(card);
+      });
 
-    items.forEach(kpi => {
-      const card = document.createElement('div');
-      card.className = 'kpi-card mini';
-
-      card.innerHTML = `
-        <div class="kpi-title">
-          <span class="indikator-badge">${kpi.indikator}</span>
-        </div>
-
-        <div class="kpi-row-item">
-          <span>Target</span>
-          <span>${fmt(kpi.target)}</span>
-        </div>
-
-        <div class="kpi-row-item">
-          <span>Tangerang</span>
-          <span>${fmt(kpi.tangerang)}</span>
-        </div>
-
-        <div class="kpi-row-item">
-          <span>Banten</span>
-          <span>${fmt(kpi.banten)}</span>
-        </div>
-      `;
-
-      cards.appendChild(card);
+      row.appendChild(title);
+      row.appendChild(cards);
+      wrapper.appendChild(row);
     });
-
-    row.appendChild(title);
-    row.appendChild(cards);
-    container.appendChild(row);
-  });
-
-  container.classList.remove('d-none');
-}
-
+  }
 
   /* ===============================
      KPI HIGHLIGHT + TOOLTIP
