@@ -119,39 +119,69 @@ function isNotAch(value, target, indikator) {
 
   data.forEach(kpi => {
     const target = Number(kpi.target);
-    const tgr = Number(kpi.tangerang);
-    const btn = Number(kpi.banten);
 
-    if (!isNaN(tgr) && !isNaN(target)) {
-      isNotAch(tgr, target, kpi.indikator) ? badTgr++ : goodTgr++;
+    if (!isNaN(kpi.tangerang)) {
+      isNotAch(kpi.tangerang, target, kpi.indikator)
+        ? badTgr++
+        : goodTgr++;
     }
 
-    if (!isNaN(btn) && !isNaN(target)) {
-      isNotAch(btn, target, kpi.indikator) ? badBtn++ : goodBtn++;
+    if (!isNaN(kpi.banten)) {
+      isNotAch(kpi.banten, target, kpi.indikator)
+        ? badBtn++
+        : goodBtn++;
     }
   });
 
   document.getElementById('b2cSummary').innerHTML = `
-    <div class="col-md-6">
-      <div class="summary-card">
-        <h6>TANGERANG</h6>
-        <div class="summary-value">
-          ${fmt(summary?.totalAch?.tangerang)}%
-        </div>
-        <div class="summary-sub">
-          ✅ ${goodTgr} &nbsp; ❌ ${badTgr}
-        </div>
-      </div>
-    </div>
+    ${renderSummaryCard({
+      title: 'TANGERANG',
+      icon: '🏙️',
+      ach: summary?.totalAch?.tangerang,
+      good: goodTgr,
+      bad: badTgr,
+      theme: 'blue'
+    })}
 
+    ${renderSummaryCard({
+      title: 'BANTEN',
+      icon: '🌄',
+      ach: summary?.totalAch?.banten,
+      good: goodBtn,
+      bad: badBtn,
+      theme: 'green'
+    })}
+  `;
+}
+
+/* helper */
+function renderSummaryCard({ title, icon, ach, good, bad, theme }) {
+  const percent = Number(ach) || 0;
+
+  return `
     <div class="col-md-6">
-      <div class="summary-card">
-        <h6>BANTEN</h6>
-        <div class="summary-value">
-          ${fmt(summary?.totalAch?.banten)}%
+      <div class="summary-card-v2 ${theme}">
+        <div class="summary-header">
+          <div>
+            <h6>${icon} ${title}</h6>
+            <span class="summary-subtext">Overall KPI Achievement</span>
+          </div>
+          <div class="summary-percent">${percent.toFixed(2)}%</div>
         </div>
-        <div class="summary-sub">
-          ✅ ${goodBtn} &nbsp; ❌ ${badBtn}
+
+        <div class="summary-progress">
+          <div class="summary-progress-bar" style="width:${percent}%"></div>
+        </div>
+
+        <div class="summary-footer">
+          <div class="summary-metric good">
+            <span>✅ Ach</span>
+            <strong>${good}</strong>
+          </div>
+          <div class="summary-metric bad">
+            <span>❌ Not Ach</span>
+            <strong>${bad}</strong>
+          </div>
         </div>
       </div>
     </div>
