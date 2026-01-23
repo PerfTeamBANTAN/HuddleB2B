@@ -495,7 +495,7 @@ function renderRankingTable({
 
     let num;
     if (typeof raw === 'number') {
-      num = raw; // backend sudah kirim 97.11
+      num = raw;
     } else {
       num = Number(
         String(raw)
@@ -505,13 +505,22 @@ function renderRankingTable({
       );
     }
 
+    const isLow = !isNaN(num) && num < 95;
+
+    // 🥇🥈🥉 badge
+    let badge = '';
+    if (index === 0) badge = '<span class="badge badge-gold">🥇</span>';
+    else if (index === 1) badge = '<span class="badge badge-silver">🥈</span>';
+    else if (index === 2) badge = '<span class="badge badge-bronze">🥉</span>';
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="fw-semibold">
+        ${badge}
         <span class="text-muted me-2">${index + 1}.</span>
         ${row[labelKey] ?? '-'}
       </td>
-      <td class="text-end fw-bold text-success">
+      <td class="text-end fw-bold ${isLow ? 'text-danger' : 'text-success'}">
         ${isNaN(num) ? raw ?? '-' : num.toFixed(2) + '%'}
       </td>
     `;
