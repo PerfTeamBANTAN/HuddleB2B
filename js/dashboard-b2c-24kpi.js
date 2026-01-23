@@ -220,11 +220,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     });
   }
 
-  /* ===============================
-   BAD KPI TABLE (STATUS BASED)
-   TANGERANG + BANTEN
-================================ */
-function renderBadKpiTable(data) {
+  function renderBadKpiTable(data) {
   const tgrBody = document.getElementById('b2cKpiTableTgr');
   const btnBody = document.getElementById('b2cKpiTableBtn');
 
@@ -235,23 +231,40 @@ function renderBadKpiTable(data) {
   let hasBadBtn = false;
 
   data.forEach(kpi => {
-
     const target = Number(kpi.target);
     const tgr = Number(kpi.tangerang);
     const btn = Number(kpi.banten);
+    const tgrY = Number(kpi.tangerang_yesterday);
+    const btnY = Number(kpi.banten_yesterday);
 
     /* ======================
        TANGERANG
     ====================== */
-    if (!isNaN(tgr) && tgr < target) {
+    if (isNotAch(tgr, target, kpi.indikator)) {
       hasBadTgr = true;
+      const g = getGrowthMeta(tgr, tgrY);
 
       tgrBody.innerHTML += `
-        <tr class="table-danger">
+        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
           <td>${kpi.indikator}</td>
           <td>${fmt(target)}</td>
           <td class="fw-bold text-danger">${fmt(tgr)}</td>
           <td><span class="badge bg-danger">Not Ach</span></td>
+          <td class="text-center">
+            <span class="badge bg-${g.color}" title="${g.tooltip}">
+              ${g.icon}
+            </span>
+          </td>
+          <td>${fmt(tgrY)}</td>
+          <td>
+            <span class="badge ${
+              isNotAch(tgrY, target, kpi.indikator)
+                ? 'bg-danger'
+                : 'bg-success'
+            }">
+              ${isNotAch(tgrY, target, kpi.indikator) ? 'Not Ach' : 'Ach'}
+            </span>
+          </td>
         </tr>
       `;
     }
@@ -259,33 +272,42 @@ function renderBadKpiTable(data) {
     /* ======================
        BANTEN
     ====================== */
-    if (!isNaN(btn) && btn < target) {
+    if (isNotAch(btn, target, kpi.indikator)) {
       hasBadBtn = true;
+      const g = getGrowthMeta(btn, btnY);
 
       btnBody.innerHTML += `
-        <tr class="table-danger">
+        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
           <td>${kpi.indikator}</td>
           <td>${fmt(target)}</td>
           <td class="fw-bold text-danger">${fmt(btn)}</td>
           <td><span class="badge bg-danger">Not Ach</span></td>
+          <td class="text-center">
+            <span class="badge bg-${g.color}" title="${g.tooltip}">
+              ${g.icon}
+            </span>
+          </td>
+          <td>${fmt(btnY)}</td>
+          <td>
+            <span class="badge ${
+              isNotAch(btnY, target, kpi.indikator)
+                ? 'bg-danger'
+                : 'bg-success'
+            }">
+              ${isNotAch(btnY, target, kpi.indikator) ? 'Not Ach' : 'Ach'}
+            </span>
+          </td>
         </tr>
       `;
     }
-
   });
 
   document.getElementById('b2cTableLoadingTgr')?.classList.add('d-none');
   document.getElementById('b2cTableLoadingBtn')?.classList.add('d-none');
 
-  if (hasBadTgr) {
-    document.getElementById('b2cTableWrapperTgr')?.classList.remove('d-none');
-  }
-
-  if (hasBadBtn) {
-    document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
-  }
+  if (hasBadTgr) document.getElementById('b2cTableWrapperTgr')?.classList.remove('d-none');
+  if (hasBadBtn) document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
 }
-
 
      /* ===============================
      KPI GRID DETAIL TABLE (NEW)
