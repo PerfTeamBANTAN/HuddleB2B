@@ -212,10 +212,10 @@ window.B2C24KPI = window.B2C24KPI || (function () {
             <td>${kpi.indikator}</td>
             <td>${fmt(target)}</td>
             <td class="text-danger fw-bold">${fmt(tgr)}</td>
-            <td><span class="badge bg-danger">BELOW</span></td>
+            <td><span class="badge bg-danger">Not Ach</span></td>
             <td>${fmt(tgrY)}</td>
             <td><span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
-              ${tgrY >= target ? 'ACH' : 'BELOW'}
+              ${tgrY >= target ? 'Ach' : 'Not Ach'}
             </span></td>
           </tr>`;
       }
@@ -227,10 +227,10 @@ window.B2C24KPI = window.B2C24KPI || (function () {
             <td>${kpi.indikator}</td>
             <td>${fmt(target)}</td>
             <td class="text-danger fw-bold">${fmt(btn)}</td>
-            <td><span class="badge bg-danger">BELOW</span></td>
+            <td><span class="badge bg-danger">Not Ach</span></td>
             <td>${fmt(btnY)}</td>
             <td><span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
-              ${btnY >= target ? 'ACH' : 'BELOW'}
+              ${btnY >= target ? 'Ach' : 'Not Ach'}
             </span></td>
           </tr>`;
       }
