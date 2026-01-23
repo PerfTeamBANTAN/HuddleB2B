@@ -474,24 +474,26 @@ function renderRankingTable({
   tbody.innerHTML = '';
 
   data.forEach((row, index) => {
-    const tr = document.createElement('tr');
+    const raw = row[valueKey];
+    const num = Number(String(raw).replace('%', '').replace(',', '.'));
 
+    const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="fw-semibold">
-        <span class="me-2 text-muted">${index + 1}.</span>
+        <span class="text-muted me-2">${index + 1}.</span>
         ${row[labelKey] ?? '-'}
       </td>
       <td class="text-end fw-bold text-success">
-        ${fmt(row[valueKey])}
+        ${isNaN(num) ? raw : num.toFixed(2) + '%'}
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 
   loading.classList.add('d-none');
   wrapper.classList.remove('d-none');
 }
+
 
 /* ===============================
    LOAD KPI RANKING TABLES
