@@ -429,9 +429,14 @@ function renderKpiGridDetailTableBtn(headers, data) {
   renderBadKpiTable(api.data);
 
   document.getElementById('b2cKpiLoading')?.classList.add('d-none');
-  document.getElementById('b2cKpiGrid')?.classList.remove('d-none');
+document.getElementById('b2cKpiGrid')?.classList.remove('d-none');
 
-  hideSkeleton();
+const content = document.getElementById('content-area');
+if (content) {
+  content.classList.add('safe-scroll');
+}
+
+hideSkeleton();
 
   document.querySelectorAll('[data-bs-toggle="tooltip"]')
     .forEach(el => new bootstrap.Tooltip(el));
