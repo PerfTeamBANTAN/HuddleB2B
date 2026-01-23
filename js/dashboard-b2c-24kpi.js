@@ -160,6 +160,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   =============================== */
   function applyKpiHighlightAndTooltip() {
     document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
+
       card.classList.remove('good', 'bad');
       card.style.boxShadow = '';
 
@@ -167,6 +168,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       if (oldTooltip) oldTooltip.remove();
 
       const rows = Array.from(card.querySelectorAll('.kpi-row'));
+
       const getRow = (label) =>
         rows.find(r =>
           r.querySelector('span:first-child')?.innerText.toLowerCase().includes(label)
@@ -175,6 +177,7 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       const targetRow = getRow('target');
       const tgrRow = getRow('tangerang');
       const btnRow = getRow('banten');
+
       if (!targetRow || !tgrRow || !btnRow) return;
 
       const parseVal = (row) =>
@@ -184,11 +187,36 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       const tgr = parseVal(tgrRow);
       const btn = parseVal(btnRow);
 
-      const isBad = tgr < target || btn < target;
+      if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
+
+      const badTgr = tgr < target;
+      const badBtn = btn < target;
+      const isBad = badTgr || badBtn;
+
       card.classList.add(isBad ? 'bad' : 'good');
       card.style.boxShadow = isBad
         ? '0 0 18px rgba(239,68,68,.75)'
         : '0 0 18px rgba(34,197,94,.55)';
+
+      const colorize = (row, bad) => {
+        const el = row.querySelector('span:last-child');
+        el.style.fontWeight = '700';
+        el.style.color = bad ? '#ef4444' : '#22c55e';
+      };
+
+      colorize(tgrRow, badTgr);
+      colorize(btnRow, badBtn);
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'kpi-tooltip';
+      tooltip.innerHTML = `
+        <strong>${card.querySelector('.kpi-title').innerText}</strong><br>
+        Target : ${target}<br>
+        Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
+        Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
+        <strong>Status :</strong> ${isBad ? '❌ BELOW TARGET' : '✅ ACH'}
+      `;
+      card.appendChild(tooltip);
     });
   }
 
