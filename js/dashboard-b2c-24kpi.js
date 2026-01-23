@@ -221,84 +221,89 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   }
 
   /* ===============================
-     BAD KPI TABLE (WITH GROWTH)
-  =============================== */
-  function renderBadKpiTable(data) {
-    const tgrBody = document.getElementById('b2cKpiTableTgr');
-    const btnBody = document.getElementById('b2cKpiTableBtn');
+   BAD KPI TABLE (STATUS BASED)
+================================ */
+function renderBadKpiTable(data) {
+  const tgrBody = document.getElementById('b2cKpiTableTgr');
+  const btnBody = document.getElementById('b2cKpiTableBtn');
 
-    tgrBody.innerHTML = '';
-    btnBody.innerHTML = '';
+  tgrBody.innerHTML = '';
+  btnBody.innerHTML = '';
 
-    let hasBadTgr = false;
-    let hasBadBtn = false;
+  let hasBadTgr = false;
+  let hasBadBtn = false;
 
-    data.forEach(kpi => {
-      const target = Number(kpi.target);
-      const tgr = Number(kpi.tangerang);
-      const btn = Number(kpi.banten);
-      const tgrY = Number(kpi.tangerang_yesterday);
-      const btnY = Number(kpi.banten_yesterday);
+  data.forEach(kpi => {
 
-      if (tgr < target) {
-        hasBadTgr = true;
-        const g = getGrowthMeta(tgr, tgrY);
+    /* ===== TANGERANG ===== */
+    if (kpi.status_ach_hi_tgr === '❌') {
+      hasBadTgr = true;
 
-        tgrBody.innerHTML += `
-        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
-          <td>${kpi.indikator}</td>
-          <td>${fmt(target)}</td>
-          <td class="fw-bold text-danger">${fmt(tgr)}</td>
-          <td><span class="badge bg-danger">Not Ach</span></td>
+      const g = getGrowthMeta(
+        Number(kpi.tangerang),
+        Number(kpi.tangerang_yesterday)
+      );
 
-          <td class="text-center">
-            <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
-              ${g.icon}
-            </span>
-          </td>
+      tgrBody.innerHTML += `
+      <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
+        <td>${kpi.indikator}</td>
+        <td>${fmt(kpi.target)}</td>
+        <td class="fw-bold text-danger">${fmt(kpi.tangerang)}</td>
+        <td><span class="badge bg-danger">Not Ach</span></td>
 
-          <td>${fmt(tgrY)}</td>
-          <td>
-            <span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
-              ${tgrY >= target ? 'Ach' : 'Not Ach'}
-            </span>
-          </td>
-        </tr>`;
-      }
+        <td class="text-center">
+          <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
+            ${g.icon}
+          </span>
+        </td>
 
-      if (btn < target) {
-        hasBadBtn = true;
-        const g = getGrowthMeta(btn, btnY);
+        <td>${fmt(kpi.tangerang_yesterday)}</td>
+        <td>
+          <span class="badge ${kpi.status_ach_kemarin_tgr === '✅' ? 'bg-success' : 'bg-danger'}">
+            ${kpi.status_ach_kemarin_tgr === '✅' ? 'Ach' : 'Not Ach'}
+          </span>
+        </td>
+      </tr>`;
+    }
 
-        btnBody.innerHTML += `
-        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
-          <td>${kpi.indikator}</td>
-          <td>${fmt(target)}</td>
-          <td class="fw-bold text-danger">${fmt(btn)}</td>
-          <td><span class="badge bg-danger">Not Ach</span></td>
+    /* ===== BANTEN ===== */
+    if (kpi.status_ach_hi_btn === '❌') {
+      hasBadBtn = true;
 
-          <td class="text-center">
-            <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
-              ${g.icon}
-            </span>
-          </td>
+      const g = getGrowthMeta(
+        Number(kpi.banten),
+        Number(kpi.banten_yesterday)
+      );
 
-          <td>${fmt(btnY)}</td>
-          <td>
-            <span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
-              ${btnY >= target ? 'Ach' : 'Not Ach'}
-            </span>
-          </td>
-        </tr>`;
-      }
-    });
+      btnBody.innerHTML += `
+      <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
+        <td>${kpi.indikator}</td>
+        <td>${fmt(kpi.target)}</td>
+        <td class="fw-bold text-danger">${fmt(kpi.banten)}</td>
+        <td><span class="badge bg-danger">Not Ach</span></td>
 
-    document.getElementById('b2cTableLoadingTgr').classList.add('d-none');
-    document.getElementById('b2cTableLoadingBtn').classList.add('d-none');
+        <td class="text-center">
+          <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
+            ${g.icon}
+          </span>
+        </td>
 
-    if (hasBadTgr) document.getElementById('b2cTableWrapperTgr').classList.remove('d-none');
-    if (hasBadBtn) document.getElementById('b2cTableWrapperBtn').classList.remove('d-none');
-  }
+        <td>${fmt(kpi.banten_yesterday)}</td>
+        <td>
+          <span class="badge ${kpi.status_ach_kemarin_btn === '✅' ? 'bg-success' : 'bg-danger'}">
+            ${kpi.status_ach_kemarin_btn === '✅' ? 'Ach' : 'Not Ach'}
+          </span>
+        </td>
+      </tr>`;
+    }
+  });
+
+  document.getElementById('b2cTableLoadingTgr')?.classList.add('d-none');
+  document.getElementById('b2cTableLoadingBtn')?.classList.add('d-none');
+
+  if (hasBadTgr) document.getElementById('b2cTableWrapperTgr')?.classList.remove('d-none');
+  if (hasBadBtn) document.getElementById('b2cTableWrapperBtn')?.classList.remove('d-none');
+}
 
      /* ===============================
      KPI GRID DETAIL TABLE (NEW)
