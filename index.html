@@ -83,12 +83,6 @@ html, body {
   color: #fff;
 }
 
-#content-area.show-grid {
-  display: block !important;
-  align-items: unset !important;
-  justify-content: unset !important;
-}
-
 /* ================= GRID ================= */
 .cards-scroll {
   display: grid;
@@ -610,10 +604,6 @@ tr.tr-pragnosa-bad td::before {
   background: #1f2428;
 }
 
-/* ===== FIX UTAMA ===== */
-#content-area.show-grid {
-  display: block !important;
-}
 
 /* KPI aman */
 .cards-scroll {
@@ -727,11 +717,6 @@ tr.tr-pragnosa-bad td::before {
   font-weight:700;
 }
 
-#content-area.show-grid {
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  padding-top: 0 !important;
-}
 
 /* =====================================================
    STICKY HEADER – MONITORING B2B
@@ -759,12 +744,6 @@ tr.tr-pragnosa-bad td::before {
   padding-top: 8px;
 }
 
-/* =====================================================
-   FIX STICKY HEADER KETIBAN NAVBAR
-===================================================== */
-#content-area.show-grid {
-  padding-top: 56px !important; /* tinggi navbar */
-}
 
 /* =====================================================
    HEADER TABLE – MONITORING B2B ONLY
@@ -1030,15 +1009,22 @@ td.clickable:hover::after{
     inset 0 -1px 0 rgba(255,255,255,.12);
 }
 
-/* =====================================================
-   CONTENT BACKDROP
-===================================================== */
 #content-area.show-grid {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(34,211,238,.06), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(168,85,247,.05), transparent 45%),
-    #000;
+  display: block !important;
+
+  width: 100%;
+  max-width: 100%;
+
+  height: auto !important;
+  min-height: auto !important;
+
+  padding-top: 56px; /* navbar */
+  padding-left: 16px;
+  padding-right: 16px;
+
+  overflow: visible !important;
 }
+
 
 /* =====================================================
    FUTURISTIC KPI CARD (REUSE EXISTING)
@@ -1209,11 +1195,6 @@ td.clickable:hover {
   gap: 16px;
 }
 
-/* satu baris kategori */
-#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row {
-  display: flex;
-  gap: 16px;
-}
   
 #b2cKpiGrid .b2c-kpi-wrapper .kpi-category-row {
   align-items: stretch;
@@ -1221,13 +1202,6 @@ td.clickable:hover {
 
 /* judul kiri */
 
-/* kartu kanan (horizontal scroll) */
-#b2cKpiGrid .b2c-kpi-wrapper .kpi-category-cards {
-  display: flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
   
 #b2cKpiGrid .b2c-kpi-wrapper .kpi-category-cards {
   align-items: stretch;
@@ -1439,18 +1413,7 @@ td.clickable:hover {
   opacity: 1;
 }
 
-/* ===== FINAL FIX KPI GRID VISIBILITY ===== */
-#content-area.show-grid {
-  display: block !important;
-  align-items: unset !important;
-  justify-content: unset !important;
 
-  height: auto !important;
-  min-height: unset !important;
-
-  overflow: visible !important;
-}
-  
 #b2cKpiGrid {
   width: 100%;
   position: relative;
@@ -1493,11 +1456,12 @@ td.clickable:hover {
 }
 
 /* Wrapper kategori */
-.kpi-category-cards {
+#b2cKpiGrid .kpi-category-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
-  align-items: stretch;
+
+  overflow: visible;
 }
 
 /* Card */
@@ -1512,6 +1476,20 @@ td.clickable:hover {
   box-shadow: 0 8px 24px rgba(0,0,0,.35);
   transition: all .25s ease;
 }
+
+#b2cKpiGrid {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+#b2cKpiGrid .kpi-category-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
 
 </style>
 
