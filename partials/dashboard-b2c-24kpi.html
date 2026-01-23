@@ -4,13 +4,10 @@
   <div class="dashboard-header mb-4">
     <div class="d-flex justify-content-between align-items-center">
       <h4 class="fw-bold mb-0">DASHBOARD B2C DISTRICT BANTEN</h4>
-      <div class="last-update small text-muted" id="b2cLastUpdate">
-        Loading...
-      </div>
+      <div class="last-update small text-muted" id="b2cLastUpdate">Loading...</div>
     </div>
   </div>
 
-  <!-- ================= SAFE CONTENT WRAPPER ================= -->
   <div id="content-area" class="safe-scroll-wrapper">
 
     <!-- ================= SUMMARY KPI ================= -->
@@ -42,13 +39,12 @@
               <div class="spinner-border text-info mb-2"></div>
               <div class="small text-muted">Loading KPI data...</div>
             </div>
-
             <div id="b2cKpiGrid" class="kpi-grid d-none"></div>
           </div>
         </div>
       </div>
 
-      <!-- ========== RIGHT : TABLES ========== -->
+      <!-- ========== RIGHT : TABLES + RANKING ========== -->
       <div class="col-lg-4 col-xl-4">
 
         <!-- ================= TANGERANG ================= -->
@@ -84,7 +80,7 @@
         </div>
 
         <!-- ================= BANTEN ================= -->
-        <div class="panel-card">
+        <div class="panel-card mb-4">
           <div class="panel-header">
             <span class="text-info">KPI NOT ACH - BANTEN</span>
             <span class="badge bg-danger">Not Ach</span>
@@ -115,13 +111,7 @@
           </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- ================= B2C RANKING HSA & MITRA ================= -->
-    <div class="row g-3 mt-4">
-      <div class="col-12">
-
+        <!-- ================= B2C RANKING HSA & MITRA (PINDAH KE KANAN) ================= -->
         <div class="panel-card">
           <div class="panel-header">
             <span class="text-success fw-bold">B2C PERFORMANCE HSA & MITRA</span>
@@ -131,7 +121,7 @@
             <div class="row g-3">
 
               <!-- ===== RANKING HSA ===== -->
-              <div class="col-lg-6">
+              <div class="col-12">
                 <div class="panel-card h-100">
                   <div class="panel-header py-2">
                     <span class="small text-success">RANKING B2C HSA</span>
@@ -159,7 +149,7 @@
               </div>
 
               <!-- ===== RANKING MITRA ===== -->
-              <div class="col-lg-6">
+              <div class="col-12">
                 <div class="panel-card h-100">
                   <div class="panel-header py-2">
                     <span class="small text-success">RANKING B2C MITRA</span>
@@ -192,6 +182,8 @@
 
       </div>
     </div>
+
+    
 
     <!-- ================= KPI GRID DETAIL TABLES (UNCHANGED) ================= -->
     <!-- TANGERANG -->
