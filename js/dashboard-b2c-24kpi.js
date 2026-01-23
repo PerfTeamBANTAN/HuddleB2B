@@ -431,52 +431,72 @@ function renderKpiGridDetailTable(headers, data) {
 
    /* ===============================
    KPI GRID DETAIL TABLE - BANTEN
-   SOURCE : type=kpi_grid_table_btn
+   CLEAN & FINAL VERSION
 ================================ */
 function renderKpiGridDetailTableBtn(headers, data) {
 
   const wrapper = document.getElementById('b2cKpiGridTableBtnWrapper');
   const loading = document.getElementById('b2cKpiGridTableBtnLoading');
   const content = document.getElementById('b2cKpiGridTableBtnContent');
-  const thead = document.getElementById('b2cKpiGridTableBtnHead');
-  const tbody = document.getElementById('b2cKpiGridTableBtnBody');
+  const thead   = document.getElementById('b2cKpiGridTableBtnHead');
+  const tbody   = document.getElementById('b2cKpiGridTableBtnBody');
 
   if (!wrapper || !thead || !tbody) return;
 
   thead.innerHTML = '';
   tbody.innerHTML = '';
 
-  /* ---------- HEADER ---------- */
+  /* ===============================
+     HEADER
+  =============================== */
   const trHead = document.createElement('tr');
+
   headers.forEach(h => {
     const th = document.createElement('th');
     th.textContent = h;
+    th.className = 'text-center fw-semibold small';
     trHead.appendChild(th);
   });
+
   thead.appendChild(trHead);
 
-  /* ---------- BODY ---------- */
+  /* ===============================
+     BODY
+  =============================== */
   data.forEach(row => {
     const tr = document.createElement('tr');
 
     headers.forEach(h => {
-      const td = document.createElement('td');
+      const td  = document.createElement('td');
       const val = row[h];
 
       td.textContent = val ?? '-';
+      td.classList.add('small');
 
       if (!['Indikator', 'Bobot'].includes(h)) {
         const num = Number(val);
+
         if (!isNaN(num)) {
           td.classList.add('text-end');
 
-          if (
-  h === 'BANTEN' &&
-  isNotAch(num, Number(row.Target), row.Indikator)
-) {
-  td.classList.add('text-danger', 'fw-bold');
-}
+          /* ===== KPI VALUE (BANTEN ONLY) ===== */
+          if (h === 'BANTEN') {
+            const target = Number(row.Target);
+            const notAch = isNotAchTable(num, target, row.Indikator);
 
+            td.innerHTML = `
+              <span class="${notAch ? 'kpi-not-ach' : 'kpi-ach'}">
+                ${num}
+              </span>
+              <span class="kpi-badge ${notAch ? 'not-ach' : 'ach'}">
+                ${notAch ? '❌ Not Ach' : '✅ Ach'}
+              </span>
+            `;
+          }
+          /* ===== OTHER NUMERIC COLUMNS ===== */
+          else {
+            td.textContent = num;
+          }
         }
       }
 
@@ -486,10 +506,14 @@ function renderKpiGridDetailTableBtn(headers, data) {
     tbody.appendChild(tr);
   });
 
-  loading.classList.add('d-none');
-  content.classList.remove('d-none');
-  wrapper.classList.remove('d-none');
+  /* ===============================
+     SHOW TABLE
+  =============================== */
+  loading?.classList.add('d-none');
+  content?.classList.remove('d-none');
+  wrapper?.classList.remove('d-none');
 }
+
 
 /* ===============================
    KPI RANKING TABLE (HSA & MITRA)
