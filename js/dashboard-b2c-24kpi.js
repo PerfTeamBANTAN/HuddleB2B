@@ -491,18 +491,28 @@ function renderRankingTable({
   tbody.innerHTML = '';
 
   data.forEach((row, index) => {
-    const label = row[labelKey?.trim()] ?? '-';
-    const rawValue = row[valueKey?.trim()];
-    const num = parseIDNumber(rawValue);
+    const raw = row[valueKey];
+
+    let num;
+    if (typeof raw === 'number') {
+      num = raw; // backend sudah kirim 97.11
+    } else {
+      num = Number(
+        String(raw)
+          .replace('%', '')
+          .replace(',', '.')
+          .trim()
+      );
+    }
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="fw-semibold">
         <span class="text-muted me-2">${index + 1}.</span>
-        ${label}
+        ${row[labelKey] ?? '-'}
       </td>
-      <td class="text-end fw-bold ${isNaN(num) ? '' : 'text-success'}">
-        ${isNaN(num) ? rawValue ?? '-' : num.toFixed(2) + '%'}
+      <td class="text-end fw-bold text-success">
+        ${isNaN(num) ? raw ?? '-' : num.toFixed(2) + '%'}
       </td>
     `;
 
@@ -512,7 +522,6 @@ function renderRankingTable({
   loading.classList.add('d-none');
   wrapper.classList.remove('d-none');
 }
-
 
 
 /* ===============================
