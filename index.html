@@ -1475,6 +1475,60 @@ td.clickable:hover {
   box-shadow: 0 0 10px rgba(56,189,248,.6);
 }
 
+/* =====================================================
+   SAFE SCROLL LAYER (NON-DESTRUCTIVE)
+   Tujuan: pastikan scroll halaman normal
+   Tanpa mengganggu CSS lama
+===================================================== */
+
+/* Wrapper khusus konten panjang */
+.safe-scroll-wrapper {
+  width: 100%;
+  position: relative;
+
+  /* ini kuncinya */
+  height: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+
+  display: block !important;
+}
+
+/* Netralisir efek flex dari parent lama */
+.safe-scroll-wrapper * {
+  max-height: none !important;
+}
+
+/* Pastikan content-area ikut tinggi konten */
+#content-area.safe-scroll {
+  display: block !important;
+  align-items: unset !important;
+  justify-content: unset !important;
+
+  height: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+/* Jaga jarak dari navbar fixed */
+#content-area.safe-scroll {
+  padding-top: 56px;
+}
+
+/* Pastikan BODY yang pegang scroll */
+html,
+body {
+  overflow-y: auto !important;
+}
+
+/* Jangan ada container internal bikin scroll sendiri */
+.safe-scroll-wrapper table,
+.safe-scroll-wrapper .table-responsive,
+.safe-scroll-wrapper .monitoring-no-scroll {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
 </style>
 
 </head>
