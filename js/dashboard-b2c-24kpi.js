@@ -109,23 +109,52 @@ function isNotAch(value, target, indikator) {
      RENDER SUMMARY
   =============================== */
   function renderSummary(api) {
-  const { summary, lastUpdate } = api;
+  const { data, summary, lastUpdate } = api;
 
   const lastEl = document.getElementById('b2cLastUpdate');
   if (lastEl) lastEl.innerText = `Last Update : ${lastUpdate}`;
 
-  document.getElementById('b2cSummary').innerHTML = `
-    <div class="col-md-6"><div class="summary-card">
-      <h6>TANGERANG</h6>
-      <div class="summary-value">${fmt(summary.totalAch?.tangerang)}%</div>
-      <div class="summary-sub">✅ ${summary.good_tangerang} ❌ ${summary.bad_tangerang}</div>
-    </div></div>
+  let goodTgr = 0, badTgr = 0;
+  let goodBtn = 0, badBtn = 0;
 
-    <div class="col-md-6"><div class="summary-card">
-      <h6>BANTEN</h6>
-      <div class="summary-value">${fmt(summary.totalAch?.banten)}%</div>
-      <div class="summary-sub">✅ ${summary.good_banten} ❌ ${summary.bad_banten}</div>
-    </div></div>
+  data.forEach(kpi => {
+    const target = Number(kpi.target);
+    const tgr = Number(kpi.tangerang);
+    const btn = Number(kpi.banten);
+
+    if (!isNaN(tgr) && !isNaN(target)) {
+      isNotAch(tgr, target, kpi.indikator) ? badTgr++ : goodTgr++;
+    }
+
+    if (!isNaN(btn) && !isNaN(target)) {
+      isNotAch(btn, target, kpi.indikator) ? badBtn++ : goodBtn++;
+    }
+  });
+
+  document.getElementById('b2cSummary').innerHTML = `
+    <div class="col-md-6">
+      <div class="summary-card">
+        <h6>TANGERANG</h6>
+        <div class="summary-value">
+          ${fmt(summary?.totalAch?.tangerang)}%
+        </div>
+        <div class="summary-sub">
+          ✅ ${goodTgr} &nbsp; ❌ ${badTgr}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="summary-card">
+        <h6>BANTEN</h6>
+        <div class="summary-value">
+          ${fmt(summary?.totalAch?.banten)}%
+        </div>
+        <div class="summary-sub">
+          ✅ ${goodBtn} &nbsp; ❌ ${badBtn}
+        </div>
+      </div>
+    </div>
   `;
 }
 
