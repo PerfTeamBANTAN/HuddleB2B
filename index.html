@@ -1811,7 +1811,50 @@ body {
 .summary-metric.bad {
   color: #ef4444;
 }
- 
+
+/* =====================================================
+   BOOTSTRAP 5 MULTI LEVEL DROPDOWN – FINAL FIX
+===================================================== */
+
+.dropdown-menu li {
+  position: relative;
+}
+
+/* submenu ke samping */
+.dropdown-menu .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 0.1rem;
+  z-index: 1000;
+}
+
+/* hover submenu hanya desktop */
+@media (min-width: 992px) {
+  .dropdown-menu > li:hover > .dropdown-menu {
+    display: block;
+  }
+}
+
+/* panah kanan */
+.dropdown-item.dropdown-toggle::after {
+  float: right;
+  margin-top: 6px;
+}
+
+/* MOBILE: submenu turun ke bawah */
+@media (max-width: 992px) {
+  .dropdown-menu .dropdown-menu {
+    position: static;
+    margin-left: 1rem;
+  }
+}
+
+.dropdown-menu .show {
+  display: block;
+}
+
 </style>
 
 </head>
@@ -1857,7 +1900,7 @@ PERFORMANCE BAN-TAN
 
     <!-- Sub Dropdown -->
     <li class="dropdown dropend">
-      <a class="dropdown-item dropdown-toggle" href="#" role="button"
+      <a class="dropdown-item dropdown-toggle" href="#" role="button" type="button"
          data-bs-toggle="dropdown" data-bs-auto-close="outside">
         Dashboard B2C District BANTEN
       </a>
@@ -2078,6 +2121,18 @@ if (menu === 'District-Banten') {
   showUnderConstruction();
 }
 });
+});
+
+document.querySelectorAll('.dropdown-menu .dropdown-toggle').forEach(el => {
+  el.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const submenu = this.nextElementSibling;
+    if (!submenu) return;
+
+    submenu.classList.toggle('show');
+  });
 });
 </script>
 
