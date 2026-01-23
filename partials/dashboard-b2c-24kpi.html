@@ -1,4 +1,4 @@
-<div class="dashboard-dark container-fluid px-3 px-lg-4">
+<div id="dashboard-b2c-wrapper" class="dashboard-dark container-fluid px-3 px-lg-4 pb-4">
 
   <!-- ================= HEADER ================= -->
   <div class="dashboard-header mb-4">
@@ -10,27 +10,39 @@
     </div>
   </div>
 
-  <!-- ================= SUMMARY ================= -->
-  <div class="dashboard-summary mb-4">
-    <div class="row g-3" id="b2cSummary">
+  <!-- ================= SUMMARY KPI ================= -->
+  <div class="row g-3 mb-4" id="b2cSummary">
 
-      <div class="col-12">
-        <div class="summary-loading loading-card text-center py-4">
-          <div class="spinner-border text-info mb-2"></div>
-          <div class="small text-muted">Loading summary data...</div>
+    <div class="col-12">
+      <div class="panel-card">
+        <div class="panel-body text-center py-4">
+
+          <!-- loading state -->
+          <div class="summary-loading loading-card">
+            <div class="spinner-border text-info mb-2"></div>
+            <div class="small text-muted">Loading summary data...</div>
+          </div>
+
+          <!-- summary KPI inject here -->
         </div>
       </div>
-
     </div>
+
   </div>
 
   <!-- ================= MAIN CONTENT ================= -->
-  <div class="dashboard-content">
-    <div class="row g-3">
+  <div class="row g-3">
 
-      <!-- ========== LEFT : KPI SECTION ========== -->
-      <div class="col-lg-8 col-xl-8">
-        <div class="kpi-section">
+    <!-- ========== LEFT : KPI GRID ========== -->
+    <div class="col-lg-8 col-xl-8">
+
+      <div class="panel-card h-100">
+
+        <div class="panel-header">
+          <span>KPI PERFORMANCE</span>
+        </div>
+
+        <div class="panel-body">
 
           <!-- KPI LOADING -->
           <div id="b2cKpiLoading" class="kpi-loading loading-card text-center py-5">
@@ -46,90 +58,89 @@
         </div>
       </div>
 
-      <!-- ========== RIGHT : TABLE SECTION ========== -->
-      <div class="col-lg-4 col-xl-4">
-        <div class="table-section" id="b2cTablePanel">
+    </div>
 
-          <!-- ================= TANGERANG ================= -->
-          <div class="table-group table-tangerang mb-4">
+    <!-- ========== RIGHT : TABLES ========== -->
+    <div class="col-lg-4 col-xl-4">
 
-            <div class="table-header d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold text-warning mb-0">KPI NOT ACH - TANGERANG</h6>
-              <span class="badge bg-danger">Not Ach</span>
-            </div>
+      <!-- ================= TANGERANG ================= -->
+      <div class="panel-card mb-4">
 
-            <div class="table-body">
+        <div class="panel-header">
+          <span class="text-warning">KPI NOT ACH - TANGERANG</span>
+          <span class="badge bg-danger">Not Ach</span>
+        </div>
 
-              <!-- LOADING -->
-              <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
-                <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
-                <div class="small text-muted">Loading table...</div>
-              </div>
+        <div class="panel-body p-0">
 
-              <!-- TABLE -->
-              <div class="table-responsive d-none" id="b2cTableWrapperTgr">
-                <table class="table table-dark table-sm align-middle kpi-table">
-                  <thead>
-                    <tr>
-                      <th>Indikator</th>
-                      <th>Target</th>
-                      <th>Ach HI</th>
-                      <th>Status</th>
-                      <th>Ach Kemarin</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="b2cKpiTableTgr">
-                    <!-- JS inject -->
-                  </tbody>
-                </table>
-              </div>
-
-            </div>
+          <!-- LOADING -->
+          <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
+            <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
+            <div class="small text-muted">Loading table...</div>
           </div>
 
-          <!-- ================= BANTEN ================= -->
-          <div class="table-group table-banten">
+          <!-- TABLE -->
+          <div class="table-responsive d-none" id="b2cTableWrapperTgr">
+            <table class="table table-dark table-sm align-middle kpi-table mb-0">
+              <thead>
+                <tr>
+                  <th>Indikator</th>
+                  <th>Target</th>
+                  <th>Ach HI</th>
+                  <th>Status</th>
+                  <th>Ach Kemarin</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="b2cKpiTableTgr">
+                <!-- JS inject -->
+              </tbody>
+            </table>
+          </div>
 
-            <div class="table-header d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold text-info mb-0">KPI NOT ACH - BANTEN</h6>
-              <span class="badge bg-danger">Not Ach</span>
-            </div>
+        </div>
+      </div>
 
-            <div class="table-body">
+      <!-- ================= BANTEN ================= -->
+      <div class="panel-card">
 
-              <!-- LOADING -->
-              <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
-                <div class="spinner-border spinner-border-sm text-info mb-2"></div>
-                <div class="small text-muted">Loading table...</div>
-              </div>
+        <div class="panel-header">
+          <span class="text-info">KPI NOT ACH - BANTEN</span>
+          <span class="badge bg-danger">Not Ach</span>
+        </div>
 
-              <!-- TABLE -->
-              <div class="table-responsive d-none" id="b2cTableWrapperBtn">
-                <table class="table table-dark table-sm align-middle kpi-table">
-                  <thead>
-                    <tr>
-                      <th>Indikator</th>
-                      <th>Target</th>
-                      <th>Ach HI</th>
-                      <th>Status</th>
-                      <th>Ach Kemarin</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="b2cKpiTableBtn">
-                    <!-- JS inject -->
-                  </tbody>
-                </table>
-              </div>
+        <div class="panel-body p-0">
 
-            </div>
+          <!-- LOADING -->
+          <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
+            <div class="spinner-border spinner-border-sm text-info mb-2"></div>
+            <div class="small text-muted">Loading table...</div>
+          </div>
+
+          <!-- TABLE -->
+          <div class="table-responsive d-none" id="b2cTableWrapperBtn">
+            <table class="table table-dark table-sm align-middle kpi-table mb-0">
+              <thead>
+                <tr>
+                  <th>Indikator</th>
+                  <th>Target</th>
+                  <th>Ach HI</th>
+                  <th>Status</th>
+                  <th>Ach Kemarin</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="b2cKpiTableBtn">
+                <!-- JS inject -->
+              </tbody>
+            </table>
           </div>
 
         </div>
       </div>
 
     </div>
+
   </div>
 
 </div>
