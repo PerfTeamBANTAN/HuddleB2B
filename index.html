@@ -1716,7 +1716,102 @@ body {
 .kpi-td {
   color: #e5e7eb;
 }
-  
+
+ /* ===============================
+   SUMMARY KPI CARD V2
+================================ */
+
+.summary-card-v2 {
+  background: linear-gradient(180deg, #0f172a, #020617);
+  border-radius: 16px;
+  padding: 18px 20px;
+  height: 100%;
+  box-shadow: 0 12px 32px rgba(0,0,0,.55);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card-v2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .15;
+}
+
+.summary-card-v2.blue::before {
+  background: linear-gradient(120deg, #38bdf8, transparent);
+}
+
+.summary-card-v2.green::before {
+  background: linear-gradient(120deg, #22c55e, transparent);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-header h6 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.summary-subtext {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.summary-percent {
+  font-size: 28px;
+  font-weight: 800;
+  color: #e5e7eb;
+}
+
+.summary-progress {
+  margin: 14px 0;
+  height: 8px;
+  background: rgba(255,255,255,.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.summary-progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+.summary-card-v2.blue .summary-progress-bar {
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+}
+
+.summary-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.summary-metric {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.summary-metric strong {
+  font-size: 18px;
+}
+
+.summary-metric.good {
+  color: #22c55e;
+}
+
+.summary-metric.bad {
+  color: #ef4444;
+}
+ 
 </style>
 
 </head>
