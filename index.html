@@ -1529,6 +1529,47 @@ body {
   max-height: none !important;
 }
 
+/* =====================================================
+   SAFE HORIZONTAL SCROLL FIX — KPI TABLE
+   TIDAK MERUSAK LAYOUT LAIN
+===================================================== */
+
+/* 1. Pastikan parent tidak mengunci scroll */
+#dashboard-b2c-wrapper,
+#content-area,
+.safe-scroll-wrapper {
+  overflow-x: visible !important;
+}
+
+/* 2. Zona scroll khusus tabel besar */
+.kpi-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* 3. Paksa tabel lebih lebar dari viewport */
+.kpi-table-scroll table {
+  min-width: 1800px; /* sesuaikan jika kolom nambah */
+  white-space: nowrap;
+}
+
+/* 4. Scrollbar selalu muncul (desktop) */
+.kpi-table-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.kpi-table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.25);
+  border-radius: 6px;
+}
+
+.kpi-table-scroll::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.08);
+}
+
 </style>
 
 </head>
