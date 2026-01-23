@@ -453,6 +453,94 @@ function renderKpiGridDetailTableBtn(headers, data) {
   wrapper.classList.remove('d-none');
 }
 
+/* ===============================
+   KPI RANKING TABLE (HSA & MITRA)
+=============================== */
+
+function renderRankingTable({
+  data,
+  bodyId,
+  loadingId,
+  wrapperId,
+  labelKey,
+  valueKey
+}) {
+  const tbody = document.getElementById(bodyId);
+  const loading = document.getElementById(loadingId);
+  const wrapper = document.getElementById(wrapperId);
+
+  if (!tbody || !loading || !wrapper) return;
+
+  tbody.innerHTML = '';
+
+  data.forEach((row, index) => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td class="fw-semibold">
+        <span class="me-2 text-muted">${index + 1}.</span>
+        ${row[labelKey] ?? '-'}
+      </td>
+      <td class="text-end fw-bold text-success">
+        ${fmt(row[valueKey])}
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  loading.classList.add('d-none');
+  wrapper.classList.remove('d-none');
+}
+
+/* ===============================
+   LOAD KPI RANKING TABLES
+=============================== */
+
+async function loadKpiRankingHSA() {
+  try {
+    const res = await fetch(`${B2B_API_URL}?type=kpi_ranking_table_hsa`);
+    const json = await res.json();
+
+    if (!json || !Array.isArray(json.data)) return;
+
+    renderRankingTable({
+      data: json.data,
+      bodyId: 'b2bTable1Body',
+      loadingId: 'b2bTable1Loading',
+      wrapperId: 'b2bTable1Wrapper',
+      labelKey: json.headers[0],   // HSA
+      valueKey: json.headers[1]    // TOTAL ACH
+    });
+
+  } catch (err) {
+    console.error('Failed load KPI Ranking HSA', err);
+    document.getElementById('b2bTable1Loading')?.classList.add('d-none');
+  }
+}
+
+async function loadKpiRankingMitra() {
+  try {
+    const res = await fetch(`${B2B_API_URL}?type=kpi_ranking_table_mitra`);
+    const json = await res.json();
+
+    if (!json || !Array.isArray(json.data)) return;
+
+    renderRankingTable({
+      data: json.data,
+      bodyId: 'b2bTable2Body',
+      loadingId: 'b2bTable2Loading',
+      wrapperId: 'b2bTable2Wrapper',
+      labelKey: json.headers[0],   // MITRA
+      valueKey: json.headers[1]    // TOTAL ACH
+    });
+
+  } catch (err) {
+    console.error('Failed load KPI Ranking MITRA', err);
+    document.getElementById('b2bTable2Loading')?.classList.add('d-none');
+  }
+}
+
 
   /* ===============================
      MAIN
@@ -492,10 +580,15 @@ hideSkeleton();
     console.error('Main KPI API failed', err);
   }
 
-  // 🔥 FULL WIDTH TABLES
+  // FULL WIDTH TABLES
   loadKpiGridDetailTable();
   loadKpiGridDetailTableBtn();
+
+  // 🔥 KPI RANKING
+  loadKpiRankingHSA();
+  loadKpiRankingMitra();
 }
+
 
 
 
