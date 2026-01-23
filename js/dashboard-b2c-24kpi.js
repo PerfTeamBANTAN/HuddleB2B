@@ -1,9 +1,14 @@
 /* =====================================================
    B2C DASHBOARD RENDER SCRIPT
-   NEXT LEVEL • PRODUCTION SAFE (V2)
+   NEXT LEVEL • PRODUCTION SAFE (V3 + GROWTH)
 ===================================================== */
 
 window.B2C24KPI = window.B2C24KPI || (function () {
+
+  /* ===============================
+     CONFIG
+  =============================== */
+  const GROWTH_DROP_ALERT = 5; // % threshold turun → danger
 
   /* ===============================
      HELPERS
@@ -18,27 +23,57 @@ window.B2C24KPI = window.B2C24KPI || (function () {
     typeof target === 'number' &&
     val >= target;
 
+  const getGrowthMeta = (today, yesterday) => {
+    if (isNaN(today) || isNaN(yesterday)) {
+      return { icon: '-', color: 'secondary', tooltip: 'Data tidak tersedia' };
+    }
+
+    const diff = +(today - yesterday).toFixed(2);
+
+    if (diff > 0) {
+      return {
+        icon: '🔼',
+        color: 'success',
+        tooltip: `Naik +${diff}% (HI ${today}% vs ${yesterday}%)`
+      };
+    }
+
+    if (diff < 0) {
+      return {
+        icon: '🔽',
+        color: Math.abs(diff) >= GROWTH_DROP_ALERT ? 'danger' : 'warning',
+        tooltip: `Turun ${diff}% (HI ${today}% vs ${yesterday}%)`
+      };
+    }
+
+    return {
+      icon: '↔️',
+      color: 'secondary',
+      tooltip: `Stagnan (${today}%)`
+    };
+  };
+
   /* ===============================
      SKELETON LOADER
   =============================== */
   function showSkeleton() {
-  document.getElementById('b2cSummary').innerHTML = `
-    <div class="col-md-4 skeleton-card"></div>
-    <div class="col-md-4 skeleton-card"></div>
-    <div class="col-md-4 skeleton-card"></div>
-  `;
+    document.getElementById('b2cSummary').innerHTML = `
+      <div class="col-md-4 skeleton-card"></div>
+      <div class="col-md-4 skeleton-card"></div>
+      <div class="col-md-4 skeleton-card"></div>
+    `;
 
-  document.getElementById('b2cKpiGrid').innerHTML = `
-    <div id="b2cKpiSkeleton" class="row g-3">
-      ${'<div class="col-md-3 skeleton-kpi"></div>'.repeat(8)}
-    </div>
-  `;
-}
- function hideSkeleton() {
-  const sk = document.getElementById('b2cKpiSkeleton');
-  if (sk) sk.remove();
-}
+    document.getElementById('b2cKpiGrid').innerHTML = `
+      <div id="b2cKpiSkeleton" class="row g-3">
+        ${'<div class="col-md-3 skeleton-kpi"></div>'.repeat(8)}
+      </div>
+    `;
+  }
 
+  function hideSkeleton() {
+    const sk = document.getElementById('b2cKpiSkeleton');
+    if (sk) sk.remove();
+  }
 
   /* ===============================
      GROUP BY KATEGORI
@@ -125,7 +160,6 @@ window.B2C24KPI = window.B2C24KPI || (function () {
   =============================== */
   function applyKpiHighlightAndTooltip() {
     document.querySelectorAll('#b2cKpiGrid .kpi-card').forEach(card => {
-
       card.classList.remove('good', 'bad');
       card.style.boxShadow = '';
 
@@ -133,7 +167,6 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       if (oldTooltip) oldTooltip.remove();
 
       const rows = Array.from(card.querySelectorAll('.kpi-row'));
-
       const getRow = (label) =>
         rows.find(r =>
           r.querySelector('span:first-child')?.innerText.toLowerCase().includes(label)
@@ -142,7 +175,6 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       const targetRow = getRow('target');
       const tgrRow = getRow('tangerang');
       const btnRow = getRow('banten');
-
       if (!targetRow || !tgrRow || !btnRow) return;
 
       const parseVal = (row) =>
@@ -152,41 +184,16 @@ window.B2C24KPI = window.B2C24KPI || (function () {
       const tgr = parseVal(tgrRow);
       const btn = parseVal(btnRow);
 
-      if (isNaN(target) || isNaN(tgr) || isNaN(btn)) return;
-
-      const badTgr = tgr < target;
-      const badBtn = btn < target;
-      const isBad = badTgr || badBtn;
-
+      const isBad = tgr < target || btn < target;
       card.classList.add(isBad ? 'bad' : 'good');
       card.style.boxShadow = isBad
         ? '0 0 18px rgba(239,68,68,.75)'
         : '0 0 18px rgba(34,197,94,.55)';
-
-      const colorize = (row, bad) => {
-        const el = row.querySelector('span:last-child');
-        el.style.fontWeight = '700';
-        el.style.color = bad ? '#ef4444' : '#22c55e';
-      };
-
-      colorize(tgrRow, badTgr);
-      colorize(btnRow, badBtn);
-
-      const tooltip = document.createElement('div');
-      tooltip.className = 'kpi-tooltip';
-      tooltip.innerHTML = `
-        <strong>${card.querySelector('.kpi-title').innerText}</strong><br>
-        Target : ${target}<br>
-        Tangerang : ${tgr} ${badTgr ? '❌' : '✅'}<br>
-        Banten : ${btn} ${badBtn ? '❌' : '✅'}<br>
-        <strong>Status :</strong> ${isBad ? '❌ BELOW TARGET' : '✅ ACH'}
-      `;
-      card.appendChild(tooltip);
     });
   }
 
   /* ===============================
-     BAD KPI TABLE
+     BAD KPI TABLE (WITH GROWTH)
   =============================== */
   function renderBadKpiTable(data) {
     const tgrBody = document.getElementById('b2cKpiTableTgr');
@@ -207,32 +214,54 @@ window.B2C24KPI = window.B2C24KPI || (function () {
 
       if (tgr < target) {
         hasBadTgr = true;
+        const g = getGrowthMeta(tgr, tgrY);
+
         tgrBody.innerHTML += `
-          <tr>
-            <td>${kpi.indikator}</td>
-            <td>${fmt(target)}</td>
-            <td class="text-danger fw-bold">${fmt(tgr)}</td>
-            <td><span class="badge bg-danger">Not Ach</span></td>
-            <td>${fmt(tgrY)}</td>
-            <td><span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
+        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
+          <td>${kpi.indikator}</td>
+          <td>${fmt(target)}</td>
+          <td class="fw-bold text-danger">${fmt(tgr)}</td>
+          <td><span class="badge bg-danger">Not Ach</span></td>
+
+          <td class="text-center">
+            <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
+              ${g.icon}
+            </span>
+          </td>
+
+          <td>${fmt(tgrY)}</td>
+          <td>
+            <span class="badge ${tgrY >= target ? 'bg-success' : 'bg-danger'}">
               ${tgrY >= target ? 'Ach' : 'Not Ach'}
-            </span></td>
-          </tr>`;
+            </span>
+          </td>
+        </tr>`;
       }
 
       if (btn < target) {
         hasBadBtn = true;
+        const g = getGrowthMeta(btn, btnY);
+
         btnBody.innerHTML += `
-          <tr>
-            <td>${kpi.indikator}</td>
-            <td>${fmt(target)}</td>
-            <td class="text-danger fw-bold">${fmt(btn)}</td>
-            <td><span class="badge bg-danger">Not Ach</span></td>
-            <td>${fmt(btnY)}</td>
-            <td><span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
+        <tr class="${g.color === 'danger' ? 'table-danger' : ''}">
+          <td>${kpi.indikator}</td>
+          <td>${fmt(target)}</td>
+          <td class="fw-bold text-danger">${fmt(btn)}</td>
+          <td><span class="badge bg-danger">Not Ach</span></td>
+
+          <td class="text-center">
+            <span class="badge bg-${g.color}" data-bs-toggle="tooltip" title="${g.tooltip}">
+              ${g.icon}
+            </span>
+          </td>
+
+          <td>${fmt(btnY)}</td>
+          <td>
+            <span class="badge ${btnY >= target ? 'bg-success' : 'bg-danger'}">
               ${btnY >= target ? 'Ach' : 'Not Ach'}
-            </span></td>
-          </tr>`;
+            </span>
+          </td>
+        </tr>`;
       }
     });
 
@@ -247,28 +276,22 @@ window.B2C24KPI = window.B2C24KPI || (function () {
      MAIN
   =============================== */
   function render(api) {
-  if (!api || !Array.isArray(api.data)) return;
+    if (!api || !Array.isArray(api.data)) return;
 
-  renderSummary(api);
-  renderKpiGrid(api.data);
-  applyKpiHighlightAndTooltip();
-  renderBadKpiTable(api.data);
+    renderSummary(api);
+    renderKpiGrid(api.data);
+    applyKpiHighlightAndTooltip();
+    renderBadKpiTable(api.data);
 
-  // 🔥 MATIKAN LOADING
-  const loading = document.getElementById('b2cKpiLoading');
-  if (loading) loading.classList.add('d-none');
+    document.getElementById('b2cKpiLoading')?.classList.add('d-none');
+    document.getElementById('b2cKpiGrid')?.classList.remove('d-none');
 
-  // 🔥 TAMPILKAN KPI GRID
-  const grid = document.getElementById('b2cKpiGrid');
-  if (grid) {
-    grid.classList.remove('d-none');
-    grid.style.display = 'block';
+    hideSkeleton();
+
+    // INIT TOOLTIP
+    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      .forEach(el => new bootstrap.Tooltip(el));
   }
-
-  hideSkeleton();
-}
-
-
 
   async function init() {
     showSkeleton();
