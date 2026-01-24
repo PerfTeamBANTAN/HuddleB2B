@@ -188,7 +188,7 @@ function renderSummaryCard({ title, icon, ach, good, bad, theme }) {
         </div>
 
         <div class="summary-right">
-          <img src="/assets/img/${img}" alt="puji" class="summary-avatar">
+          <img src="./assets/img/${img}" alt="puji" class="summary-avatar">
         </div>
       </div>
     </div>
