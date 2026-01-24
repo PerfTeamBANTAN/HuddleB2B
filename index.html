@@ -1812,6 +1812,73 @@ body {
   color: #ef4444;
 }
 
+.summary-card-v3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.55);
+  position: relative;
+  overflow: hidden;
+}
+
+/* kiri (teks) */
+.summary-card-v3 .summary-left {
+  width: 65%;
+}
+
+.summary-card-v3 h5 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.summary-card-v3 .summary-quote {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.summary-card-v3 .summary-percent {
+  font-size: 28px;
+  font-weight: 800;
+  color: #e5e7eb;
+}
+
+/* progress */
+.summary-card-v3 .summary-progress {
+  margin: 10px 0;
+  height: 8px;
+  background: rgba(255,255,255,.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.summary-card-v3 .summary-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+/* footer */
+.summary-card-v3 .summary-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/* kanan (gambar) */
+.summary-card-v3 .summary-right {
+  width: 30%;
+  text-align: right;
+}
+
+.summary-card-v3 .summary-avatar {
+  width: 110px;
+  height: auto;
+}
 /* =====================================================
    BOOTSTRAP 5 MULTI LEVEL DROPDOWN – FINAL FIX
 ===================================================== */
