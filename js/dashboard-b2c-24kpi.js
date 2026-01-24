@@ -154,34 +154,41 @@ function isNotAch(value, target, indikator) {
   `;
 }
 
+function getPujiImage(percent) {
+  if (percent > 99) return 'puji_senang.png';
+  if (percent < 98) return 'puji_nangis.png';
+  if (percent < 99) return 'puji_cemberut.png';
+  return 'puji_cemberut.png';
+}
+
 /* helper */
 function renderSummaryCard({ title, icon, ach, good, bad, theme }) {
   const percent = Number(ach) || 0;
+  const img = getPujiImage(percent);
 
   return `
     <div class="col-md-6">
-      <div class="summary-card-v2 ${theme}">
-        <div class="summary-header">
-          <div>
-            <h6>${icon} ${title}</h6>
-            <span class="summary-subtext">Overall KPI Achievement</span>
+      <div class="summary-card-v3 ${theme}">
+        <div class="summary-left">
+          <h5>${title}</h5>
+          <p class="summary-quote">
+            Overall KPI Achievement
+          </p>
+
+          <div class="summary-progress">
+            <div class="summary-progress-bar" style="width:${percent}%"></div>
           </div>
+
           <div class="summary-percent">${percent.toFixed(2)}%</div>
+
+          <div class="summary-footer">
+            <span class="text-success">Ach ${good}</span>
+            <span class="text-danger">Not Ach ${bad}</span>
+          </div>
         </div>
 
-        <div class="summary-progress">
-          <div class="summary-progress-bar" style="width:${percent}%"></div>
-        </div>
-
-        <div class="summary-footer">
-          <div class="summary-metric good">
-            <span>✅ Ach</span>
-            <strong>${good}</strong>
-          </div>
-          <div class="summary-metric bad">
-            <span>❌ Not Ach</span>
-            <strong>${bad}</strong>
-          </div>
+        <div class="summary-right">
+          <img src="/assets/img/${img}" alt="puji" class="summary-avatar">
         </div>
       </div>
     </div>
