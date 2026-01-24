@@ -1908,6 +1908,45 @@ body {
   from { width: 0; }
 }
 
+.summary-quote {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+
+.glow-text {
+  color: #38bdf8;
+  text-shadow: 0 0 6px rgba(56,189,248,.7);
+}
+
+/* animasi masuk */
+.animate-fade-in {
+  animation: fadeInUp .6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* avatar bounce */
+.bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+
 /* =====================================================
    BOOTSTRAP 5 MULTI LEVEL DROPDOWN – FINAL FIX
 ===================================================== */
