@@ -161,45 +161,53 @@ function getPujiImage(percent) {
   return 'puji_cemberut.png';
 }
 
-/* helper */
+
 function renderSummaryCard({ title, icon, ach, good, bad, theme }) {
   const percent = Number(ach) || 0;
   const img = getPujiImage(percent);
+  const quote = getPujiText(percent);
 
   return `
     <div class="col-md-6">
-      <div class="summary-card-v3 ${theme}">
-        <div class="summary-left">
-          <h5>${title}</h5>
-          <p class="summary-quote">
-            Overall KPI Achievement
-          </p>
+      <div class="summary-card-v3 ${theme} animate-fade-in">
 
-          <div class="summary-progress">
+        <div class="summary-left">
+          <h5>${icon} ${title}</h5>
+
+          <!-- QUOTE DINAMIS -->
+          <div class="summary-quote glow-text">
+            ${quote}
+          </div>
+
+          <div class="summary-progress mt-2">
             <div class="summary-progress-bar" style="width:${percent}%"></div>
           </div>
 
           <div class="summary-percent">${percent.toFixed(2)}%</div>
 
           <div class="summary-footer">
-            <span class="text-success">Ach ${good}</span>
-            <span class="text-danger">Not Ach ${bad}</span>
+            <span class="text-success fw-bold">Ach ${good}</span>
+            <span class="text-danger fw-bold">Not Ach ${bad}</span>
           </div>
         </div>
 
         <div class="summary-right">
-          <img src="./assets/img/${img}" alt="puji" class="summary-avatar">
+          <img src="./assets/img/${img}" alt="puji" class="summary-avatar bounce">
         </div>
+
       </div>
     </div>
   `;
 }
 
+
 function getPujiText(percent) {
-  if (percent > 99) return "Ayo dikit lagi 😎🔥";
-  if (percent >= 98) return "Kita kejar target 💪";
-  return "Harus lebih effort lagi, semangat 😭";
+  if (percent >= 99) return "🔥 GOKIL! Tinggal dikit lagi 100% 😎";
+  if (percent >= 98) return "💪 Ayo dikit lagi, pasti bisa!";
+  if (percent >= 95) return "⚠️ Masih aman, tapi jangan lengah";
+  return "🚨 Ayo kejar target! Jangan menyerah 😭";
 }
+
 
    /* ===============================
      RENDER KPI GRID
