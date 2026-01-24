@@ -2252,6 +2252,18 @@ if (menu === 'District-Banten') {
     document.body.appendChild(s);
   });
 
+} else if (menu === 'monitoring-b2c') {
+
+  loadPartialIntoContent('partials/monitoring-b2c.html', () => {
+    const content = document.getElementById('content-area');
+    content.classList.add('show-grid');
+    content.style.display = 'block';
+
+    const s = document.createElement('script');
+    s.src = 'js/monitoring-b2c.js?v=' + Date.now();
+    s.onload = () => initDashboardB2C24KPI(B2B_API_URL);
+    document.body.appendChild(s);
+  });
 
 
 } else {
