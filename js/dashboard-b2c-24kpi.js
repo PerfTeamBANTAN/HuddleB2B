@@ -195,6 +195,12 @@ function renderSummaryCard({ title, icon, ach, good, bad, theme }) {
   `;
 }
 
+function getPujiText(percent) {
+  if (percent > 99) return "Ayo dikit lagi 😎🔥";
+  if (percent >= 98) return "Kita kejar target 💪";
+  return "Harus lebih effort lagi, semangat 😭";
+}
+
    /* ===============================
      RENDER KPI GRID
   =============================== */
