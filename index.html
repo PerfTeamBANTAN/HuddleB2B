@@ -1879,6 +1879,41 @@ body {
   width: 110px;
   height: auto;
 }
+
+.summary-avatar {
+  width: 110px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(34,197,94,.8));
+}
+
+.summary-card-v3.bad .summary-avatar {
+  filter: drop-shadow(0 0 12px rgba(239,68,68,.8));
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+.summary-progress-bar {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg,#22c55e,#4ade80,#16a34a);
+  box-shadow: 0 0 12px rgba(34,197,94,.7);
+  animation: growBar 1.5s ease-out;
+}
+
+@keyframes growBar {
+  from { width: 0; }
+}
+
+function getPujiText(percent) {
+  if (percent > 99) return "Ayo dikit lagi 😎🔥";
+  if (percent >= 98) return "Kita kejar target 💪";
+  return "Harus lebih effort lagi, semangat 😭";
+}
+
 /* =====================================================
    BOOTSTRAP 5 MULTI LEVEL DROPDOWN – FINAL FIX
 ===================================================== */
