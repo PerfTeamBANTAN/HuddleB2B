@@ -296,7 +296,7 @@ function openDetailB2C(tr,mode){
 }
 
 /* =====================================================
-   DETAIL TOTAL B2C (ALL STO / FILTERED)
+   DETAIL TOTAL B2C (ALL STO / FILTERED) - FINAL FIX
 ===================================================== */
 function openTotalDetailB2C(colIndex){
 
@@ -318,7 +318,12 @@ function openTotalDetailB2C(colIndex){
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
   modalTitle.textContent = 'Detail TOTAL Tiket B2C';
-  modalBody.innerHTML = renderModalSpinner();
+  modalBody.innerHTML = `
+    <div class="text-center p-4">
+      <div class="spinner-border text-info" role="status"></div>
+      <div class="mt-2">Loading...</div>
+    </div>
+  `;
   modal.show();
 
   /* ===== MAP KOLOM TOTAL → MODE BACKEND ===== */
@@ -350,10 +355,10 @@ function openTotalDetailB2C(colIndex){
     20: { mode:'gaul_reg' },
     21: { mode:'gaul_hvc' },
 
-    22: { mode:'ffg' },
+    22: { mode:'sqm_total' },
+    23: { mode:'sqm_open' },
 
-    23: { mode:'sqm_total' },
-    24: { mode:'sqm_open' }
+    24: { mode:'ffg' }
   };
 
   const qs = new URLSearchParams({
@@ -395,24 +400,27 @@ function openTotalDetailB2C(colIndex){
       rows.forEach(r=>{
         html += `
           <tr>
-            <td>${r.INCIDENT}</td>
-            <td>${r.SUMMARY}</td>
-            <td>${r['REPORTED DATE']}</td>
-            <td>${r['SERVICE TYPE']}</td>
-            <td>${r.WITEL}</td>
-            <td>${r.WORKZONE}</td>
-            <td>${r.STATUS}</td>
-            <td>${r.KATAGORI}</td>
-            <td>${r['GUARANTEE STATUS']}</td>
-            <td>${r.GAUL}</td>
+            <td>${r.INCIDENT || '-'}</td>
+            <td>${r.SUMMARY || '-'}</td>
+            <td>${r['REPORTED DATE'] || '-'}</td>
+            <td>${r['SERVICE TYPE'] || '-'}</td>
+            <td>${r.WITEL || '-'}</td>
+            <td>${r.WORKZONE || '-'}</td>
+            <td>${r.STATUS || '-'}</td>
+            <td>${r.KATAGORI || '-'}</td>
+            <td>${r['GUARANTE STATUS'] || '-'}</td>
+            <td>${r.GAUL || '-'}</td>
           </tr>`;
       });
 
       modalBody.innerHTML = html + '</tbody></table></div>';
+    })
+    .catch(err=>{
+      console.error('TOTAL DETAIL ERROR:', err);
+      modalBody.innerHTML =
+        `<div class="text-danger text-center py-4">Gagal load data</div>`;
     });
 }
-
-
 
 /* ================= DROPDOWN ================= */
 function buildDropdown(el,set,label){
