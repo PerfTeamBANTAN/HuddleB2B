@@ -295,110 +295,123 @@ function openDetailB2C(tr,mode){
     });
 }
 
-/* ================= TOTAL DETAIL ================= */
+/* =====================================================
+   DETAIL TOTAL B2C (ALL STO / FILTERED)
+===================================================== */
 function openTotalDetailB2C(colIndex){
-
-  const columnMap = {
-    4:'total_reg',
-    5:'total_hvc',
-    6:'closed_reg',
-    7:'closed_hvc',
-    8:'open_reg',
-    9:'open_hvc',
-    10:'ttr3_ok',
-    11:'ttr3_nok',
-    12:'ttr6_ok',
-    13:'ttr6_nok',
-    14:'ttr12_ok',
-    15:'ttr12_nok',
-    16:'ttrManja_ok',   // ✅ FIX
-    17:'ttrManja_nok',  // ✅ FIX
-    18:'ttr36_ok',
-    19:'ttr36_nok',
-    20:'gaul_reg',
-    21:'gaul_hvc',
-    24:'ffg'
-  };
-
-  const mode = columnMap[colIndex];
-  if(!mode){
-    alert('Mode tidak ditemukan: '+colIndex);
-    return;
-  }
 
   const f = window.B2C_ACTIVE_FILTER || {};
 
   const params = {
-    type:'monitoring_b2c_total_detail',
-    mode: mode
+    type: 'monitoring_b2c_total_detail'
   };
 
-  if(f.sto) params.sto = f.sto;
-  if(f.witel) params.witel = f.witel;
-  if(f.hsa) params.hsa = f.hsa;
+  if (f.sto)   params.sto   = f.sto;
+  if (f.witel) params.witel = f.witel;
+  if (f.hsa)   params.hsa   = f.hsa;
 
   const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
   );
 
-  const body = document.querySelector('#global-modal .modal-body');
-  const title = document.querySelector('#global-modal .modal-title');
+  const modalBody  = document.querySelector('#global-modal .modal-body');
+  const modalTitle = document.querySelector('#global-modal .modal-title');
 
-  title.textContent = `Detail TOTAL ${mode.toUpperCase()}`;
-  body.innerHTML = `<div class="text-center p-4">Loading...</div>`;
+  modalTitle.textContent = 'Detail TOTAL Tiket B2C';
+  modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
-  fetch(API_URL+'?'+new URLSearchParams(params))
-    .then(r=>r.json())
-    .then(res=>{
+  /* ===== MAP KOLOM TOTAL → MODE BACKEND ===== */
+  const map = {
+    4 : { mode:'total_reg' },
+    5 : { mode:'total_hvc' },
 
-      const rows = res.data || [];
-      if(!rows.length){
-        body.innerHTML = `<div class="text-center text-muted">Tidak ada data</div>`;
+    6 : { mode:'closed_reg' },
+    7 : { mode:'closed_hvc' },
+
+    8 : { mode:'open_reg' },
+    9 : { mode:'open_hvc' },
+
+    10: { mode:'ttr3_ok' },
+    11: { mode:'ttr3_nok' },
+
+    12: { mode:'ttr6_ok' },
+    13: { mode:'ttr6_nok' },
+
+    14: { mode:'ttr12_ok' },
+    15: { mode:'ttr12_nok' },
+
+    16: { mode:'manja_ok' },
+    17: { mode:'manja_nok' },
+
+    18: { mode:'ttr36_ok' },
+    19: { mode:'ttr36_nok' },
+
+    20: { mode:'gaul_reg' },
+    21: { mode:'gaul_hvc' },
+
+    22: { mode:'ffg' },
+
+    23: { mode:'sqm_total' },
+    24: { mode:'sqm_open' }
+  };
+
+  const qs = new URLSearchParams({
+    ...params,
+    ...(map[colIndex] || {})
+  }).toString();
+
+  fetch(API_URL + '?' + qs)
+    .then(res => res.json())
+    .then(resData => {
+
+      const rows = resData.data || [];
+
+      if (!rows.length) {
+        modalBody.innerHTML =
+          `<div class="text-center text-muted py-4">Tidak ada data</div>`;
         return;
       }
 
       let html = `
-      <div class="table-responsive">
-      <table class="table table-dark table-striped table-sm">
-      <thead>
-        <tr>
-          <th>INCIDENT</th>
-          <th>SUMMARY</th>
-          <th>REPORTED DATE</th>
-          <th>SERVICE TYPE</th>
-          <th>WITEL</th>
-          <th>WORKZONE</th>
-          <th>STATUS</th>
-          <th>CONVERT WAKTU</th>
-          <th>KATEGORI</th>
-          <th>GUARANTEE</th>
-          <th>GAUL</th>
-          <th>OLD TIKET</th>
-        </tr>
-      </thead><tbody>`;
+        <div class="table-responsive">
+        <table class="table table-dark table-striped table-sm">
+        <thead>
+          <tr>
+            <th>INCIDENT</th>
+            <th>SUMMARY</th>
+            <th>REPORTED DATE</th>
+            <th>SERVICE TYPE</th>
+            <th>WITEL</th>
+            <th>WORKZONE</th>
+            <th>STATUS</th>
+            <th>KATEGORI</th>
+            <th>GUARANTEE</th>
+            <th>GAUL</th>
+          </tr>
+        </thead>
+        <tbody>`;
 
       rows.forEach(r=>{
         html += `
-        <tr>
-          <td>${r.INCIDENT}</td>
-          <td>${r.SUMMARY}</td>
-          <td>${r['REPORTED DATE']}</td>
-          <td>${r['SERVICE TYPE']}</td>
-          <td>${r.WITEL}</td>
-          <td>${r.WORKZONE}</td>
-          <td>${r.STATUS}</td>
-          <td>${r['convert waktu']}</td>
-          <td>${r.KATAGORI}</td>
-          <td>${r['GUARANTE STATUS']}</td>
-          <td>${r.GAUL}</td>
-          <td>${r['OLD TIKET']}</td>
-        </tr>`;
+          <tr>
+            <td>${r.INCIDENT}</td>
+            <td>${r.SUMMARY}</td>
+            <td>${r['REPORTED DATE']}</td>
+            <td>${r['SERVICE TYPE']}</td>
+            <td>${r.WITEL}</td>
+            <td>${r.WORKZONE}</td>
+            <td>${r.STATUS}</td>
+            <td>${r.KATAGORI}</td>
+            <td>${r['GUARANTEE STATUS']}</td>
+            <td>${r.GAUL}</td>
+          </tr>`;
       });
 
-      body.innerHTML = html + `</tbody></table></div>`;
+      modalBody.innerHTML = html + '</tbody></table></div>';
     });
 }
+
 
 
 /* ================= DROPDOWN ================= */
