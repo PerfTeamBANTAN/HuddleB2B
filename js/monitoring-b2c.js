@@ -37,7 +37,7 @@ function initMonitoringB2C(API_URL){
 
   window.API_URL = API_URL;
 
-  const tbody      = document.getElementById('monitoring-b2b-body');
+  const tbody      = document.getElementById('monitoring-b2c-body');
   const lastUpdate = document.getElementById('monitoring-b2c-update');
 
   window.filterWitel = document.getElementById('filterWitel');
@@ -45,6 +45,11 @@ function initMonitoringB2C(API_URL){
   window.filterHsa   = document.getElementById('filterHsa');
 
   window.B2C_ACTIVE_FILTER = { sto:'', witel:'', hsa:'' };
+
+  if (!tbody) {
+    console.error('monitoring-b2c-body tidak ditemukan');
+    return;
+  }
 
   tbody.innerHTML = `
     <tr>
@@ -145,7 +150,7 @@ function initMonitoringB2C(API_URL){
 ===================================================== */
 function renderB2CTotalRow(){
 
-  const tbody = document.getElementById('monitoring-b2b-body');
+  const tbody = document.getElementById('monitoring-b2c-body');
   tbody.querySelector('.total-row')?.remove();
 
   const total = Array(28).fill(0);
@@ -186,7 +191,7 @@ function applyB2CDropdownFilter(){
 
   B2C_ACTIVE_FILTER={sto,witel,hsa};
 
-  document.querySelectorAll('#monitoring-b2b-body tr')
+  document.querySelectorAll('#monitoring-b2c-body tr')
     .forEach(tr=>{
       if(tr.classList.contains('total-row')) return;
 
@@ -210,4 +215,3 @@ function buildDropdown(el,setData,label){
   [...setData].filter(v=>v).sort()
     .forEach(v=>el.innerHTML+=`<option>${v}</option>`);
 }
-
