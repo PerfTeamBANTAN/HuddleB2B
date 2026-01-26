@@ -88,6 +88,16 @@ function formatHeaderLabel(h) {
   return label;
 }
 
+function getGroupClass(header) {
+  if (/INDIBIZ 4H/i.test(header)) return 'grp-indibiz-4h';
+  if (/INDIBIZ 24H/i.test(header)) return 'grp-indibiz-24h';
+  if (/RESELLER 6H/i.test(header)) return 'grp-reseller-6h';
+  if (/RESELLER 36H/i.test(header)) return 'grp-reseller-36h';
+  if (/DATIN K2/i.test(header)) return 'grp-datin-k2';
+  if (/DATIN K3/i.test(header)) return 'grp-datin-k3';
+  return '';
+}
+
 /* =====================================================
    DETAIL ENDPOINT MAPPER (FIXED & COMPLETE)
 ===================================================== */
@@ -242,6 +252,8 @@ function initTTRFilter() {
 ===================================================== */
 function renderTTRTable() {
 
+  const groupMap = {};
+  ttrHeaders.forEach(h => groupMap[h] = getGroupClass(h));
   const head = document.getElementById('ttr-table-head');
   const body = document.getElementById('ttr-table-body');
 
@@ -252,7 +264,10 @@ function renderTTRTable() {
   head.innerHTML = '';
   ttrHeaders.forEach(h => {
     const th = document.createElement('th');
-    th.innerHTML = formatHeaderLabel(h);
+      th.innerHTML = formatHeaderLabel(h);
+      const grp = groupMap[h];
+      if (grp) th.classList.add(grp);
+
     th.style.textAlign = 'center';
     head.appendChild(th);
   });
@@ -268,6 +283,8 @@ function renderTTRTable() {
       ttrHeaders.forEach(h => {
 
         const td = document.createElement('td');
+         const grp = groupMap[h];
+         if (grp) td.classList.add(grp);
         const value =
           h.includes('%') ? fmtPercent(r[h]) :
           h.toLowerCase().includes('tiket') ? fmtInt(r[h]) :
