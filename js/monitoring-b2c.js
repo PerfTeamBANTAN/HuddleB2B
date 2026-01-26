@@ -69,41 +69,46 @@ function initMonitoringB2C(API_URL){
         setWitel.add(row[1]);
         setHsa.add(row[2]);
 
-        tr.innerHTML=`
-          <td>${row[0]}</td>
-          <td>${row[1]}</td>
-          <td>${row[2]}</td>
-          <td>${row[3]}</td>
+        tr.innerHTML = `
+<td>${row[0]}</td>
+<td>${row[1]}</td>
+<td>${row[2]}</td>
+<td>${row[3]}</td>
 
-          <td>${row[4]}</td><td>${row[5]}</td>
-          <td>${row[6]}</td><td>${row[7]}</td>
-          <td>${row[8]}</td><td>${row[9]}</td>
+<td class="clickable total_reg">${row[4]}</td>
+<td class="clickable total_hvc">${row[5]}</td>
 
-          <td class="clickable ttr3_ok">${row[10]}</td>
-          <td class="clickable ttr3_nok">${row[11]}</td>
+<td class="clickable closed_reg">${row[6]}</td>
+<td class="clickable closed_hvc">${row[7]}</td>
 
-          <td class="clickable ttr6_ok">${row[12]}</td>
-          <td class="clickable ttr6_nok">${row[13]}</td>
+<td class="clickable open_reg">${row[8]}</td>
+<td class="clickable open_hvc">${row[9]}</td>
 
-          <td class="clickable ttr12_ok">${row[14]}</td>
-          <td class="clickable ttr12_nok">${row[15]}</td>
+<td class="clickable ttr3_ok">${row[10]}</td>
+<td class="clickable ttr3_nok">${row[11]}</td>
 
-          <td class="clickable ttrManja_ok">${row[16]}</td>
-          <td class="clickable ttrManja_nok">${row[17]}</td>
+<td class="clickable ttr6_ok">${row[12]}</td>
+<td class="clickable ttr6_nok">${row[13]}</td>
 
-          <td class="clickable ttr36_ok">${row[18]}</td>
-          <td class="clickable ttr36_nok">${row[19]}</td>
+<td class="clickable ttr12_ok">${row[14]}</td>
+<td class="clickable ttr12_nok">${row[15]}</td>
 
-          <td class="clickable gaul_reg">${row[20]}</td>
-          <td class="clickable gaul_hvc">${row[21]}</td>
+<td class="clickable manja_ok">${row[16]}</td>
+<td class="clickable manja_nok">${row[17]}</td>
 
-          <td class="clickable total_reg">${row[22]}</td>
-          <td class="clickable total_hvc">${row[23]}</td>
-          <td class="clickable closed_reg">${row[24]}</td>
-          <td class="clickable closed_hvc">${row[25]}</td>
-          <td class="clickable open_reg">${row[26]}</td>
-          <td class="clickable open_hvc">${row[27]}</td>
-        `;
+<td class="clickable ttr36_ok">${row[18]}</td>
+<td class="clickable ttr36_nok">${row[19]}</td>
+
+<td class="clickable gaul_reg">${row[20]}</td>
+<td class="clickable gaul_hvc">${row[21]}</td>
+
+<td class="clickable sqm_total">${row[22]}</td>
+<td class="clickable sqm_open">${row[23]}</td>
+<td>${row[24]}</td>
+<td>${row[25]}</td>
+<td>${row[26]}</td>
+`;
+
 
         tbody.appendChild(tr);
 
