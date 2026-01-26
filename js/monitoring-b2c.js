@@ -104,11 +104,11 @@ function initMonitoringB2C(API_URL){
 
 <td class="clickable sqm_total">${row[22]}</td>
 <td class="clickable sqm_open">${row[23]}</td>
-<td>${row[24]}</td>
+
+<td class="clickable ffg">${row[24]}</td>   <!-- ✅ FFG -->
 <td>${row[25]}</td>
 <td>${row[26]}</td>
 `;
-
 
         tbody.appendChild(tr);
 
@@ -134,6 +134,7 @@ function initMonitoringB2C(API_URL){
       renderB2CTotalRow();
     });
 }
+
 
 /* ================= TOTAL ================= */
 function renderB2CTotalRow(){
@@ -216,7 +217,8 @@ function bindB2CClicks(tr){
     '.closed_reg':'closed_reg',
     '.closed_hvc':'closed_hvc',
     '.open_reg':'open_reg',
-    '.open_hvc':'open_hvc'
+    '.open_hvc':'open_hvc',
+    '.ffg':'ffg' // ✅ TAMBAH FFG
   };
 
   Object.keys(map).forEach(cls=>{
@@ -265,6 +267,7 @@ function openDetailB2C(tr,mode){
           <th>STATUS</th>
           <th>CONVERT WAKTU</th>
           <th>KATEGORI</th>
+          <th>GUARANTEE</th>
           <th>GAUL</th>
           <th>OLD TIKET</th>
         </tr>
@@ -282,6 +285,7 @@ function openDetailB2C(tr,mode){
           <td>${r.STATUS}</td>
           <td>${r['convert waktu']}</td>
           <td>${r.KATAGORI}</td>
+          <td>${r['GUARANTE STATUS']}</td>
           <td>${r.GAUL}</td>
           <td>${r['OLD TIKET']}</td>
         </tr>`;
@@ -335,6 +339,7 @@ function openTotalDetailB2C(colIndex){
           <th>STATUS</th>
           <th>CONVERT WAKTU</th>
           <th>KATEGORI</th>
+          <th>GUARANTEE</th>
           <th>GAUL</th>
           <th>OLD TIKET</th>
         </tr>
@@ -352,6 +357,7 @@ function openTotalDetailB2C(colIndex){
           <td>${r.STATUS}</td>
           <td>${r['convert waktu']}</td>
           <td>${r.KATAGORI}</td>
+          <td>${r['GUARANTE STATUS']}</td>
           <td>${r.GAUL}</td>
           <td>${r['OLD TIKET']}</td>
         </tr>`;
