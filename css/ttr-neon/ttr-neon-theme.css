@@ -1,26 +1,9 @@
 /* =================================================
-   GLOBAL TABLE TONE — DARK & CLEAN
+   BASE CELL TONE (DARK GLASS)
 ================================================= */
-#ttr-table {
-  background: #020617;
-  color: #e5e7eb;
-}
-
 #ttr-table th,
 #ttr-table td {
   border-right: 1px solid rgba(148,163,184,.08);
-}
-
-/* =================================================
-   HEADER — FLAT, MAHAL
-================================================= */
-#ttr-table thead th {
-  background: #020617 !important;
-  color: #e5e7eb !important;
-  font-weight: 500;
-  font-size: 12px;
-  letter-spacing: .3px;
-  border-bottom: 1px solid rgba(148,163,184,.15);
 }
 
 /* =================================================
@@ -30,15 +13,15 @@
 /* INDIBIZ 4H — muted rose */
 #ttr-table th.grp-indibiz-4h,
 #ttr-table td.grp-indibiz-4h {
-  border-left: 2px solid rgba(45,212,191,.6);
-  box-shadow: inset 6px 0 8px -6px rgba(45,212,191,.35);
+  border-left: 2px solid rgba(244,114,182,.6);
+  box-shadow: inset 6px 0 8px -6px rgba(244,114,182,.35);
 }
 
 /* INDIBIZ 24H — amber soft */
 #ttr-table th.grp-indibiz-24h,
 #ttr-table td.grp-indibiz-24h {
-  border-left: 2px solid rgba(45,212,191,.6);
-  box-shadow: inset 6px 0 8px -6px rgba(45,212,191,.35);
+  border-left: 2px solid rgba(251,191,36,.6);
+  box-shadow: inset 6px 0 8px -6px rgba(251,191,36,.35);
 }
 
 /* RESELLER 6H — teal soft */
@@ -51,57 +34,46 @@
 /* RESELLER 36H — violet soft */
 #ttr-table th.grp-reseller-36h,
 #ttr-table td.grp-reseller-36h {
-  border-left: 2px solid rgba(45,212,191,.6);
-  box-shadow: inset 6px 0 8px -6px rgba(45,212,191,.35);
+  border-left: 2px solid rgba(167,139,250,.6);
+  box-shadow: inset 6px 0 8px -6px rgba(167,139,250,.35);
 }
 
 /* =================================================
-   BODY CELL — CLEAN & AIRY
+   HEADER LOOK (MINIMAL & CLEAN)
 ================================================= */
-#ttr-table tbody td {
-  background: transparent !important;
-  font-size: 13px;
+#ttr-table thead th {
+  background: linear-gradient(180deg, #020617, #020617) !important;
+  color: #e5e7eb !important;
+  font-weight: 500;
+  letter-spacing: .2px;
 }
 
 /* =================================================
-   ROW HOVER — VERY SUBTLE
-================================================= */
-#ttr-table tbody tr:hover {
-  background: rgba(148,163,184,.04);
-}
-
-/* =================================================
-   ALERT VALUE — SOFT, SERIUS
+   ALERT VALUE (LESS AGGRESSIVE)
 ================================================= */
 #ttr-table .text-danger {
-  color: #f87171 !important; /* soft red */
-  font-weight: 600;
+  color: #fb7185 !important;
   text-shadow: none;
+  font-weight: 600;
 }
 
 /* =================================================
-   CLICKABLE NUMBER — SINGLE ACCENT COLOR
+   CLICKABLE VALUE (SUBTLE ACCENT)
 ================================================= */
 #ttr-table .text-primary {
-  color: #60a5fa !important; /* steel blue */
+  color: #38bdf8 !important;
   font-weight: 600;
   text-shadow: none;
 }
 
 #ttr-table .text-primary:hover {
-  color: #93c5fd !important;
+  color: #7dd3fc !important;
   text-decoration: underline;
 }
 
 /* =================================================
-   HEADER TYPOGRAPHY DETAIL
+   ROW HOVER — VERY SOFT
 ================================================= */
-#ttr-table thead th strong {
-  color: #f1f5f9;
-  font-weight: 600;
-}
-
-#ttr-table thead th small {
-  color: #94a3b8;
-  font-size: 11px;
+#ttr-table tbody tr:hover {
+  background: rgba(148,163,184,.06);
 }
