@@ -29,8 +29,7 @@
 
 /* INDIBIZ */
 #ttr-table th.grp-indibiz-4h,
-#ttr-table td.grp-indibiz-4h {
-  border-left: 2px solid rgba(56,189,248,.55); /* muted cyan */
+#ttr-table td.grp-indibiz-4h,
 #ttr-table th.grp-indibiz-24h,
 #ttr-table td.grp-indibiz-24h {
   border-left: 2px solid rgba(56,189,248,.55); /* muted cyan */
@@ -38,8 +37,7 @@
 
 /* DATIN */
 #ttr-table th.grp-datin-k2,
-#ttr-table td.grp-datin-k2 {
-  border-left: 2px solid rgba(251,191,36,.45); /* muted amber */ 
+#ttr-table td.grp-datin-k2,
 #ttr-table th.grp-datin-k3,
 #ttr-table td.grp-datin-k3 {
   border-left: 2px solid rgba(251,191,36,.45); /* muted amber */
@@ -47,8 +45,7 @@
 
 /* RESELLER */
 #ttr-table th.grp-reseller-6h,
-#ttr-table td.grp-reseller-6h {
-   border-left: 2px solid rgba(167,139,250,.45); /* muted violet */
+#ttr-table td.grp-reseller-6h,
 #ttr-table th.grp-reseller-36h,
 #ttr-table td.grp-reseller-36h {
   border-left: 2px solid rgba(167,139,250,.45); /* muted violet */
