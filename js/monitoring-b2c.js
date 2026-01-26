@@ -296,7 +296,7 @@ function openDetailB2C(tr,mode){
 }
 
 /* =====================================================
-   DETAIL TOTAL B2C (ALL STO / FILTERED) - FINAL FIX
+   DETAIL TOTAL B2C (ALL STO / FILTERED)
 ===================================================== */
 function openTotalDetailB2C(colIndex){
 
@@ -318,47 +318,38 @@ function openTotalDetailB2C(colIndex){
   const modalTitle = document.querySelector('#global-modal .modal-title');
 
   modalTitle.textContent = 'Detail TOTAL Tiket B2C';
-  modalBody.innerHTML = `
-    <div class="text-center p-4">
-      <div class="spinner-border text-info" role="status"></div>
-      <div class="mt-2">Loading...</div>
-    </div>
-  `;
+  modalBody.innerHTML = renderModalSpinner();
   modal.show();
 
-  /* ===== MAP KOLOM TOTAL → MODE BACKEND ===== */
+  /* ===== MAPPING KOLOM TOTAL B2C ===== */
   const map = {
-    4 : { mode:'total_reg' },
-    5 : { mode:'total_hvc' },
+    5:{mode:'REG'},
+    6:{mode:'HVC'},
 
-    6 : { mode:'closed_reg' },
-    7 : { mode:'closed_hvc' },
+    7:{mode:'REG',status_closed:'Y'},
+    8:{mode:'HVC',status_closed:'Y'},
 
-    8 : { mode:'open_reg' },
-    9 : { mode:'open_hvc' },
+    9:{mode:'REG',status_closed:'N'},
+    10:{mode:'HVC',status_closed:'N'},
 
-    10: { mode:'ttr3_ok' },
-    11: { mode:'ttr3_nok' },
+    11:{ttr_type:'3JAM',ttr_result:'Y'},
+    12:{ttr_type:'3JAM',ttr_result:'N'},
 
-    12: { mode:'ttr6_ok' },
-    13: { mode:'ttr6_nok' },
+    13:{ttr_type:'6JAM',ttr_result:'Y'},
+    14:{ttr_type:'6JAM',ttr_result:'N'},
 
-    14: { mode:'ttr12_ok' },
-    15: { mode:'ttr12_nok' },
+    15:{ttr_type:'12JAM',ttr_result:'Y'},
+    16:{ttr_type:'12JAM',ttr_result:'N'},
 
-    16: { mode:'manja_ok' },
-    17: { mode:'manja_nok' },
+    17:{ttr_type:'MANJA',ttr_result:'Y'},
+    18:{ttr_type:'MANJA',ttr_result:'N'},
 
-    18: { mode:'ttr36_ok' },
-    19: { mode:'ttr36_nok' },
+    19:{ttr_type:'36JAM',ttr_result:'Y'},
+    20:{ttr_type:'36JAM',ttr_result:'N'},
 
-    20: { mode:'gaul_reg' },
-    21: { mode:'gaul_hvc' },
-
-    22: { mode:'sqm_total' },
-    23: { mode:'sqm_open' },
-
-    24: { mode:'ffg' }
+    21:{gaul:'Y'},
+    22:{sqm:'Y'},
+    23:{alert:'Y'}
   };
 
   const qs = new URLSearchParams({
@@ -387,28 +378,28 @@ function openTotalDetailB2C(colIndex){
             <th>SUMMARY</th>
             <th>REPORTED DATE</th>
             <th>SERVICE TYPE</th>
+            <th>STO</th>
             <th>WITEL</th>
-            <th>WORKZONE</th>
             <th>STATUS</th>
             <th>KATEGORI</th>
-            <th>GUARANTEE</th>
+            <th>TTR</th>
             <th>GAUL</th>
           </tr>
         </thead>
         <tbody>`;
 
-      rows.forEach(r=>{
+      rows.forEach(r => {
         html += `
           <tr>
             <td>${r.INCIDENT || '-'}</td>
             <td>${r.SUMMARY || '-'}</td>
             <td>${r['REPORTED DATE'] || '-'}</td>
             <td>${r['SERVICE TYPE'] || '-'}</td>
+            <td>${r.STO || '-'}</td>
             <td>${r.WITEL || '-'}</td>
-            <td>${r.WORKZONE || '-'}</td>
             <td>${r.STATUS || '-'}</td>
-            <td>${r.KATAGORI || '-'}</td>
-            <td>${r['GUARANTE STATUS'] || '-'}</td>
+            <td>${r.KATEGORI || '-'}</td>
+            <td>${r.TTR || '-'}</td>
             <td>${r.GAUL || '-'}</td>
           </tr>`;
       });
@@ -416,9 +407,9 @@ function openTotalDetailB2C(colIndex){
       modalBody.innerHTML = html + '</tbody></table></div>';
     })
     .catch(err=>{
-      console.error('TOTAL DETAIL ERROR:', err);
       modalBody.innerHTML =
         `<div class="text-danger text-center py-4">Gagal load data</div>`;
+      console.error(err);
     });
 }
 
