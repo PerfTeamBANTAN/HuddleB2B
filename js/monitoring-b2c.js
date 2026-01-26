@@ -311,14 +311,12 @@ function openTotalDetailB2C(colIndex){
     13:'ttr6_nok',
     14:'ttr12_ok',
     15:'ttr12_nok',
-    16:'manja_ok',
-    17:'manja_nok',
+    16:'ttrManja_ok',   // ✅ FIX
+    17:'ttrManja_nok',  // ✅ FIX
     18:'ttr36_ok',
     19:'ttr36_nok',
     20:'gaul_reg',
     21:'gaul_hvc',
-    22:'sqm_total',
-    23:'sqm_open',
     24:'ffg'
   };
 
@@ -353,13 +351,14 @@ function openTotalDetailB2C(colIndex){
   fetch(API_URL+'?'+new URLSearchParams(params))
     .then(r=>r.json())
     .then(res=>{
-      const rows=res.data||[];
+
+      const rows = res.data || [];
       if(!rows.length){
-        body.innerHTML=`<div class="text-center text-muted">Tidak ada data</div>`;
+        body.innerHTML = `<div class="text-center text-muted">Tidak ada data</div>`;
         return;
       }
 
-      let html=`
+      let html = `
       <div class="table-responsive">
       <table class="table table-dark table-striped table-sm">
       <thead>
@@ -380,7 +379,7 @@ function openTotalDetailB2C(colIndex){
       </thead><tbody>`;
 
       rows.forEach(r=>{
-        html+=`
+        html += `
         <tr>
           <td>${r.INCIDENT}</td>
           <td>${r.SUMMARY}</td>
@@ -391,15 +390,16 @@ function openTotalDetailB2C(colIndex){
           <td>${r.STATUS}</td>
           <td>${r['convert waktu']}</td>
           <td>${r.KATAGORI}</td>
-          <td>${r['GUARANTEE STATUS']}</td>
+          <td>${r['GUARANTE STATUS']}</td>
           <td>${r.GAUL}</td>
           <td>${r['OLD TIKET']}</td>
         </tr>`;
       });
 
-      body.innerHTML=html+`</tbody></table></div>`;
+      body.innerHTML = html + `</tbody></table></div>`;
     });
 }
+
 
 /* ================= DROPDOWN ================= */
 function buildDropdown(el,set,label){
