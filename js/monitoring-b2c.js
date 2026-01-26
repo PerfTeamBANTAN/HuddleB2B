@@ -298,22 +298,56 @@ function openDetailB2C(tr,mode){
 /* ================= TOTAL DETAIL ================= */
 function openTotalDetailB2C(colIndex){
 
-  const f=window.B2C_ACTIVE_FILTER||{};
+  const columnMap = {
+    4:'total_reg',
+    5:'total_hvc',
+    6:'closed_reg',
+    7:'closed_hvc',
+    8:'open_reg',
+    9:'open_hvc',
+    10:'ttr3_ok',
+    11:'ttr3_nok',
+    12:'ttr6_ok',
+    13:'ttr6_nok',
+    14:'ttr12_ok',
+    15:'ttr12_nok',
+    16:'manja_ok',
+    17:'manja_nok',
+    18:'ttr36_ok',
+    19:'ttr36_nok',
+    20:'gaul_reg',
+    21:'gaul_hvc',
+    22:'sqm_total',
+    23:'sqm_open',
+    24:'ffg'
+  };
 
-  const params={ type:'monitoring_b2c_total_detail', col:colIndex };
-  if(f.sto) params.sto=f.sto;
-  if(f.witel) params.witel=f.witel;
-  if(f.hsa) params.hsa=f.hsa;
+  const mode = columnMap[colIndex];
+  if(!mode){
+    alert('Mode tidak ditemukan: '+colIndex);
+    return;
+  }
 
-  const modal=new bootstrap.Modal(
+  const f = window.B2C_ACTIVE_FILTER || {};
+
+  const params = {
+    type:'monitoring_b2c_total_detail',
+    mode: mode
+  };
+
+  if(f.sto) params.sto = f.sto;
+  if(f.witel) params.witel = f.witel;
+  if(f.hsa) params.hsa = f.hsa;
+
+  const modal = new bootstrap.Modal(
     document.getElementById('global-modal')
   );
 
-  const body=document.querySelector('#global-modal .modal-body');
-  const title=document.querySelector('#global-modal .modal-title');
+  const body = document.querySelector('#global-modal .modal-body');
+  const title = document.querySelector('#global-modal .modal-title');
 
-  title.textContent='Detail TOTAL B2C';
-  body.innerHTML=`<div class="text-center p-4">Loading...</div>`;
+  title.textContent = `Detail TOTAL ${mode.toUpperCase()}`;
+  body.innerHTML = `<div class="text-center p-4">Loading...</div>`;
   modal.show();
 
   fetch(API_URL+'?'+new URLSearchParams(params))
@@ -357,7 +391,7 @@ function openTotalDetailB2C(colIndex){
           <td>${r.STATUS}</td>
           <td>${r['convert waktu']}</td>
           <td>${r.KATAGORI}</td>
-          <td>${r['GUARANTE STATUS']}</td>
+          <td>${r['GUARANTEE STATUS']}</td>
           <td>${r.GAUL}</td>
           <td>${r['OLD TIKET']}</td>
         </tr>`;
