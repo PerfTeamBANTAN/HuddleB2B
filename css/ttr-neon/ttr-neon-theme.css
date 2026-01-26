@@ -1,71 +1,90 @@
-/* =========================================
-   NEON COLUMN SEPARATOR
-========================================= */
+/* =================================================
+   GLOBAL TABLE TONE — DARK & CLEAN
+================================================= */
+#ttr-table {
+  background: #020617;
+  color: #e5e7eb;
+}
+
 #ttr-table th,
 #ttr-table td {
-  border-right: 1px solid rgba(34,211,238,.15);
+  border-right: 1px solid rgba(148,163,184,.08);
 }
 
-/* =========================================
-   GROUP SEPARATOR (MERAH NEON)
-   SESUAI SCREENSHOT
-========================================= */
-
-/* INDIBIZ 4H (setelah kolom ke-2) */
-#ttr-table th:nth-child(3),
-#ttr-table td:nth-child(3) {
-  border-left: 3px solid #fb7185;
-  box-shadow: -2px 0 8px rgba(251,113,133,.7);
+/* =================================================
+   HEADER — FLAT, MAHAL
+================================================= */
+#ttr-table thead th {
+  background: #020617 !important;
+  color: #e5e7eb !important;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: .3px;
+  border-bottom: 1px solid rgba(148,163,184,.15);
 }
 
-/* INDIBIZ 24H */
-#ttr-table th:nth-child(7),
-#ttr-table td:nth-child(7) {
-  border-left: 3px solid #f97316;
-  box-shadow: -2px 0 8px rgba(249,115,22,.7);
+/* =================================================
+   GROUP SEPARATOR — GRAYSCALE ONLY
+   (MAHAL = TIDAK WARNA-WARNI)
+================================================= */
+#ttr-table th.grp-indibiz-4h,
+#ttr-table td.grp-indibiz-4h,
+#ttr-table th.grp-indibiz-24h,
+#ttr-table td.grp-indibiz-24h,
+#ttr-table th.grp-reseller-6h,
+#ttr-table td.grp-reseller-6h,
+#ttr-table th.grp-reseller-36h,
+#ttr-table td.grp-reseller-36h {
+  border-left: 2px solid rgba(148,163,184,.25);
 }
 
-/* RESELLER 6H */
-#ttr-table th:nth-child(11),
-#ttr-table td:nth-child(11) {
-  border-left: 3px solid #22d3ee;
-  box-shadow: -2px 0 8px rgba(34,211,238,.7);
+/* =================================================
+   BODY CELL — CLEAN & AIRY
+================================================= */
+#ttr-table tbody td {
+  background: transparent !important;
+  font-size: 13px;
 }
 
-/* RESELLER 36H */
-#ttr-table th:nth-child(15),
-#ttr-table td:nth-child(15) {
-  border-left: 3px solid #a78bfa;
-  box-shadow: -2px 0 8px rgba(167,139,250,.7);
+/* =================================================
+   ROW HOVER — VERY SUBTLE
+================================================= */
+#ttr-table tbody tr:hover {
+  background: rgba(148,163,184,.04);
 }
 
-/* =========================================
-   ALERT CELL (NEON RED)
-========================================= */
+/* =================================================
+   ALERT VALUE — SOFT, SERIUS
+================================================= */
 #ttr-table .text-danger {
-  color: #fb7185 !important;
-  text-shadow: 0 0 6px rgba(251,113,133,.9);
+  color: #f87171 !important; /* soft red */
+  font-weight: 600;
+  text-shadow: none;
 }
 
-/* =========================================
-   CLICKABLE NUMBER (NEON BLUE)
-========================================= */
+/* =================================================
+   CLICKABLE NUMBER — SINGLE ACCENT COLOR
+================================================= */
 #ttr-table .text-primary {
-  color: #38bdf8 !important;
-  text-shadow: 0 0 6px rgba(56,189,248,.9);
+  color: #60a5fa !important; /* steel blue */
+  font-weight: 600;
+  text-shadow: none;
 }
 
 #ttr-table .text-primary:hover {
-  color: #7dd3fc !important;
-  text-shadow: 0 0 12px rgba(125,211,252,1);
+  color: #93c5fd !important;
+  text-decoration: underline;
 }
 
+/* =================================================
+   HEADER TYPOGRAPHY DETAIL
+================================================= */
 #ttr-table thead th strong {
-  color: #e0f2fe;
-  text-shadow: 0 0 6px rgba(34,211,238,.8);
+  color: #f1f5f9;
+  font-weight: 600;
 }
 
-#ttr-table thead small {
+#ttr-table thead th small {
   color: #94a3b8;
   font-size: 11px;
 }
