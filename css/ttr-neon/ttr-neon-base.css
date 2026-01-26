@@ -1,37 +1,22 @@
-/* ===============================
-   BASE TABLE STYLE
-================================ */
+/* =================================
+   BASE TABLE — ENTERPRISE DARK
+================================= */
 #ttr-table {
-  background: #0b0f14;
+  background: #020617;
   color: #e5e7eb;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 13px;
 }
 
-/* Header */
-#ttr-table thead th {
-  background: linear-gradient(180deg, #0f172a, #020617) !important;
-  color: #7dd3fc !important;
-  border-bottom: 2px solid #22d3ee !important;
-}
-
-
-/* Body cell */
-#ttr-table tbody td {
-  background: #0b0f14 !important;
-}
-
-
-/* Row hover glow */
-#ttr-table tbody tr:hover {
-  background: rgba(56,189,248,.08);
-  box-shadow: inset 0 0 12px rgba(34,211,238,.25);
-}
-
-/* Sticky header (optional tapi cakep) */
+/* Header sticky (functional only) */
 #ttr-table thead th {
   position: sticky;
   top: 0;
   z-index: 3;
+}
+
+/* Body cell reset */
+#ttr-table tbody td {
+  background: transparent;
 }
