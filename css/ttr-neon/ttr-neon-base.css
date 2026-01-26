@@ -11,21 +11,17 @@
 
 /* Header */
 #ttr-table thead th {
-  background: linear-gradient(180deg, #0f172a, #020617);
-  color: #7dd3fc;
-  text-align: center;
-  vertical-align: middle;
-  padding: 10px 6px;
-  border-bottom: 2px solid #22d3ee;
-  white-space: nowrap;
+  background: linear-gradient(180deg, #0f172a, #020617) !important;
+  color: #7dd3fc !important;
+  border-bottom: 2px solid #22d3ee !important;
 }
+
 
 /* Body cell */
 #ttr-table tbody td {
-  padding: 6px 8px;
-  text-align: center;
-  border-bottom: 1px solid rgba(148,163,184,.15);
+  background: #0b0f14 !important;
 }
+
 
 /* Row hover glow */
 #ttr-table tbody tr:hover {
