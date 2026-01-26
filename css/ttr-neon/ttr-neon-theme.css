@@ -1,0 +1,71 @@
+/* =========================================
+   NEON COLUMN SEPARATOR
+========================================= */
+#ttr-table th,
+#ttr-table td {
+  border-right: 1px solid rgba(34,211,238,.15);
+}
+
+/* =========================================
+   GROUP SEPARATOR (MERAH NEON)
+   SESUAI SCREENSHOT
+========================================= */
+
+/* INDIBIZ 4H (setelah kolom ke-2) */
+#ttr-table th:nth-child(3),
+#ttr-table td:nth-child(3) {
+  border-left: 3px solid #fb7185;
+  box-shadow: -2px 0 8px rgba(251,113,133,.7);
+}
+
+/* INDIBIZ 24H */
+#ttr-table th:nth-child(7),
+#ttr-table td:nth-child(7) {
+  border-left: 3px solid #f97316;
+  box-shadow: -2px 0 8px rgba(249,115,22,.7);
+}
+
+/* RESELLER 6H */
+#ttr-table th:nth-child(11),
+#ttr-table td:nth-child(11) {
+  border-left: 3px solid #22d3ee;
+  box-shadow: -2px 0 8px rgba(34,211,238,.7);
+}
+
+/* RESELLER 36H */
+#ttr-table th:nth-child(15),
+#ttr-table td:nth-child(15) {
+  border-left: 3px solid #a78bfa;
+  box-shadow: -2px 0 8px rgba(167,139,250,.7);
+}
+
+/* =========================================
+   ALERT CELL (NEON RED)
+========================================= */
+#ttr-table .text-danger {
+  color: #fb7185 !important;
+  text-shadow: 0 0 6px rgba(251,113,133,.9);
+}
+
+/* =========================================
+   CLICKABLE NUMBER (NEON BLUE)
+========================================= */
+#ttr-table .text-primary {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 6px rgba(56,189,248,.9);
+}
+
+#ttr-table .text-primary:hover {
+  color: #7dd3fc !important;
+  text-shadow: 0 0 12px rgba(125,211,252,1);
+}
+
+#ttr-table thead th strong {
+  color: #e0f2fe;
+  text-shadow: 0 0 6px rgba(34,211,238,.8);
+}
+
+#ttr-table thead small {
+  color: #94a3b8;
+  font-size: 11px;
+}
