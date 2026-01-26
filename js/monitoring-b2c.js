@@ -1,47 +1,65 @@
 /* =====================================================
-   MONITORING B2C FINAL (B2B STYLE)
+   MONITORING B2C HI (B2B STYLE)
 ===================================================== */
 
-/* ===== UI STYLE ===== */
+/* ===== UI POLISH ===== */
 (function injectB2CStyle(){
-  if(document.getElementById('b2c-style')) return;
-  const s=document.createElement('style');
-  s.id='b2c-style';
-  s.textContent=`
-    td.clickable{cursor:pointer;}
-    td.clickable:hover{background:rgba(255,255,255,.08);}
-    td.zero{opacity:.4}
-    tr.total-row td{
+  if (document.getElementById('b2c-ui-polish')) return;
+
+  const style = document.createElement('style');
+  style.id = 'b2c-ui-polish';
+  style.textContent = `
+    td.clickable{
+      cursor:pointer;
+      transition:background .15s ease,color .15s ease,transform .08s ease;
+    }
+    td.clickable:hover{ background:rgba(255,255,255,.06); }
+    td.clickable:active{ transform:scale(.97); }
+
+    #monitoring-b2c-body tr:hover td{
+      background:rgba(255,255,255,.045);
+    }
+
+    #monitoring-b2c-body td.zero{
+      color:rgba(255,255,255,.35);
+      font-weight:500;
+    }
+
+    #monitoring-b2c-body tr.total-row td{
       background:#0f172a!important;
-      font-weight:bold;
+      font-weight:800;
       border-top:2px solid #38bdf8;
     }
   `;
-  document.head.appendChild(s);
+  document.head.appendChild(style);
 })();
 
 function initMonitoringB2C(API_URL){
 
   window.API_URL = API_URL;
 
-  const tbody=document.getElementById('monitoring-b2c-body');
-  const lastUpdate=document.getElementById('monitoring-b2c-update');
+  const tbody      = document.getElementById('monitoring-b2c-body');
+  const lastUpdate = document.getElementById('monitoring-b2c-update');
 
-  const filterSto=document.getElementById('filterSto');
-  const filterWitel=document.getElementById('filterWitel');
-  const filterHsa=document.getElementById('filterHsa');
+  window.filterSto   = document.getElementById('filterSto');
+  window.filterWitel = document.getElementById('filterWitel');
+  window.filterHsa   = document.getElementById('filterHsa');
 
-  tbody.innerHTML=`<tr><td colspan="30" class="text-center">Loading...</td></tr>`;
+  window.B2C_ACTIVE_FILTER = { sto:'', witel:'', hsa:'' };
 
-  fetch(API_URL+'?type=monitoring_b2c')
-    .then(r=>r.json())
-    .then(res=>{
-      const data=res.data||[];
-      tbody.innerHTML='';
+  tbody.innerHTML = `<tr><td colspan="28" class="text-center">Loading...</td></tr>`;
+
+  fetch(API_URL + '?type=monitoring_b2c')
+    .then(res=>res.json())
+    .then(resData=>{
+
+      const data = resData.data || [];
+      tbody.innerHTML = '';
 
       const setSto=new Set(), setWitel=new Set(), setHsa=new Set();
 
       data.forEach(row=>{
+
         const tr=document.createElement('tr');
         tr.dataset.sto=row[0];
         tr.dataset.witel=row[1];
@@ -79,12 +97,12 @@ function initMonitoringB2C(API_URL){
           <td class="clickable gaul_reg">${row[20]}</td>
           <td class="clickable gaul_hvc">${row[21]}</td>
 
-          <td>${row[22]}</td>
-          <td>${row[23]}</td>
-          <td>${row[24]}</td>
-          <td>${row[25]}</td>
-          <td>${row[26]}</td>
-          <td>${row[27]}</td>
+          <td class="clickable total_reg">${row[22]}</td>
+          <td class="clickable total_hvc">${row[23]}</td>
+          <td class="clickable closed_reg">${row[24]}</td>
+          <td class="clickable closed_hvc">${row[25]}</td>
+          <td class="clickable open_reg">${row[26]}</td>
+          <td class="clickable open_hvc">${row[27]}</td>
         `;
 
         tbody.appendChild(tr);
@@ -100,43 +118,30 @@ function initMonitoringB2C(API_URL){
       buildDropdown(filterWitel,setWitel,'All Witel');
       buildDropdown(filterHsa,setHsa,'All HSA');
 
-      [filterSto,filterWitel,filterHsa].forEach(el=>{
-        el.onchange=applyB2CFilter;
-      });
+      [filterSto,filterWitel,filterHsa]
+        .forEach(el=>el?.addEventListener('change',applyB2CFilter));
 
-      lastUpdate.textContent=new Date(res.lastUpdate).toLocaleString('id-ID');
+      if(resData.lastUpdate){
+        lastUpdate.textContent =
+          new Date(resData.lastUpdate).toLocaleString('id-ID');
+      }
 
       renderB2CTotalRow();
     });
 }
 
-/* ================= FILTER ================= */
-function applyB2CFilter(){
-  const sto=filterSto.value;
-  const witel=filterWitel.value;
-  const hsa=filterHsa.value;
-
-  document.querySelectorAll('#monitoring-b2c-body tr').forEach(tr=>{
-    let show=true;
-    if(sto && tr.dataset.sto!==sto) show=false;
-    if(witel && tr.dataset.witel!==witel) show=false;
-    if(hsa && tr.dataset.hsa!==hsa) show=false;
-    tr.style.display=show?'':'none';
-  });
-
-  renderB2CTotalRow();
-}
-
 /* ================= TOTAL ================= */
 function renderB2CTotalRow(){
-  document.querySelector('.total-row')?.remove();
 
-  const rows=[...document.querySelectorAll('#monitoring-b2c-body tr')]
-    .filter(tr=>tr.style.display!=='none');
+  const tbody=document.getElementById('monitoring-b2c-body');
+  tbody.querySelector('.total-row')?.remove();
 
   const total=new Array(28).fill(0);
 
-  rows.forEach(tr=>{
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    if(tr.style.display==='none') return;
+    if(tr.classList.contains('total-row')) return;
+
     tr.querySelectorAll('td').forEach((td,i)=>{
       if(i>=4){
         total[i]+=Number(td.textContent)||0;
@@ -147,16 +152,47 @@ function renderB2CTotalRow(){
   const tr=document.createElement('tr');
   tr.className='total-row';
 
-  let html=`<td colspan="4">TOTAL</td>`;
-  for(let i=4;i<28;i++){
-    html+=`<td>${total[i]}</td>`;
-  }
-  tr.innerHTML=html;
-  document.getElementById('monitoring-b2c-body').appendChild(tr);
+  tr.innerHTML=`
+    <td colspan="4" class="text-center">TOTAL</td>
+    ${total.slice(4).map((v,i)=>`
+      <td class="clickable total-cell" data-index="${i+4}">${v}</td>
+    `).join('')}
+  `;
+
+  tbody.appendChild(tr);
+
+  tr.querySelectorAll('.total-cell').forEach(td=>{
+    td.addEventListener('click',()=>openTotalDetailB2C(td.dataset.index));
+  });
 }
 
-/* ================= CLICK ================= */
+/* ================= FILTER ================= */
+function applyB2CFilter(){
+
+  const sto=filterSto.value||'';
+  const witel=filterWitel.value||'';
+  const hsa=filterHsa.value||'';
+
+  B2C_ACTIVE_FILTER={sto,witel,hsa};
+
+  document.querySelectorAll('#monitoring-b2c-body tr')
+    .forEach(tr=>{
+      if(tr.classList.contains('total-row')) return;
+
+      const show=
+        (!sto||tr.dataset.sto===sto) &&
+        (!witel||tr.dataset.witel===witel) &&
+        (!hsa||tr.dataset.hsa===hsa);
+
+      tr.style.display=show?'':'none';
+    });
+
+  renderB2CTotalRow();
+}
+
+/* ================= CLICK MAP ================= */
 function bindB2CClicks(tr){
+
   const map={
     '.ttr3_ok':'ttr3_ok',
     '.ttr3_nok':'ttr3_nok',
@@ -169,30 +205,109 @@ function bindB2CClicks(tr){
     '.ttr36_ok':'ttr36_ok',
     '.ttr36_nok':'ttr36_nok',
     '.gaul_reg':'gaul_reg',
-    '.gaul_hvc':'gaul_hvc'
+    '.gaul_hvc':'gaul_hvc',
+    '.total_reg':'total_reg',
+    '.total_hvc':'total_hvc',
+    '.closed_reg':'closed_reg',
+    '.closed_hvc':'closed_hvc',
+    '.open_reg':'open_reg',
+    '.open_hvc':'open_hvc'
   };
 
   Object.keys(map).forEach(cls=>{
     const td=tr.querySelector(cls);
     if(td){
-      td.onclick=()=>openDetailB2C(tr,map[cls]);
+      td.addEventListener('click',()=>openDetailB2C(tr,map[cls]));
     }
   });
 }
 
-/* ================= MODAL ================= */
+/* ================= MODAL DETAIL ================= */
 function openDetailB2C(tr,mode){
 
-  const modalEl=document.getElementById('global-modal');
-  const modal=new bootstrap.Modal(modalEl);
-  const body=modalEl.querySelector('.modal-body');
-  const title=modalEl.querySelector('.modal-title');
+  const modal=new bootstrap.Modal(
+    document.getElementById('global-modal')
+  );
+
+  const body=document.querySelector('#global-modal .modal-body');
+  const title=document.querySelector('#global-modal .modal-title');
 
   title.textContent=`Detail ${mode.toUpperCase()} - ${tr.dataset.sto}`;
   body.innerHTML=`<div class="text-center p-4">Loading...</div>`;
   modal.show();
 
   fetch(API_URL+`?type=monitoring_b2c_detail&sto=${tr.dataset.sto}&mode=${mode}`)
+    .then(r=>r.json())
+    .then(res=>{
+
+      const rows=res.data||[];
+      if(!rows.length){
+        body.innerHTML=`<div class="text-center text-muted">Tidak ada data</div>`;
+        return;
+      }
+
+      let html=`
+      <div class="table-responsive">
+      <table class="table table-dark table-striped table-sm">
+      <thead>
+        <tr>
+          <th>INCIDENT</th>
+          <th>SUMMARY</th>
+          <th>REPORTED DATE</th>
+          <th>SERVICE TYPE</th>
+          <th>WITEL</th>
+          <th>WORKZONE</th>
+          <th>STATUS</th>
+          <th>CONVERT WAKTU</th>
+          <th>KATEGORI</th>
+          <th>GAUL</th>
+          <th>OLD TIKET</th>
+        </tr>
+      </thead><tbody>`;
+
+      rows.forEach(r=>{
+        html+=`
+        <tr>
+          <td>${r.INCIDENT}</td>
+          <td>${r.SUMMARY}</td>
+          <td>${r['REPORTED DATE']}</td>
+          <td>${r['SERVICE TYPE']}</td>
+          <td>${r.WITEL}</td>
+          <td>${r.WORKZONE}</td>
+          <td>${r.STATUS}</td>
+          <td>${r['convert waktu']}</td>
+          <td>${r.KATAGORI}</td>
+          <td>${r.GAUL}</td>
+          <td>${r['OLD TIKET']}</td>
+        </tr>`;
+      });
+
+      body.innerHTML=html+`</tbody></table></div>`;
+    });
+}
+
+/* ================= TOTAL DETAIL ================= */
+function openTotalDetailB2C(colIndex){
+
+  const f=window.B2C_ACTIVE_FILTER||{};
+
+  const params={ type:'monitoring_b2c_total_detail', col:colIndex };
+  if(f.sto) params.sto=f.sto;
+  if(f.witel) params.witel=f.witel;
+  if(f.hsa) params.hsa=f.hsa;
+
+  const modal=new bootstrap.Modal(
+    document.getElementById('global-modal')
+  );
+
+  const body=document.querySelector('#global-modal .modal-body');
+  const title=document.querySelector('#global-modal .modal-title');
+
+  title.textContent='Detail TOTAL B2C';
+  body.innerHTML=`<div class="text-center p-4">Loading...</div>`;
+  modal.show();
+
+  fetch(API_URL+'?'+new URLSearchParams(params))
     .then(r=>r.json())
     .then(res=>{
       const rows=res.data||[];
@@ -216,7 +331,7 @@ function openDetailB2C(tr,mode){
           <th>CONVERT WAKTU</th>
           <th>KATEGORI</th>
           <th>GAUL</th>
-          <th>IN LAMA HSI</th>
+          <th>OLD TIKET</th>
         </tr>
       </thead><tbody>`;
 
@@ -231,7 +346,7 @@ function openDetailB2C(tr,mode){
           <td>${r.WORKZONE}</td>
           <td>${r.STATUS}</td>
           <td>${r['convert waktu']}</td>
-          <td>${r.KATEGORI}</td>
+          <td>${r.KATAGORI}</td>
           <td>${r.GAUL}</td>
           <td>${r['OLD TIKET']}</td>
         </tr>`;
@@ -243,8 +358,8 @@ function openDetailB2C(tr,mode){
 
 /* ================= DROPDOWN ================= */
 function buildDropdown(el,set,label){
+  if(!el) return;
   el.innerHTML=`<option value="">${label}</option>`;
-  [...set].sort().forEach(v=>{
-    el.innerHTML+=`<option value="${v}">${v}</option>`;
-  });
+  [...set].filter(v=>v).sort()
+    .forEach(v=>el.innerHTML+=`<option>${v}</option>`);
 }
