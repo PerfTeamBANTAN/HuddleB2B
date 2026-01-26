@@ -24,7 +24,8 @@
 }
 
 /* =================================================
-   GROUP SEPARATOR — SUBTLE NEON (DEWASA)
+   GROUP SEPARATOR — SUBTLE NEON (ENTERPRISE)
+   (PAKAI INSET SHADOW, BUKAN BORDER)
 ================================================= */
 
 /* INDIBIZ */
@@ -32,7 +33,7 @@
 #ttr-table td.grp-indibiz-4h,
 #ttr-table th.grp-indibiz-24h,
 #ttr-table td.grp-indibiz-24h {
-  border-left: 2px solid rgba(56,189,248,.55); /* muted cyan */
+  box-shadow: inset 2px 0 0 rgba(56,189,248,.55);
 }
 
 /* DATIN */
@@ -40,7 +41,7 @@
 #ttr-table td.grp-datin-k2,
 #ttr-table th.grp-datin-k3,
 #ttr-table td.grp-datin-k3 {
-  border-left: 2px solid rgba(251,191,36,.45); /* muted amber */
+  box-shadow: inset 2px 0 0 rgba(251,191,36,.45);
 }
 
 /* RESELLER */
@@ -48,8 +49,9 @@
 #ttr-table td.grp-reseller-6h,
 #ttr-table th.grp-reseller-36h,
 #ttr-table td.grp-reseller-36h {
-  border-left: 2px solid rgba(167,139,250,.45); /* muted violet */
+  box-shadow: inset 2px 0 0 rgba(167,139,250,.45);
 }
+
 
 
 /* =================================================
