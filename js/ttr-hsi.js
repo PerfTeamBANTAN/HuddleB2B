@@ -262,15 +262,22 @@ function renderTTRTable() {
   const fp = document.getElementById('ttr-filter-pic').value;
 
   head.innerHTML = '';
-  ttrHeaders.forEach(h => {
-    const th = document.createElement('th');
-      th.innerHTML = formatHeaderLabel(h);
-      const grp = groupMap[h];
-      if (grp) th.classList.add(grp);
+ttrHeaders.forEach((h, idx) => {
 
-    th.style.textAlign = 'center';
-    head.appendChild(th);
-  });
+  const th = document.createElement('th');
+  th.innerHTML = formatHeaderLabel(h);
+  th.style.textAlign = 'center';
+
+  const grp = groupMap[h];
+  if (grp) th.classList.add(grp);
+
+  // FREEZE: STO + WITEL
+  if (h === 'STO')   th.classList.add('freeze-col');
+  if (h === 'WITEL') th.classList.add('freeze-col-2');
+
+  head.appendChild(th);
+});
+
 
   body.innerHTML = '';
 
@@ -285,6 +292,11 @@ function renderTTRTable() {
         const td = document.createElement('td');
          const grp = groupMap[h];
          if (grp) td.classList.add(grp);
+
+         // FREEZE: STO + WITEL
+         if (h === 'STO')   td.classList.add('freeze-col');
+         if (h === 'WITEL') td.classList.add('freeze-col-2');
+
         const value =
           h.includes('%') ? fmtPercent(r[h]) :
           h.toLowerCase().includes('tiket') ? fmtInt(r[h]) :
