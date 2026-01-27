@@ -1,78 +1,134 @@
 /* =====================================================
-   SCROLL CONTAINER & STICKY HEADER
+   PREMIUM SCROLL CONTAINER
 ===================================================== */
-.table-responsive {
-  max-height: calc(100vh - 280px);
-  overflow-y: auto;
-  overflow-x: auto;
+.ttr-table-wrapper {
+  max-height: calc(100vh - 320px);
+  overflow: auto;
   position: relative;
+  border-radius: 12px;
+  border: 1px solid rgba(0,255,255,0.35);
+  background: #041417;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,255,255,0.15),
+    0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* =====================================================
+   TABLE BASE
+===================================================== */
+#ttr-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+}
+
+/* =====================================================
+   HEADER - STICKY SYSTEM
+===================================================== */
+#ttr-thead {
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 #ttr-thead th {
   position: sticky;
   top: 0;
-  z-index: 40;
-  background: linear-gradient(180deg, #0b1f23, #07191c);
-  border-bottom: 2px solid rgba(0,255,255,0.9);
-}
+  z-index: 60;
 
-#ttr-table {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
+  padding: 10px 8px;
+  height: 44px;
+  line-height: 1.2;
 
-/* =====================================================
-   TABLE LAYOUT
-===================================================== */
+  background: linear-gradient(180deg, #0c262b, #061a1e);
+  color: #7ffcff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 
-#ttr-table th,
-#ttr-table td {
-  padding: 6px 10px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-
-/* =====================================================
-   BODY STYLE
-===================================================== */
-#ttr-table-body td {
   text-align: center;
   vertical-align: middle;
-  background-color: #061c20;
-  color: #d9fefe;
   white-space: nowrap;
-}
 
-#ttr-table-body tr:nth-child(even) td {
-  background-color: #072227;
-}
-
-#ttr-table-body tr:hover td {
-  background-color: rgba(0,255,255,0.12) !important;
-  transition: background 0.15s ease;
+  border-bottom: 2px solid rgba(0,255,255,0.8);
+  box-shadow:
+    inset 0 -1px 0 rgba(0,255,255,0.4),
+    0 2px 10px rgba(0,0,0,0.6);
 }
 
 /* =====================================================
-   IDENTITAS & STATUS
+   GROUP HEADER STYLE
+===================================================== */
+th[class^="grp-"] {
+  background: linear-gradient(
+    180deg,
+    rgba(0,255,255,0.25),
+    rgba(0,255,255,0.08)
+  ) !important;
+
+  color: #9fffff;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-left: 1px solid rgba(0,255,255,0.6);
+  border-right: 1px solid rgba(0,255,255,0.6);
+}
+
+/* =====================================================
+   BODY CELLS
+===================================================== */
+#ttr-table td {
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+
+  background: #061c20;
+  color: #dbffff;
+
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.15s ease;
+}
+
+/* Zebra striping */
+#ttr-table-body tr:nth-child(even) td {
+  background-color: #07262b;
+}
+
+/* Hover effect */
+#ttr-table-body tr:hover td {
+  background: rgba(0,255,255,0.15) !important;
+  box-shadow: inset 0 0 0 999px rgba(0,255,255,0.05);
+}
+
+/* =====================================================
+   IDENTITAS COLUMNS
 ===================================================== */
 td.col-sto,
 td.col-witel {
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   color: #eaffff;
+  letter-spacing: 0.3px;
 }
 
+/* =====================================================
+   STATUS COLORS
+===================================================== */
 .text-danger {
-  color: #ff5c5c !important;
-  font-weight: 700;
+  color: #ff4d4d !important;
+  font-weight: 800;
+  text-shadow: 0 0 6px rgba(255,0,0,0.4);
 }
 
 #ttr-table-body span.text-primary {
   color: #33ffff !important;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -81,75 +137,77 @@ td.col-witel {
    COLUMN WIDTH CONTROL
 ===================================================== */
 .col-sto {
-  width: 70px;
-}
-.col-witel {
-  width: 90px;
+  width: 80px;
+  min-width: 80px;
 }
 
+.col-witel {
+  width: 110px;
+  min-width: 110px;
+}
 
 .col-percent {
-  width: 75px;
+  width: 85px;
+  min-width: 85px;
 }
 
 .col-ticket {
-  width: 60px;
+  width: 70px;
+  min-width: 70px;
 }
 
 #ttr-table th:last-child,
 #ttr-table td:last-child {
-  width: 220px;
+  width: 260px;
+  min-width: 260px;
   text-align: left;
 }
 
 /* =====================================================
-   GROUP DIVIDER
+   GROUP DIVIDER LINES
 ===================================================== */
 .grp-start {
-  border-left: 3px solid rgba(0,255,255,0.9) !important;
+  border-left: 3px solid rgba(0,255,255,1) !important;
 }
 
 .grp-end {
-  border-right: 3px solid rgba(0,255,255,0.9) !important;
+  border-right: 3px solid rgba(0,255,255,1) !important;
 }
 
 .grp-start,
 .grp-end {
   box-shadow:
-    inset 1px 0 0 rgba(0,255,255,0.25),
-    inset -1px 0 0 rgba(0,255,255,0.25);
+    inset 1px 0 0 rgba(0,255,255,0.4),
+    inset -1px 0 0 rgba(0,255,255,0.4);
 }
 
 /* =====================================================
-   GROUP HEADER
+   SCROLLBAR PREMIUM
 ===================================================== */
-th[class^="grp-"] {
-  background: linear-gradient(
-    180deg,
-    rgba(0,255,255,0.20),
-    rgba(0,255,255,0.06)
-  );
-  color: #6fffff;
-  font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
+.ttr-table-wrapper::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.ttr-table-wrapper::-webkit-scrollbar-track {
+  background: #041417;
+}
+
+.ttr-table-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffff, #008b8b);
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.6);
 }
 
 /* =====================================================
-   BORDER & SHADOW
+   HEADER SHADOW EDGE FIX
 ===================================================== */
-.table-dark.table-bordered > :not(caption) > * > * {
-  border-color: rgba(255,255,255,0.10);
-}
-
-.table-responsive {
-  box-shadow: inset 0 1px 0 rgba(0,255,255,0.3);
-}
-
-.ttr-table-wrapper {
-  max-height: calc(100vh - 320px);
-  overflow-y: auto;
-  overflow-x: auto;
-  position: relative;
-  border: 1px solid rgba(0,255,255,0.35);
+#ttr-thead th::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: rgba(0,255,255,0.8);
 }
