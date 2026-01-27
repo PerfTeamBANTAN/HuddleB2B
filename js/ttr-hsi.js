@@ -519,11 +519,12 @@ function renderTTRTable() {
         tr.appendChild(td);
       });
 
-      body.appendChild(tr);
+         body.appendChild(tr);
     });
 
-   setTimeout(fixTTRStickyOffset, 50);
-});
+  setTimeout(fixTTRStickyOffset, 50);
+}
+
 
 }
 
