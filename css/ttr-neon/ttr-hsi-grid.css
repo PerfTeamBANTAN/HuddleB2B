@@ -250,3 +250,9 @@ td.col-witel {
   top: 38px; /* harus = tinggi group-row */
   z-index: 19;
 }
+
+.monitoring-b2b-wrapper,
+.panel-body,
+.panel-card {
+  overflow: visible !important;
+}
