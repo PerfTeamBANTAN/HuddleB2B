@@ -1,115 +1,109 @@
-/* ===========================
-   TTR HSI TABLE (2026 FINAL)
-   =========================== */
-
-#ttr-wrapper .table-responsive {
-  max-height: 600px;
-  overflow-y: auto;
-  overflow-x: auto;
-  position: relative;
-  border: 1px solid #222;
-  border-radius: 4px;
-  background: #0b0c0f;
+/* =====================================================
+   GROUP HEADER — Single Row Cyan
+===================================================== */
+th.grp-indibiz-4h,
+th.grp-indibiz-24h,
+th.grp-reseller-6h,
+th.grp-reseller-36h,
+th.grp-datin-k2,
+th.grp-datin-k3,
+td.grp-indibiz-4h,
+td.grp-indibiz-24h,
+td.grp-reseller-6h,
+td.grp-reseller-36h,
+td.grp-datin-k2,
+td.grp-datin-k3 {
+  background: rgba(0, 255, 255, 0.12); /* cyan lembut */
+  border-color: rgba(0, 255, 255, 0.25);
 }
 
-/* Freeze header row */
-#ttr-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: #0e0f13;
-  color: #e7e7e7;
+th.grp-indibiz-4h,
+th.grp-indibiz-24h,
+th.grp-reseller-6h,
+th.grp-reseller-36h,
+th.grp-datin-k2,
+th.grp-datin-k3 {
   font-weight: 600;
-  font-size: 13px;
-  padding: 6px 8px;
-  text-align: center;
+  color: cyan;
   white-space: nowrap;
-  border-bottom: 2px solid #333;
 }
 
-/* Sticky first two columns (STO + WITEL) */
-#ttr-table thead th:first-child,
-#ttr-table tbody td:first-child {
+/* Hover glow utk row */
+table tbody tr:hover td {
+  background-color: rgba(0,255,255,0.08) !important;
+}
+
+/* =====================================================
+   FREEZE COL (STO + WITEL) 
+===================================================== */
+.freeze-col,
+.freeze-col-2 {
   position: sticky;
   left: 0;
-  background: #141518;
-  z-index: 25;
-  font-weight: 600;
+  background: #1d1f22; /* dark */
+  z-index: 4;
 }
 
-#ttr-table thead th:nth-child(2),
-#ttr-table tbody td:nth-child(2) {
-  position: sticky;
-  left: 80px; /* lebar STO */
-  background: #141518;
-  z-index: 25;
-  font-weight: 600;
+.freeze-col-2 {
+  left: 80px; /* adjust sesuai STO width */
+  z-index: 5;
 }
 
-/* Default cell */
-#ttr-table tbody td {
-  font-size: 13px;
-  padding: 5px 8px;
-  white-space: nowrap;
+table tbody tr:hover .freeze-col,
+table tbody tr:hover .freeze-col-2 {
+  background: #272a2e;
+}
+
+/* =====================================================
+   BASE TABLE ADJUSTMENT
+===================================================== */
+#ttr-table-head th {
   text-align: center;
-  border-color: #1f2025;
-  color: #d5d5d5;
+  vertical-align: middle;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-bottom: 2px solid cyan;
 }
 
-/* Hover */
-#ttr-table tbody tr:hover td {
-  background: rgba(255,255,255,0.06);
+#ttr-table-body td {
+  font-size: 13px;
+  padding: 6px 8px;
 }
 
-/* Value coloring */
-#ttr-table td.red {
-  color: #ff4a4a;
-  font-weight: 600;
-}
-#ttr-table td.green {
-  color: #00ff9d;
-  font-weight: 600;
-}
-#ttr-table td.yellow {
-  color: #ffd74f;
-  font-weight: 600;
+/* clickable detail */
+#ttr-table-body td span.text-primary {
+  text-decoration: underline;
 }
 
-/* PIC cell - long text */
-#ttr-table td.pic-cell {
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
+/* alert cell */
+#ttr-table-body .text-danger {
+  font-weight: 700;
 }
 
-/* ===== GROUP SEPARATORS (CYBER CYAN) ===== */
-
-#ttr-table thead th.group-start,
-#ttr-table tbody td.group-start {
-  border-left: 2px solid #00eaff;
+/* border tone */
+.table-dark.table-bordered > :not(caption) > * > * {
+  border-color: rgba(255,255,255,0.12);
 }
 
-#ttr-table thead th.group-end,
-#ttr-table tbody td.group-end {
-  border-right: 2px solid #00eaff;
+/* Responsiveness */
+.table-responsive {
+  overflow-x: auto;
 }
 
-/* Group areas highlight soft */
-#ttr-table thead th.group-area {
-  background: linear-gradient(to bottom, rgba(0,238,255,0.12), rgba(0,238,255,0.03));
+/* =====================================================
+   FILTER + BADGE STYLE (optional)
+===================================================== */
+.badge-card {
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-right: 6px;
+  background: #1f2124;
 }
-
-/* Scrollbar */
-#ttr-wrapper .table-responsive::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+.badge-card-header {
+  font-size: 11px;
+  opacity: .85;
 }
-#ttr-wrapper .table-responsive::-webkit-scrollbar-thumb {
-  background: #3f3f3f;
-  border-radius: 4px;
-}
-#ttr-wrapper .table-responsive::-webkit-scrollbar-track {
-  background: #131417;
+.badge-card-body {
+  font-size: 13px;
 }
