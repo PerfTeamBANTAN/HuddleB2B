@@ -273,7 +273,7 @@ function buildGroupBoundaries(headers) {
 }
 
 /* =====================================================
-   RENDER TABLE (CLICK ENABLED)
+   RENDER TABLE (NO FREEZE COL)
 ===================================================== */
 function renderTTRTable() {
 
@@ -294,7 +294,6 @@ function renderTTRTable() {
     }
   });
 
-  const head = document.getElementById('ttr-table-head');
   const body = document.getElementById('ttr-table-body');
 
   const fw = document.getElementById('ttr-filter-witel').value;
@@ -302,165 +301,165 @@ function renderTTRTable() {
   const fp = document.getElementById('ttr-filter-pic').value;
 
   /* ===============================
-   RENDER HEADER (2 ROW STICKY – FIXED BLUEPRINT)
-=============================== */
+     RENDER HEADER (2 ROW STICKY)
+  =============================== */
+  const thead = document.getElementById('ttr-thead');
+  thead.innerHTML = '';
 
-const thead = document.getElementById('ttr-thead');
-thead.innerHTML = '';
+  const trGroup = document.createElement('tr');
+  trGroup.className = 'ttr-group-row';
 
-const trGroup = document.createElement('tr');
-trGroup.className = 'ttr-group-row';
+  const trSub = document.createElement('tr');
+  trSub.className = 'ttr-sub-row';
 
-const trSub = document.createElement('tr');
-trSub.className = 'ttr-sub-row';
+  /* ===============================
+     HEADER BLUEPRINT
+  =============================== */
+  let HEADER_MAP = [];
 
-/* ===============================
-   HEADER BLUEPRINT (AUTO BY MODE)
-=============================== */
+  if (currentType === 'ttr_datin_table') {
 
-let HEADER_MAP = [];
+    HEADER_MAP = [
+      { label: 'STO',   cols: ['STO'] },
+      { label: 'WITEL', cols: ['WITEL'] },
 
-if (currentType === 'ttr_datin_table') {
+      {
+        label: 'TTR DATIN K2',
+        grp: 'grp-datin-k2',
+        cols: [
+          '% TTR Datin K2',
+          'Tot Tiket K2',
+          'Tiket Not Ach K2',
+          'Tiket K2 HI'
+        ]
+      },
+      {
+        label: 'TTR DATIN K3',
+        grp: 'grp-datin-k3',
+        cols: [
+          '% TTR Datin K3',
+          'Tot Tiket K3',
+          'Tiket Not Ach K3',
+          'Tiket K3 HI'
+        ]
+      },
 
-  // ========== DATIN MODE ==========
-  HEADER_MAP = [
-    { key: 'STO',   label: 'STO',   cols: ['STO'] },
-    { key: 'WITEL', label: 'WITEL', cols: ['WITEL'] },
+      { label: 'PIC', cols: ['PIC'] }
+    ];
 
-    {
-      key: 'DATIN_K2',
-      label: 'TTR DATIN K2',
-      cols: [
-        '% TTR Datin K2',
-        'Tot Tiket K2',
-        'Tiket Not Ach K2'
-      ]
-    },
-    {
-      key: 'DATIN_K3',
-      label: 'TTR DATIN K3',
-      cols: [
-        '% TTR Datin K3',
-        'Tot Tiket K3',
-        'Tiket Not Ach K3'
-      ]
-    },
+  } else {
 
-    { key: 'PIC', label: 'PIC', cols: ['PIC'] }
-  ];
+    HEADER_MAP = [
+      { label: 'STO',   cols: ['STO'] },
+      { label: 'WITEL', cols: ['WITEL'] },
 
-} else {
+      {
+        label: 'TTR INDIBIZ 4H',
+        grp: 'grp-indibiz-4h',
+        cols: [
+          '% TTR INDIBIZ 4H',
+          'Tot Tiket INDIBIZ 4H',
+          'Tiket Not Ach INDIBIZ 4H',
+          'Tiket INDIBIZ 4H HI'
+        ]
+      },
+      {
+        label: 'TTR INDIBIZ 24H',
+        grp: 'grp-indibiz-24h',
+        cols: [
+          '% TTR INDIBIZ 24H',
+          'Tot Tiket INDIBIZ 24H',
+          'Tiket Not Ach INDIBIZ 24H',
+          'Tiket INDIBIZ 24H HI'
+        ]
+      },
+      {
+        label: 'TTR RESELLER 6H',
+        grp: 'grp-reseller-6h',
+        cols: [
+          '% TTR RESELLER 6H',
+          'Tot Tiket RESELLER 6H',
+          'Tiket Not Ach RESELLER 6H',
+          'Tiket RESELLER 6H HI'
+        ]
+      },
+      {
+        label: 'TTR RESELLER 36H',
+        grp: 'grp-reseller-36h',
+        cols: [
+          '% TTR RESELLER 36H',
+          'Tot Tiket RESELLER 36H',
+          'Tiket Not Ach RESELLER 36H',
+          'Tiket RESELLER 36H HI'
+        ]
+      },
 
-  // ========== HSI MODE ==========
-  HEADER_MAP = [
-    { key: 'STO',   label: 'STO',   cols: ['STO'] },
-    { key: 'WITEL', label: 'WITEL', cols: ['WITEL'] },
-
-    {
-      key: 'INDIBIZ_4H',
-      label: 'TTR INDIBIZ 4H',
-      cols: [
-        '% TTR INDIBIZ 4H',
-        'Tot Tiket INDIBIZ 4H',
-        'Tiket Not Ach INDIBIZ 4H'
-      ]
-    },
-    {
-      key: 'INDIBIZ_24H',
-      label: 'TTR INDIBIZ 24H',
-      cols: [
-        '% TTR INDIBIZ 24H',
-        'Tot Tiket INDIBIZ 24H',
-        'Tiket Not Ach INDIBIZ 24H'
-      ]
-    },
-    {
-      key: 'RESELLER_6H',
-      label: 'TTR RESELLER 6H',
-      cols: [
-        '% TTR RESELLER 6H',
-        'Tot Tiket RESELLER 6H',
-        'Tiket Not Ach RESELLER 6H'
-      ]
-    },
-    {
-      key: 'RESELLER_36H',
-      label: 'TTR RESELLER 36H',
-      cols: [
-        '% TTR RESELLER 36H',
-        'Tot Tiket RESELLER 36H',
-        'Tiket Not Ach RESELLER 36H'
-      ]
-    },
-
-    { key: 'PIC', label: 'PIC', cols: ['PIC'] }
-  ];
-}
-
-
-/* ===============================
-   BUILD HEADER ROWS
-=============================== */
-HEADER_MAP.forEach(block => {
-
-  /* SINGLE COL (STO / WITEL / PIC) */
-  if (block.cols.length === 1) {
-    const th = document.createElement('th');
-    th.textContent = block.label;
-    th.rowSpan = 2;
-
-    if (block.key === 'STO') {
-      th.className = 'col-sto grp-start freeze-col';
-    }
-    else if (block.key === 'WITEL') {
-      th.className = 'col-witel grp-end freeze-col-2';
-    }
-    else {
-      th.className = 'col-pic grp-start';
-    }
-
-    trGroup.appendChild(th);
-    return;
+      { label: 'PIC', cols: ['PIC'] }
+    ];
   }
 
-  /* GROUP HEADER */
-  const thGroup = document.createElement('th');
-  thGroup.colSpan = block.cols.length;
-  thGroup.textContent = block.label;
+  /* ===============================
+     BUILD HEADER ROWS
+  =============================== */
+  HEADER_MAP.forEach(block => {
 
-  const grpClass = getGroupClass(block.label);
-  thGroup.className = `${grpClass} grp-start grp-end`;
+    /* SINGLE COL (STO / WITEL / PIC) */
+    if (block.cols.length === 1) {
+      const th = document.createElement('th');
+      th.textContent = block.label;
+      th.rowSpan = 2;
 
-  trGroup.appendChild(thGroup);
+      if (block.label === 'STO') {
+        th.className = 'col-sto grp-start';
+      }
+      else if (block.label === 'WITEL') {
+        th.className = 'col-witel grp-end';
+      }
+      else {
+        th.className = 'grp-start grp-end';
+      }
 
-  /* SUB HEADERS */
-  block.cols.forEach((h, idx) => {
-    const thSub = document.createElement('th');
-
-    if (h.includes('%')) {
-      thSub.textContent = '%';
-      thSub.classList.add('col-percent');
-    }
-    else if (h.toLowerCase().includes('not ach')) {
-      thSub.innerHTML = 'Not<br>Ach';
-      thSub.classList.add('col-ticket');
-    }
-    else {
-      thSub.textContent = 'Ticket';
-      thSub.classList.add('col-ticket');
+      trGroup.appendChild(th);
+      return;
     }
 
-    thSub.classList.add(grpClass);
-    if (idx === 0) thSub.classList.add('grp-start');
-    if (idx === block.cols.length - 1) thSub.classList.add('grp-end');
+    /* GROUP HEADER */
+    const thGroup = document.createElement('th');
+    thGroup.colSpan = block.cols.length;
+    thGroup.textContent = block.label;
 
-    trSub.appendChild(thSub);
+    const grpClass = getGroupClass(block.label);
+    thGroup.className = `${grpClass} grp-start grp-end`;
+
+    trGroup.appendChild(thGroup);
+
+    /* SUB HEADERS */
+    block.cols.forEach((h, idx) => {
+      const thSub = document.createElement('th');
+
+      if (h.includes('%')) {
+        thSub.textContent = '%';
+        thSub.classList.add('col-percent');
+      }
+      else if (h.toLowerCase().includes('not ach')) {
+        thSub.innerHTML = 'Not<br>Ach';
+        thSub.classList.add('col-ticket');
+      }
+      else {
+        thSub.textContent = 'Ticket';
+        thSub.classList.add('col-ticket');
+      }
+
+      thSub.classList.add(grpClass);
+      if (idx === 0) thSub.classList.add('grp-start');
+      if (idx === block.cols.length - 1) thSub.classList.add('grp-end');
+
+      trSub.appendChild(thSub);
+    });
   });
-});
 
-thead.appendChild(trGroup);
-thead.appendChild(trSub);
-
+  thead.appendChild(trGroup);
+  thead.appendChild(trSub);
 
   /* ===============================
      RENDER BODY
@@ -481,9 +480,8 @@ thead.appendChild(trSub);
 
         const td = document.createElement('td');
 
-         if (h.includes('%')) td.classList.add('col-percent');
-         if (h.toLowerCase().includes('tiket')) td.classList.add('col-ticket');
-
+        if (h.includes('%')) td.classList.add('col-percent');
+        if (h.toLowerCase().includes('tiket')) td.classList.add('col-ticket');
 
         const grp = groupMap[h];
         if (grp) {
@@ -492,9 +490,9 @@ thead.appendChild(trSub);
           if (groupBounds[grp]?.end === idx)   td.classList.add('grp-end');
         }
 
-        // FREEZE COL
-        if (h === 'STO')   td.classList.add('freeze-col', 'col-sto');
-        if (h === 'WITEL') td.classList.add('freeze-col-2', 'col-witel');
+        // width only (NO FREEZE)
+        if (h === 'STO')   td.classList.add('col-sto');
+        if (h === 'WITEL') td.classList.add('col-witel');
 
         const value =
           h.includes('%') ? fmtPercent(r[h]) :
