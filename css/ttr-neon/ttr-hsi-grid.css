@@ -27,11 +27,6 @@
 /* =====================================================
    STICKY HEADER SYSTEM
 ===================================================== */
-#ttr-thead {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
 
 /* GROUP ROW (ROW 1) */
 #ttr-thead .ttr-group-row th {
@@ -237,22 +232,33 @@ td.col-witel {
   position: relative;
 }
 
-/* baris GROUP */
-.ttr-table thead tr.group-row th {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-/* baris SUB */
-.ttr-table thead tr.sub-row th {
-  position: sticky;
-  top: 38px; /* harus = tinggi group-row */
-  z-index: 19;
-}
 
 .monitoring-b2b-wrapper,
 .panel-body,
 .panel-card {
   overflow: visible !important;
 }
+
+/* ==============================
+   TTR 2 ROW STICKY HEADER FINAL
+============================== */
+
+.ttr-table-wrapper {
+  overflow: auto;
+  position: relative;
+}
+
+/* ROW 1 – GROUP */
+#ttr-table thead tr.ttr-group-row th {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* ROW 2 – SUB */
+#ttr-table thead tr.ttr-sub-row th {
+  position: sticky;
+  top: 42px; /* HARUS sama dengan height group row */
+  z-index: 49;
+}
+
