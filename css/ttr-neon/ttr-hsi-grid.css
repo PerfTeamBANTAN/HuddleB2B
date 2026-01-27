@@ -220,3 +220,33 @@ td.col-witel {
   height: 1px;
   background: rgba(0,255,255,0.8);
 }
+
+/* =====================================================
+   TTR – STICKY HEADER 2 BARIS (FINAL & ISOLATED)
+===================================================== */
+
+.ttr-table-wrapper {
+  max-height: 75vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* konteks sticky */
+.ttr-table {
+  position: relative;
+}
+
+/* baris GROUP */
+.ttr-table thead tr.group-row th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* baris SUB */
+.ttr-table thead tr.sub-row th {
+  position: sticky;
+  top: 38px; /* harus = tinggi group-row */
+  z-index: 19;
+}
