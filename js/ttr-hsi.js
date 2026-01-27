@@ -522,30 +522,17 @@ function renderTTRTable() {
          body.appendChild(tr);
     });
 
-  setTimeout(fixTTRStickyOffset, 50);
+  setTimeout(fixTTRStickyOffset, 100);
 }
 
 function fixTTRStickyOffset() {
-  const groupRow = document.querySelector('#ttr-table thead tr.ttr-group-row');
-  const subRow   = document.querySelector('#ttr-table thead tr.ttr-sub-row');
+  const groupRow = document.querySelector("#ttr-table thead tr.ttr-group-row");
+  if (!groupRow) return;
 
-  if (!groupRow || !subRow) return;
-
-  const h = groupRow.getBoundingClientRect().height;
-
-  subRow.querySelectorAll('th').forEach(th => {
-    th.style.top = h + 'px';
-  });
+  const h = Math.ceil(groupRow.getBoundingClientRect().height);
+  document.documentElement.style.setProperty("--ttr-offset", h + "px");
 }
 
-document.querySelector('.ttr-table-wrapper')
-  ?.addEventListener('scroll', () => {
-    requestAnimationFrame(fixTTRStickyOffset);
-  });
-
-window.addEventListener('resize', () => {
-  setTimeout(fixTTRStickyOffset, 50);
-});
 
 /* =====================================================
    OPEN DETAIL TTR MODAL (GLOBAL MODAL)
