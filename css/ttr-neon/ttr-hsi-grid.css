@@ -1,330 +1,81 @@
-# TTR PREMIUM TABLE — FINAL CSS (SOLID STICKY HEADER)
-
-> Versi ini **rapih, konsisten, dan mempertahankan design premium kamu**
->
-> * Sticky header 2 baris (group + sub)
-> * Tidak transparan saat scroll
-> * Warna grup tetap hidup
-> * Hover group & row tetap aktif
-
----
-
-```css
 /* =====================================================
-   PREMIUM TABLE WRAPPER (SCROLL CONTEXT)
-===================================================== */
-
-.ttr-table-wrapper {
-  max-height: 70vh;
-  overflow-y: auto !important;
-  overflow-x: auto !important;
-  position: relative;
-  isolation: isolate;
-
-  border-radius: 12px;
-  background: #041417;
-  border: 1px solid rgba(0,255,255,0.35);
-  box-shadow:
-    inset 0 0 0 1px rgba(0,255,255,0.15),
-    0 12px 40px rgba(0,0,0,0.7);
-}
-
-/* Pastikan sticky tidak rusak oleh parent */
-.monitoring-b2b-wrapper,
-.panel-body,
-.panel-card,
-.modal,
-.modal-dialog,
-.modal-content,
-.modal-body,
-.card,
-.card-body,
-.table-responsive {
-  overflow: visible !important;
-}
-
-
-/* =====================================================
-   TABLE BASE
-===================================================== */
-
-#ttr-table {
-  width: 100%;
-  table-layout: auto;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-family: "Segoe UI", Inter, system-ui, sans-serif;
-  position: relative;
-}
-
-
-/* =====================================================
-   STICKY HEADER SYSTEM (2 ROWS)
-===================================================== */
-
-/* Semua TH header harus SOLID */
-#ttr-table thead th {
-  position: sticky;
-  z-index: 5;
-  background-color: #071c20 !important;
-  background-image: none !important;
-  isolation: isolate;
-}
-
-/* ROW 1 – GROUP HEADER */
-#ttr-table thead tr.ttr-group-row th {
-  top: 0;
-  z-index: 1000;
-
-  height: 42px;
-  padding: 10px 8px;
-
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  text-align: center;
-  white-space: nowrap;
-
-  color: #9fffff;
-
-  border-bottom: 1px solid rgba(0,255,255,0.6);
-
-  box-shadow:
-    inset 0 -1px 0 rgba(0,255,255,0.5),
-    0 4px 12px rgba(0,0,0,0.6);
-}
-
-/* ROW 2 – SUB HEADER */
-#ttr-table thead tr.ttr-sub-row th {
-  top: var(--ttr-offset, 42px);
-  z-index: 999;
-
-  height: 36px;
-  padding: 8px 6px;
-
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-align: center;
-  white-space: nowrap;
-
-  color: #7ffcff;
-
-  border-bottom: 2px solid rgba(0,255,255,0.8);
-
-  box-shadow:
-    inset 0 -1px 0 rgba(0,255,255,0.4),
-    0 3px 10px rgba(0,0,0,0.5);
-}
-
-
-/* =====================================================
-   SOLID GROUP COLORS (HEADER ONLY)
-===================================================== */
-
-/* INDIBIZ */
-#ttr-table thead .grp-indibiz,
-#ttr-table thead .grp-indibiz-4h,
-#ttr-table thead .grp-indibiz-24h {
-  background: linear-gradient(180deg, #006b6b, #003b3b) !important;
-  color: #bfffff !important;
-}
-
-/* RESELLER */
-#ttr-table thead .grp-reseller,
-#ttr-table thead .grp-reseller-6h,
-#ttr-table thead .grp-reseller-36h {
-  background: linear-gradient(180deg, #004a6b, #002437) !important;
-  color: #9fdcff !important;
-}
-
-/* DATIN */
-#ttr-table thead .grp-datin-k2,
-#ttr-table thead .grp-datin-k3 {
-  background: linear-gradient(180deg, #005a3c, #002f1f) !important;
-  color: #bfffe0 !important;
-}
-
-
-/* =====================================================
-   BODY CELLS
-===================================================== */
-
-#ttr-table td {
-  padding: 8px 10px;
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-  white-space: nowrap;
-
-  background: #061c20;
-  color: #dbffff;
-
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-
-  transition: all 0.15s ease;
-}
-
-/* Zebra rows */
-#ttr-table tbody tr:nth-child(even) td {
-  background-color: #07262b;
-}
-
-
-/* =====================================================
-   HOVER SYSTEM (ROW + GROUP EFFECT)
-===================================================== */
-
-/* Row highlight */
-#ttr-table tbody tr:hover td {
-  background: rgba(0,255,255,0.15) !important;
-  box-shadow: inset 0 0 0 999px rgba(0,255,255,0.05);
-}
-
-/* Group hover glow */
-#ttr-table tbody tr:hover td.grp-start,
-#ttr-table tbody tr:hover td.grp-end {
-  box-shadow:
-    inset 2px 0 0 rgba(0,255,255,0.8),
-    inset -2px 0 0 rgba(0,255,255,0.8),
-    0 0 12px rgba(0,255,255,0.3);
-}
-
-
-/* =====================================================
-   IDENTITAS
-===================================================== */
-
-.col-sto,
-.col-witel {
-  text-align: left;
-  font-weight: 800;
-  color: #eaffff;
-}
-
-
-/* =====================================================
-   COLUMN WIDTHS
-===================================================== */
-
-.col-sto {
-  width: 80px;
-  min-width: 80px;
-}
-
-.col-witel {
-  width: 110px;
-  min-width: 110px;
-}
-
-.col-percent {
-  width: 85px;
-  min-width: 85px;
-}
-
-.col-ticket {
-  width: 70px;
-  min-width: 70px;
-}
-
-/* PIC column */
-#ttr-table th:last-child,
-#ttr-table td:last-child {
-  min-width: 260px;
-  white-space: nowrap;
-  text-align: left;
-}
-
-
-/* =====================================================
-   GROUP DIVIDERS
-===================================================== */
-
 .grp-start {
-  border-left: 3px solid rgba(0,255,255,1) !important;
+border-left: 3px solid rgba(0,255,255,1) !important;
 }
+
 
 .grp-end {
-  border-right: 3px solid rgba(0,255,255,1) !important;
+border-right: 3px solid rgba(0,255,255,1) !important;
 }
+
 
 .grp-start,
 .grp-end {
-  box-shadow:
-    inset 1px 0 0 rgba(0,255,255,0.4),
-    inset -1px 0 0 rgba(0,255,255,0.4);
+box-shadow:
+inset 1px 0 0 rgba(0,255,255,0.4),
+inset -1px 0 0 rgba(0,255,255,0.4);
 }
 
 
+
+
 /* =====================================================
-   EDGE GLOW LINE
+EDGE GLOW LINE
 ===================================================== */
+
 
 #ttr-table thead th::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: rgba(0,255,255,0.8);
+content: "";
+position: absolute;
+left: 0;
+right: 0;
+bottom: -1px;
+height: 1px;
+background: rgba(0,255,255,0.8);
 }
 
 
+
+
 /* =====================================================
-   SCROLLBAR PREMIUM
+SCROLLBAR PREMIUM
 ===================================================== */
+
 
 .ttr-table-wrapper::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+width: 10px;
+height: 10px;
 }
+
 
 .ttr-table-wrapper::-webkit-scrollbar-track {
-  background: #041417;
+background: #041417;
 }
 
+
 .ttr-table-wrapper::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00ffff, #007777);
-  border-radius: 10px;
+background: linear-gradient(180deg, #00ffff, #007777);
+border-radius: 10px;
 }
+
+
 
 
 /* =====================================================
-   STICKY HEADER BACK SHIELD (ANTI TEMBUS)
+STICKY HEADER BACK SHIELD (ANTI TEMBUS)
 ===================================================== */
+
 
 #ttr-table thead tr.ttr-group-row th::before,
 #ttr-table thead tr.ttr-sub-row th::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: inherit;
-  z-index: -1;
+content: "";
+position: absolute;
+inset: 0;
+background: inherit;
+z-index: -1;
 }
 
+
 /* =====================================================
-   END — PREMIUM TTR TABLE
+END — PREMIUM TTR TABLE
 ===================================================== */
-```
-
----
-
-## ✅ FITUR FINAL
-
-* Sticky header **2 baris stabil**
-* **Tidak transparan saat scroll**
-* Warna grup tetap premium
-* Hover row + glow group aktif
-* Scrollbar custom
-* Kolom PIC & identitas stabil
-
----
-
-Kalau mau, aku bisa buatkan versi:
-✨ **Header glow saat scroll**
-✨ **Sorting per kolom (klik header)**
-✨ **Search/filter realtime di atas tabel**
-
-Tinggal bilang saja 🚀
