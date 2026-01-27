@@ -1,19 +1,13 @@
-/* =========================
-   TTR TABLE WRAPPER
-========================= */
 .ttr-table-wrapper {
-  height: 500px; /* bisa disesuaikan */
+  height: 500px;
   overflow: auto;
   position: relative;
   border-radius: 12px;
   background: #041417;
   border: 1px solid rgba(0, 255, 255, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(0, 255, 255, 0.15), 0 12px 40px rgba(0,0,0,0.7);
 }
 
-/* =========================
-   TABLE BASE
-========================= */
+/* TABLE BASE */
 #ttr-table {
   width: 100%;
   border-collapse: separate;
@@ -22,72 +16,40 @@
   font-family: "Segoe UI", Inter, system-ui, sans-serif;
 }
 
-/* =========================
-   STICKY HEADERS – 2 ROWS
-========================= */
+/* REMOVE sticky from thead itself */
+#ttr-table thead {
+  position: relative; /* penting */
+}
 
 /* Base th */
 #ttr-table thead th {
   position: sticky;
-  background: #1f2933; /* fallback */
-  z-index: 10;
+  background: #1f2933;
 }
 
-/* ROW 1 – GROUP HEADER */
+/* GROUP ROW */
 #ttr-table thead tr.ttr-group-row th {
   top: 0;
-  z-index: 20; /* lebih tinggi */
+  z-index: 20;
   height: 42px;
   padding: 10px 8px;
   background: linear-gradient(180deg, #0f2f34, #071c20);
   color: #9fffff;
-  font-size: 12px;
-  font-weight: 800;
   text-align: center;
-  white-space: normal;
+  font-weight: 800;
   border-bottom: 1px solid rgba(0, 255, 255, 0.6);
 }
 
-/* ROW 2 – SUB HEADER */
+/* SUB ROW */
 #ttr-table thead tr.ttr-sub-row th {
-  top: 42px; /* tinggi row 1 */
+  top: 42px; /* tinggi baris group row */
   z-index: 15;
   height: 36px;
   padding: 8px 6px;
   background: linear-gradient(180deg, #092227, #04161a);
   color: #7ffcff;
-  font-size: 11px;
   font-weight: 700;
   text-align: center;
-  white-space: nowrap;
   border-bottom: 2px solid rgba(0, 255, 255, 0.8);
 }
 
-/* =========================
-   BODY CELLS
-========================= */
-#ttr-table td {
-  padding: 8px 10px;
-  font-size: 13px;
-  text-align: center;
-  white-space: nowrap;
-  background: #061c20;
-  color: #dbffff;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-#ttr-table tbody tr:nth-child(even) td {
-  background-color: #07262b;
-}
-
-#ttr-table tbody tr:hover td {
-  background: rgba(0,255,255,0.15) !important;
-}
-
-/* COLUMN SPECIFIC */
-td.col-sto, td.col-witel { text-align: left; font-weight: 800; color: #eaffff; }
-.col-sto { width: 70px; }
-.col-witel { width: 100px; }
-.col-percent { width: 70px; }
-.col-ticket { width: 60px; }
-#ttr-table th:last-child, #ttr-table td:last-child { width: 220px; max-width: 220px; white-space: normal; }
