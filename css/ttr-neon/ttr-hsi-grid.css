@@ -1,85 +1,115 @@
 /* ===========================
-   TTR HSI TABLE – FULL STYLE
+   TTR HSI TABLE (2026 FINAL)
    =========================== */
 
-/* Container scroll (Bootstrap .table-responsive override) */
 #ttr-wrapper .table-responsive {
-  max-height: 570px; /* adjust as needed */
+  max-height: 600px;
   overflow-y: auto;
   overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #555 #222;
+  position: relative;
+  border: 1px solid #222;
+  border-radius: 4px;
+  background: #0b0c0f;
 }
 
-/* Sticky Header */
+/* Freeze header row */
 #ttr-table thead th {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background-color: #1d1e1f; /* darker than table-dark */
-  border-bottom: 2px solid #444;
-  text-align: center;
+  z-index: 30;
+  background: #0e0f13;
+  color: #e7e7e7;
   font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Body cells */
-#ttr-table tbody td {
-  white-space: nowrap;
-  vertical-align: middle;
   font-size: 13px;
-  padding: 4px 6px;
+  padding: 6px 8px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 2px solid #333;
 }
 
-/* First/Key Columns highlight (OPTIONAL) */
-#ttr-table tbody td:first-child,
-#ttr-table thead th:first-child {
-  background-color: #262729;
+/* Sticky first two columns (STO + WITEL) */
+#ttr-table thead th:first-child,
+#ttr-table tbody td:first-child {
+  position: sticky;
+  left: 0;
+  background: #141518;
+  z-index: 25;
   font-weight: 600;
 }
 
-#ttr-table tbody td:nth-child(2),
-#ttr-table thead th:nth-child(2) {
-  background-color: #262729;
+#ttr-table thead th:nth-child(2),
+#ttr-table tbody td:nth-child(2) {
+  position: sticky;
+  left: 80px; /* lebar STO */
+  background: #141518;
+  z-index: 25;
   font-weight: 600;
 }
 
-/* Hover row */
-#ttr-table tbody tr:hover {
-  background-color: rgba(255,255,255,0.05);
+/* Default cell */
+#ttr-table tbody td {
+  font-size: 13px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  text-align: center;
+  border-color: #1f2025;
+  color: #d5d5d5;
 }
 
-/* Coloring for NOT_COMPLY (merah) – activated via JS class */
-#ttr-table td.not-comply {
-  background-color: rgba(226, 65, 65, 0.5);
-  color: #fff;
+/* Hover */
+#ttr-table tbody tr:hover td {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Value coloring */
+#ttr-table td.red {
+  color: #ff4a4a;
+  font-weight: 600;
+}
+#ttr-table td.green {
+  color: #00ff9d;
+  font-weight: 600;
+}
+#ttr-table td.yellow {
+  color: #ffd74f;
   font-weight: 600;
 }
 
-/* Alignment helpers */
-#ttr-table .text-right { text-align: right; }
-#ttr-table .text-center { text-align: center; }
+/* PIC cell - long text */
+#ttr-table td.pic-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
 
-/* Scrollbar styling for Chromium/Edge */
+/* ===== GROUP SEPARATORS (CYBER CYAN) ===== */
+
+#ttr-table thead th.group-start,
+#ttr-table tbody td.group-start {
+  border-left: 2px solid #00eaff;
+}
+
+#ttr-table thead th.group-end,
+#ttr-table tbody td.group-end {
+  border-right: 2px solid #00eaff;
+}
+
+/* Group areas highlight soft */
+#ttr-table thead th.group-area {
+  background: linear-gradient(to bottom, rgba(0,238,255,0.12), rgba(0,238,255,0.03));
+}
+
+/* Scrollbar */
 #ttr-wrapper .table-responsive::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-#ttr-wrapper .table-responsive::-webkit-scrollbar-track {
-  background: #222;
+  height: 8px;
+  width: 8px;
 }
 #ttr-wrapper .table-responsive::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 3px;
+  background: #3f3f3f;
+  border-radius: 4px;
 }
-
-/* Last update small styling */
-#ttr-last-update {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-/* Modal detail tweaks */
-#global-modal .modal-body table {
-  font-size: 12px;
+#ttr-wrapper .table-responsive::-webkit-scrollbar-track {
+  background: #131417;
 }
