@@ -523,6 +523,20 @@ function renderTTRTable() {
     });
 }
 
+function fixTTRStickyOffset() {
+  const wrapper = document.querySelector('.ttr-table-wrapper');
+  const groupRow = document.querySelector('#ttr-table thead tr.ttr-group-row');
+  const subRow = document.querySelector('#ttr-table thead tr.ttr-sub-row');
+
+  if (!groupRow || !subRow) return;
+
+  const h = groupRow.offsetHeight;
+
+  subRow.querySelectorAll('th').forEach(th => {
+    th.style.top = h + 'px';
+  });
+}
+
 /* =====================================================
    OPEN DETAIL TTR MODAL (GLOBAL MODAL)
 ===================================================== */
