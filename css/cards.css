@@ -130,3 +130,63 @@
   animation: skeleton-loading 1.2s infinite;
 }
 
+.kpi-card.good {
+  box-shadow: 0 0 18px rgba(34,197,94,.55);
+}
+
+.kpi-card.bad {
+  box-shadow: 0 0 18px rgba(239,68,68,.75);
+}
+
+.kpi-card.good .kpi-row span:last-child {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.kpi-card.bad .kpi-row span:last-child {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.b2c-kpi-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kpi-category-row {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.kpi-category-title {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.kpi-category-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+  gap: 12px;
+}
+
+.kpi-card.mini {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+  position: relative;
+  transition: .2s;
+}
+
+.badge-gold { background: gold; }
+.badge-silver { background: silver; }
+.badge-bronze { background: #cd7f32; }
+
+.ranking-avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+}
