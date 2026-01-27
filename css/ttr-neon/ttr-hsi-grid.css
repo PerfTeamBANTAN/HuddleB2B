@@ -31,7 +31,7 @@
 .monitoring-b2b-wrapper,
 .panel-body,
 .panel-card {
-  overflow: visible !important;
+  overflow: unset !important; /* bukan visible */
 }
 
 /* =====================================================
@@ -39,7 +39,7 @@
 ===================================================== */
 #ttr-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
 
@@ -77,7 +77,7 @@
   text-transform: uppercase;
 
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
 
   border-bottom: 1px solid rgba(0, 255, 255, 0.6);
 
@@ -195,33 +195,20 @@ td.col-witel {
 /* =====================================================
    COLUMN WIDTHS
 ===================================================== */
-.col-sto {
-  width: 80px;
-  min-width: 80px;
-}
-
-.col-witel {
-  width: 110px;
-  min-width: 110px;
-}
-
-.col-percent {
-  width: 85px;
-  min-width: 85px;
-}
-
-.col-ticket {
-  width: 70px;
-  min-width: 70px;
-}
+.col-sto { width: 70px; }
+.col-witel { width: 100px; }
+.col-percent { width: 70px; }
+.col-ticket { width: 60px; }
 
 /* PIC column */
 #ttr-table th:last-child,
 #ttr-table td:last-child {
-  min-width: 260px;
-  white-space: nowrap;
-  text-align: left;
+  width: 220px;
+  max-width: 220px;
+  white-space: normal;
+  word-break: break-word;
 }
+
 
 /* =====================================================
    GROUP DIVIDERS
