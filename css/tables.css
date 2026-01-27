@@ -1,1 +1,25 @@
+/* ===========================
+   TABLES
+   =========================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #333333;
+}
+
+table th {
+    background: #1a2a6c; /* Gradien gelap bisa ditambahkan via gradient pada header */
+    color: #FFFFFF;
+    padding: 0.5rem;
+}
+
+table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #adb5bd; /* garis netral */
+}
+
+table tr:hover td {
+    background-color: #f1f1f1;
+}
 
