@@ -22,3 +22,40 @@
     color: #EF5350; /* status peringatan */
 }
 
+/* =========================
+   DISTRICT KPI CARD (Alert SQM HSI)
+========================= */
+
+.district-kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+  min-width: 220px;
+}
+
+.district-kpi-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.district-kpi-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-main);
+  padding: 2px 0;
+}
+
+.district-kpi-row span:first-child {
+  color: var(--text-muted);
+}
+
+.val-alert {
+  color: var(--danger);
+  font-weight: 700;
+}
+
