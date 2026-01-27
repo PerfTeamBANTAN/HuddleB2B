@@ -21,3 +21,7 @@
     animation: float 3s ease-in-out infinite;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
