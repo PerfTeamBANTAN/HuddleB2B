@@ -1,13 +1,11 @@
+/* Parent scrollable container */
 .ttr-table-wrapper {
-  height: 500px;
+  height: 500px; /* bisa disesuaikan */
   overflow: auto;
-  position: relative;
-  border-radius: 12px;
-  background: #041417;
-  border: 1px solid rgba(0, 255, 255, 0.35);
+  position: relative; /* penting agar sticky th bekerja */
 }
 
-/* TABLE BASE */
+/* Table base */
 #ttr-table {
   width: 100%;
   border-collapse: separate;
@@ -16,18 +14,21 @@
   font-family: "Segoe UI", Inter, system-ui, sans-serif;
 }
 
-/* REMOVE sticky from thead itself */
+/* Remove sticky dari thead */
 #ttr-table thead {
-  position: relative; /* penting */
+  position: relative; /* jangan sticky */
+  z-index: auto;
 }
 
-/* Base th */
+/* Base th untuk semua th */
 #ttr-table thead th {
-  position: sticky;
+  position: sticky; /* cuma th yang sticky */
+  left: auto;       /* biar column scroll masih jalan */
   background: #1f2933;
+  z-index: 10;
 }
 
-/* GROUP ROW */
+/* Row 1 – group header */
 #ttr-table thead tr.ttr-group-row th {
   top: 0;
   z-index: 20;
@@ -35,21 +36,40 @@
   padding: 10px 8px;
   background: linear-gradient(180deg, #0f2f34, #071c20);
   color: #9fffff;
-  text-align: center;
+  font-size: 12px;
   font-weight: 800;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.6);
+  text-align: center;
+  white-space: normal;
+  border-bottom: 1px solid rgba(0,255,255,0.6);
 }
 
-/* SUB ROW */
+/* Row 2 – sub header */
 #ttr-table thead tr.ttr-sub-row th {
-  top: 42px; /* tinggi baris group row */
+  top: 42px; /* tinggi row 1 */
   z-index: 15;
   height: 36px;
   padding: 8px 6px;
   background: linear-gradient(180deg, #092227, #04161a);
   color: #7ffcff;
+  font-size: 11px;
   font-weight: 700;
   text-align: center;
-  border-bottom: 2px solid rgba(0, 255, 255, 0.8);
+  white-space: nowrap;
+  border-bottom: 2px solid rgba(0,255,255,0.8);
 }
 
+/* Sticky first column (opsional, jika mau freeze STO) */
+#ttr-table th.col-sto,
+#ttr-table td.col-sto {
+  position: sticky;
+  left: 0;
+  z-index: 25; /* lebih tinggi dari sub-row */
+  background: #1f2933;
+}
+#ttr-table th.col-witel,
+#ttr-table td.col-witel {
+  position: sticky;
+  left: 70px; /* sesuai width col-sto */
+  z-index: 24;
+  background: #1f2933;
+}
