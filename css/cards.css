@@ -59,3 +59,56 @@
   font-weight: 700;
 }
 
+/* =========================
+   BADGE CARD – ASGAR HSI
+========================= */
+
+.badge-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  min-width: 220px;
+}
+
+.badge-card-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.badge-card-body {
+  font-size: 12px;
+}
+
+.row-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--text-main);
+}
+
+.row-item span:first-child {
+  color: var(--text-muted);
+}
+
+/* GOOD / BAD STATE */
+.card-good {
+  border-left: 5px solid var(--success);
+}
+
+.card-bad {
+  border-left: 5px solid var(--danger);
+}
+
+.value-good {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.value-bad {
+  color: var(--danger);
+  font-weight: 700;
+}
