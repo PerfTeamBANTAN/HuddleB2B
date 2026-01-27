@@ -2,40 +2,38 @@
    SCROLL CONTAINER & STICKY HEADER
 ===================================================== */
 .table-responsive {
-  max-height: calc(100vh - 300px);
-  overflow: auto;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  overflow-x: auto;
   position: relative;
 }
 
-#ttr-table thead th {
+#ttr-thead th {
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 40;
   background: linear-gradient(180deg, #0b1f23, #07191c);
   border-bottom: 2px solid rgba(0,255,255,0.9);
 }
 
-#ttr-table thead {
-  position: sticky;
-  top: 0;
-  z-index: 15;
+#ttr-table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 /* =====================================================
    TABLE LAYOUT
 ===================================================== */
-#ttr-table {
-  width: 100%;
-  table-layout: fixed;
-}
-
 
 #ttr-table th,
 #ttr-table td {
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-size: 13px;
-  min-width: 70px;
+  white-space: nowrap;
 }
+
 
 /* =====================================================
    BODY STYLE
