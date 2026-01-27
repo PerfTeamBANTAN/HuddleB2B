@@ -1,88 +1,118 @@
 /* =====================================================
-   GROUP HEADER — Single Row Cyan
+   FREEZE TABLE HEADER
 ===================================================== */
-th.grp-indibiz-4h,
-th.grp-indibiz-24h,
-th.grp-reseller-6h,
-th.grp-reseller-36h,
-th.grp-datin-k2,
-th.grp-datin-k3,
-td.grp-indibiz-4h,
-td.grp-indibiz-24h,
-td.grp-reseller-6h,
-td.grp-reseller-36h,
-td.grp-datin-k2,
-td.grp-datin-k3 {
-  background: rgba(0, 255, 255, 0.12); /* cyan lembut */
-  border-color: rgba(0, 255, 255, 0.25);
+.table-responsive {
+  max-height: calc(100vh - 260px); /* sesuaikan tinggi area */
+  overflow: auto;
 }
 
+#ttr-table-head th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: linear-gradient(
+    180deg,
+    #0b1f23 0%,
+    #07191c 100%
+  );
+}
+
+/* kalau header kamu 2 baris */
+#ttr-table-head tr:nth-child(2) th {
+  top: 34px; /* tinggi baris header pertama */
+  z-index: 6;
+}
+
+/* garis pemisah header */
+#ttr-table-head th {
+  border-bottom: 2px solid rgba(0, 255, 255, 0.6);
+  box-shadow: inset 0 -1px 0 rgba(0,255,255,0.35);
+}
+
+/* =====================================================
+   CYAN GROUP COLUMN DIVIDER
+===================================================== */
+.grp-start {
+  border-left: 3px solid rgba(0,255,255,0.9) !important;
+}
+
+.grp-end {
+  border-right: 3px solid rgba(0,255,255,0.9) !important;
+}
+
+/* efek glow lembut */
+.grp-start,
+.grp-end {
+  box-shadow:
+    inset 1px 0 0 rgba(0,255,255,0.25),
+    inset -1px 0 0 rgba(0,255,255,0.25);
+}
+
+/* =====================================================
+   TABLE BODY POLISH
+===================================================== */
+#ttr-table-body td {
+  font-size: 13px;
+  padding: 7px 10px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #061c20;
+}
+
+/* zebra row */
+#ttr-table-body tr:nth-child(even) td {
+  background-color: #072227;
+}
+
+/* hover row */
+#ttr-table-body tr:hover td {
+  background-color: rgba(0,255,255,0.10) !important;
+  transition: background 0.15s ease-in-out;
+}
+
+/* kolom identitas */
+#ttr-table-body td.col-sto,
+#ttr-table-body td.col-witel {
+  text-align: left;
+  font-weight: 600;
+  color: #e4fefe;
+}
+
+/* angka link */
+#ttr-table-body td span.text-primary {
+  color: #33ffff !important;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* nilai merah */
+#ttr-table-body .text-danger {
+  color: #ff5c5c !important;
+  font-weight: 700;
+}
+
+/* angka normal */
+#ttr-table-body td {
+  color: #d9fefe;
+}
+
+/* =====================================================
+   GROUP HEADER STYLE
+===================================================== */
 th.grp-indibiz-4h,
 th.grp-indibiz-24h,
 th.grp-reseller-6h,
 th.grp-reseller-36h,
 th.grp-datin-k2,
 th.grp-datin-k3 {
-  font-weight: 600;
-  color: cyan;
-  white-space: nowrap;
-}
-
-/* Hover glow utk row */
-table tbody tr:hover td {
-  background-color: rgba(0,255,255,0.08) !important;
-}
-
-/* =====================================================
-   BASE TABLE ADJUSTMENT
-===================================================== */
-#ttr-table-head th {
-  text-align: center;
-  vertical-align: middle;
-  font-size: 13px;
-  padding: 6px 8px;
-  border-bottom: 2px solid cyan;
-}
-
-#ttr-table-body td {
-  font-size: 13px;
-  padding: 6px 8px;
-}
-
-/* clickable detail */
-#ttr-table-body td span.text-primary {
-  text-decoration: underline;
-}
-
-/* alert cell */
-#ttr-table-body .text-danger {
+  background: linear-gradient(
+    180deg,
+    rgba(0,255,255,0.18),
+    rgba(0,255,255,0.05)
+  );
+  color: #6fffff;
   font-weight: 700;
-}
-
-/* border tone */
-.table-dark.table-bordered > :not(caption) > * > * {
-  border-color: rgba(255,255,255,0.12);
-}
-
-/* Responsiveness */
-.table-responsive {
-  overflow-x: auto;
-}
-
-/* =====================================================
-   FILTER + BADGE STYLE (optional)
-===================================================== */
-.badge-card {
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin-right: 6px;
-  background: #1f2124;
-}
-.badge-card-header {
-  font-size: 11px;
-  opacity: .85;
-}
-.badge-card-body {
-  font-size: 13px;
+  border-bottom: 2px solid rgba(0,255,255,0.6);
 }
