@@ -1,0 +1,12 @@
+/* =========================
+   ALERT SQM HSI MODULE ONLY
+========================= */
+
+#alert-loading-overlay {
+  background: rgba(255,255,255,0.85);
+}
+
+#alert-last-update {
+  font-size: 12px;
+  color: var(--text-muted);
+}
