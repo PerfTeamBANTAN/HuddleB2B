@@ -1,16 +1,26 @@
 /* =====================================================
-   PREMIUM TABLE WRAPPER
+   PREMIUM TABLE WRAPPER (SCROLL CONTEXT)
 ===================================================== */
 .ttr-table-wrapper {
   max-height: calc(100vh - 320px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: auto;
   position: relative;
+
   border-radius: 12px;
   background: #041417;
   border: 1px solid rgba(0,255,255,0.35);
+
   box-shadow:
     inset 0 0 0 1px rgba(0,255,255,0.15),
     0 12px 40px rgba(0,0,0,0.7);
+}
+
+/* Pastikan sticky tidak rusak oleh parent */
+.monitoring-b2b-wrapper,
+.panel-body,
+.panel-card {
+  overflow: visible !important;
 }
 
 /* =====================================================
@@ -18,21 +28,22 @@
 ===================================================== */
 #ttr-table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto; /* FIX: biar kolom PIC & header panjang tidak geser */
   border-collapse: separate;
   border-spacing: 0;
   font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  position: relative;
 }
 
 /* =====================================================
-   STICKY HEADER SYSTEM
+   STICKY HEADER SYSTEM (2 BARIS)
 ===================================================== */
 
-/* GROUP ROW (ROW 1) */
-#ttr-thead .ttr-group-row th {
+/* ROW 1 – GROUP HEADER */
+#ttr-table thead tr.ttr-group-row th {
   position: sticky;
   top: 0;
-  z-index: 110;
+  z-index: 100;
 
   height: 42px;
   padding: 10px 8px;
@@ -54,11 +65,11 @@
     0 4px 12px rgba(0,0,0,0.6);
 }
 
-/* SUB ROW (ROW 2) */
-#ttr-thead .ttr-sub-row th {
+/* ROW 2 – SUB HEADER */
+#ttr-table thead tr.ttr-sub-row th {
   position: sticky;
-  top: 42px; /* HARUS SAMA DENGAN HEIGHT GROUP ROW */
-  z-index: 105;
+  top: 42px; /* auto dikoreksi JS jika tinggi berubah */
+  z-index: 90;
 
   height: 36px;
   padding: 8px 6px;
@@ -82,7 +93,11 @@
 /* =====================================================
    GROUP HEADER COLORS
 ===================================================== */
-.grp-indibiz {
+
+/* INDIBIZ */
+.grp-indibiz,
+.grp-indibiz-4h,
+.grp-indibiz-24h {
   background: linear-gradient(
     180deg,
     rgba(0,255,255,0.25),
@@ -91,13 +106,27 @@
   color: #bfffff !important;
 }
 
-.grp-reseller {
+/* RESELLER */
+.grp-reseller,
+.grp-reseller-6h,
+.grp-reseller-36h {
   background: linear-gradient(
     180deg,
     rgba(0,180,255,0.25),
     rgba(0,80,120,0.1)
   ) !important;
   color: #9fdcff !important;
+}
+
+/* DATIN */
+.grp-datin-k2,
+.grp-datin-k3 {
+  background: linear-gradient(
+    180deg,
+    rgba(0,255,180,0.25),
+    rgba(0,120,80,0.1)
+  ) !important;
+  color: #bfffe0 !important;
 }
 
 /* =====================================================
@@ -117,13 +146,13 @@
   transition: all 0.15s ease;
 }
 
-/* Zebra */
-#ttr-table-body tr:nth-child(even) td {
+/* Zebra rows */
+#ttr-table tbody tr:nth-child(even) td {
   background-color: #07262b;
 }
 
-/* Hover */
-#ttr-table-body tr:hover td {
+/* Hover highlight */
+#ttr-table tbody tr:hover td {
   background: rgba(0,255,255,0.15) !important;
   box-shadow: inset 0 0 0 999px rgba(0,255,255,0.05);
 }
@@ -161,10 +190,11 @@ td.col-witel {
   min-width: 70px;
 }
 
+/* PIC column */
 #ttr-table th:last-child,
 #ttr-table td:last-child {
-  width: 260px;
   min-width: 260px;
+  white-space: nowrap;
   text-align: left;
 }
 
@@ -187,6 +217,19 @@ td.col-witel {
 }
 
 /* =====================================================
+   EDGE GLOW LINE
+===================================================== */
+#ttr-table thead th::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: rgba(0,255,255,0.8);
+}
+
+/* =====================================================
    SCROLLBAR PREMIUM
 ===================================================== */
 .ttr-table-wrapper::-webkit-scrollbar {
@@ -202,63 +245,3 @@ td.col-witel {
   background: linear-gradient(180deg, #00ffff, #007777);
   border-radius: 10px;
 }
-
-/* =====================================================
-   EDGE GLOW LINE
-===================================================== */
-#ttr-thead th::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: rgba(0,255,255,0.8);
-}
-
-/* =====================================================
-   TTR – STICKY HEADER 2 BARIS (FINAL & ISOLATED)
-===================================================== */
-
-.ttr-table-wrapper {
-  max-height: 75vh;
-  overflow-y: auto;
-  overflow-x: auto;
-  position: relative;
-}
-
-/* konteks sticky */
-.ttr-table {
-  position: relative;
-}
-
-
-.monitoring-b2b-wrapper,
-.panel-body,
-.panel-card {
-  overflow: visible !important;
-}
-
-/* ==============================
-   TTR 2 ROW STICKY HEADER FINAL
-============================== */
-
-.ttr-table-wrapper {
-  overflow: auto;
-  position: relative;
-}
-
-/* ROW 1 – GROUP */
-#ttr-table thead tr.ttr-group-row th {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-/* ROW 2 – SUB */
-#ttr-table thead tr.ttr-sub-row th {
-  position: sticky;
-  top: 42px; /* HARUS sama dengan height group row */
-  z-index: 49;
-}
-
