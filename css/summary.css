@@ -34,3 +34,58 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
+.summary-card-v3 {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+
+.summary-card-v3.blue {
+  border-left: 6px solid #00BCD4;
+}
+
+.summary-card-v3.green {
+  border-left: 6px solid #4CAF50;
+}
+
+.summary-left h5 {
+  color: #333333;
+  font-weight: 700;
+}
+
+.summary-quote {
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.glow-text {
+  text-shadow: 0 0 6px rgba(0,188,212,.5);
+}
+
+.summary-progress {
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.summary-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg,#1a2a6c,#b21f1f);
+}
+
+.summary-percent {
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.summary-footer span {
+  margin-right: 10px;
+}
+
+.summary-avatar {
+  width: 90px;
+}
