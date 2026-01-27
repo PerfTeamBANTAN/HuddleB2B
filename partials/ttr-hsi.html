@@ -1,121 +1,76 @@
-<div id="ttr-wrapper" class="district-wrapper px-3">
+<div id="ttr-wrapper" class="district-wrapper px-3 position-relative">
 
-  <!-- ================= TITLE ================= -->
+  <!-- Title -->
   <h4 class="text-center text-light mb-3">
     Performance TTR HSI & DATIN – B2B District Banten
   </h4>
 
-  <!-- ================= CARD KPI ================= -->
+  <!-- KPI Cards -->
   <div id="ttr-row" class="cards-scroll mb-3"></div>
 
-  <!-- ================= TAB HSI / DATIN ================= -->
+  <!-- Tabs -->
   <div class="mb-3 d-flex flex-wrap gap-2" id="ttr-tabs">
-    <button
-      class="btn btn-sm btn-primary active"
-      data-type="ttr_hsi_table">
+    <button class="btn btn-sm btn-primary active" data-type="ttr_hsi_table">
       <i class="fa fa-clock me-1"></i> TTR HSI INDIBIZ & RESELLER 
     </button>
-
-    <button
-      class="btn btn-sm btn-outline-light"
-      data-type="ttr_datin_table">
+    <button class="btn btn-sm btn-outline-light" data-type="ttr_datin_table">
       <i class="fa fa-clock me-1"></i> TTR DATIN K2 & K3
     </button>
   </div>
 
-  <!-- ================= FILTER ================= -->
+  <!-- Filter -->
   <div class="card bg-dark border-secondary mb-4">
     <div class="card-body py-2">
-
       <div class="row g-2 align-items-end">
-
-        <!-- WITEL -->
         <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            Witel
-          </label>
-          <select id="ttr-filter-witel" class="form-select form-select-sm">
-            <option value="">All Witel</option>
-          </select>
+          <label class="form-label text-light small mb-1">Witel</label>
+          <select id="ttr-filter-witel" class="form-select form-select-sm"></select>
         </div>
-
-        <!-- STO -->
         <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            STO
-          </label>
-          <select id="ttr-filter-sto" class="form-select form-select-sm">
-            <option value="">All STO</option>
-          </select>
+          <label class="form-label text-light small mb-1">STO</label>
+          <select id="ttr-filter-sto" class="form-select form-select-sm"></select>
         </div>
-
-        <!-- PIC -->
         <div class="col-md-3">
-          <label class="form-label text-light small mb-1">
-            PIC
-          </label>
-          <select id="ttr-filter-pic" class="form-select form-select-sm">
-            <option value="">All PIC</option>
-          </select>
+          <label class="form-label text-light small mb-1">PIC</label>
+          <select id="ttr-filter-pic" class="form-select form-select-sm"></select>
         </div>
-
       </div>
-
     </div>
   </div>
 
-  <!-- ================= LOADING OVERLAY ================= -->
+  <!-- Loading -->
   <div id="ttr-loading-overlay" class="loading-overlay d-none">
     <div class="spinner-border text-light mb-2"></div>
     <div class="loading-text">Mengambil data...</div>
   </div>
 
-  <!-- ================= TABLE ================= -->
+  <!-- Table -->
   <div class="mt-3">
     <h5 class="text-light mb-2">Detail TTR District Banten</h5>
-
     <div class="table-responsive">
       <table id="ttr-table" class="table table-dark table-bordered table-sm align-middle">
-
-        <thead>
-          <tr id="ttr-table-head"></tr>
-        </thead>
+        <thead><tr id="ttr-table-head"></tr></thead>
         <tbody id="ttr-table-body">
-          <tr>
-            <td class="text-center text-muted">
-              Memuat data...
-            </td>
-          </tr>
+          <tr><td class="text-center text-muted">Memuat data...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ================= LAST UPDATE ================= -->
-  <div
-    id="ttr-last-update"
-    class="last-update text-end px-2 pb-3 mt-2">
+  <div id="ttr-last-update" class="last-update text-end px-2 pb-3 mt-2">
     <i class="fa fa-clock me-1"></i> Last update: -
   </div>
-
 </div>
 
-<!-- ================= MODAL DETAIL ================= -->
+<!-- Modal -->
 <div class="modal fade" id="global-modal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content bg-dark text-light">
-
       <div class="modal-header">
         <h5 class="modal-title">Detail</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal">
-        </button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body"></div>
-
     </div>
   </div>
 </div>
