@@ -294,31 +294,34 @@ function renderTTRTable() {
   /* ===============================
      RENDER HEADER
   =============================== */
-  head.innerHTML = '';
+  const thead = document.getElementById('ttr-thead');
+thead.innerHTML = '';
 
-  ttrHeaders.forEach((h, idx) => {
+const tr = document.createElement('tr');
 
-    const th = document.createElement('th');
-      th.innerHTML = formatHeaderLabel(h);
-      th.style.textAlign = 'center';
+ttrHeaders.forEach((h, idx) => {
+  const th = document.createElement('th');
+  th.innerHTML = formatHeaderLabel(h);
+  th.classList.add('ttr-th');
 
-      if (h.includes('%')) th.classList.add('col-percent');
-      if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
+  if (h.includes('%')) th.classList.add('col-percent');
+  if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
 
+  const grp = groupMap[h];
+  if (grp) {
+    th.classList.add(grp);
+    if (groupBounds[grp]?.start === idx) th.classList.add('grp-start');
+    if (groupBounds[grp]?.end === idx)   th.classList.add('grp-end');
+  }
 
-    const grp = groupMap[h];
-    if (grp) {
-      th.classList.add(grp);
-      if (groupBounds[grp]?.start === idx) th.classList.add('grp-start');
-      if (groupBounds[grp]?.end === idx)   th.classList.add('grp-end');
-    }
+  if (h === 'STO')   th.classList.add('freeze-col');
+  if (h === 'WITEL') th.classList.add('freeze-col-2');
 
-    // FREEZE COL
-    if (h === 'STO')   th.classList.add('freeze-col');
-    if (h === 'WITEL') th.classList.add('freeze-col-2');
+  tr.appendChild(th);
+});
 
-    head.appendChild(th);
-  });
+thead.appendChild(tr);
+
 
   /* ===============================
      RENDER BODY
