@@ -40,3 +40,18 @@ p, span, label, small {
   --success: #00BCD4;
 }
 
+/* ===== GLOBAL LOADING OVERLAY ===== */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26,42,108,.75); /* gradien gelap */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.loading-overlay.d-none {
+  display: none;
+}
+
