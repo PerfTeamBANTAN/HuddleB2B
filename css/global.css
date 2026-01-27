@@ -55,3 +55,8 @@ p, span, label, small {
   display: none;
 }
 
+.empty-state {
+  text-align: center;
+  color: #adb5bd;
+  padding: 16px;
+}
