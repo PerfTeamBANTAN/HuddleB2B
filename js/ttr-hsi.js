@@ -299,8 +299,12 @@ function renderTTRTable() {
   ttrHeaders.forEach((h, idx) => {
 
     const th = document.createElement('th');
-    th.innerHTML = formatHeaderLabel(h);
-    th.style.textAlign = 'center';
+      th.innerHTML = formatHeaderLabel(h);
+      th.style.textAlign = 'center';
+
+      if (h.includes('%')) th.classList.add('col-percent');
+      if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
+
 
     const grp = groupMap[h];
     if (grp) {
@@ -334,6 +338,10 @@ function renderTTRTable() {
       ttrHeaders.forEach((h, idx) => {
 
         const td = document.createElement('td');
+
+         if (h.includes('%')) td.classList.add('col-percent');
+         if (h.toLowerCase().includes('tiket')) td.classList.add('col-ticket');
+
 
         const grp = groupMap[h];
         if (grp) {
