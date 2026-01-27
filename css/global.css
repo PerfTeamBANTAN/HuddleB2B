@@ -1,1 +1,31 @@
+/* ===========================
+   GLOBAL STYLES
+   =========================== */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #FFFFFF; /* Latar belakang utama */
+    color: #333333; /* Teks utama */
+}
+
+/* Teks sekunder / netral */
+p, span, label, small {
+    color: #adb5bd;
+}
+
+/* Scrollbar custom */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #00BCD4; /* Aksen cerah */
+    border-radius: 4px;
+}
 
