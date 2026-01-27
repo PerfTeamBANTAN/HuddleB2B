@@ -2,26 +2,22 @@
    WRAPPER UNTUK SCROLL
 ================================================== */
 #ttr-wrapper .table-responsive {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto;  /* penting */
   max-height: calc(100vh - 260px);
   border: 1px solid rgba(56,189,248,.15);
   border-radius: 4px;
 }
 
 
+
 /* ===============================================
    TABLE BASE (NEON DARK)
 ================================================== */
 #ttr-table {
-  background: #06090f;
-  color: #e2e8f0;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 13px;
-  width: max-content; /* biar horizontal scroll jalan */
-  table-layout: fixed;
+  width: 100%;          /* auto fit */
+  table-layout: auto;   /* biar kolom ngikut content */
 }
+
 
 
 /* ===============================================
