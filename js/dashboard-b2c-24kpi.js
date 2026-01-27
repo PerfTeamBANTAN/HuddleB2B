@@ -579,13 +579,17 @@ function parseIDNumber(val) {
 }
 
 
+/* ===============================
+   KPI RANKING TABLE (HSA & MITRA) - FOTO HSA HANYA UNTUK HSA
+=============================== */
 function renderRankingTable({
   data,
   bodyId,
   loadingId,
   wrapperId,
   labelKey,
-  valueKey
+  valueKey,
+  showPhoto = false // default false → hanya aktif untuk HSA
 }) {
   const tbody = document.getElementById(bodyId);
   const loading = document.getElementById(loadingId);
@@ -594,6 +598,21 @@ function renderRankingTable({
   if (!tbody || !loading || !wrapper) return;
 
   tbody.innerHTML = '';
+
+  // ===== Mapping HSA ke nama file dasar =====
+  const hsaFileMap = {
+    'dady': 'dady',
+    'eka': 'eka',
+    'eka (cpd)': 'eka',
+    'herlando': 'herlando',
+    'vicky': 'viki',
+    'elri': 'elri',
+    'zulfa': 'zulfa',
+    'yanto cilegon': 'yanto',
+    'yanto lebak': 'yanto',
+    'guntur': 'guntur',
+    'danang': 'danang'
+  };
 
   data.forEach((row, index) => {
     const raw = row[valueKey];
@@ -618,12 +637,31 @@ function renderRankingTable({
     else if (index === 1) badge = '<span class="badge badge-silver">🥈</span>';
     else if (index === 2) badge = '<span class="badge badge-bronze">🥉</span>';
 
+    let nameHtml = row[labelKey] ?? '-';
+
+    // ===== Tambahkan foto jika showPhoto=true =====
+    if (showPhoto) {
+      const rawName = (row[labelKey] ?? '').toLowerCase().trim();
+      const baseFileName = hsaFileMap[rawName] ?? null;
+      let photoFile = 'default.png';
+
+      if (baseFileName) {
+        if (index <= 2) photoFile = `${baseFileName}_juara.png`;
+        else photoFile = `${baseFileName}_kalah.png`;
+      }
+
+      nameHtml = `
+        <img src="assets/img/${photoFile}" alt="${row[labelKey] ?? '-'}" class="rounded-circle me-2" style="width:30px;height:30px;object-fit:cover;">
+        ${row[labelKey] ?? '-'}
+      `;
+    }
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="fw-semibold">
+      <td class="fw-semibold d-flex align-items-center">
         ${badge}
         <span class="text-muted me-2">${index + 1}.</span>
-        ${row[labelKey] ?? '-'}
+        ${nameHtml}
       </td>
       <td class="text-end fw-bold ${isLow ? 'text-danger' : 'text-success'}">
         ${isNaN(num) ? raw ?? '-' : num.toFixed(2) + '%'}
@@ -636,6 +674,7 @@ function renderRankingTable({
   loading.classList.add('d-none');
   wrapper.classList.remove('d-none');
 }
+
 
 
 /* ===============================
@@ -655,7 +694,8 @@ async function loadKpiRankingHSA() {
       loadingId: 'b2bTable1Loading',
       wrapperId: 'b2bTable1Wrapper',
       labelKey: json.headers[0],
-      valueKey: json.headers[1]
+      valueKey: json.headers[1],
+      showPhoto: true // ✅ tampilkan foto HSA
     });
 
   } catch (err) {
@@ -676,8 +716,9 @@ async function loadKpiRankingMitra() {
       bodyId: 'b2bTable2Body',
       loadingId: 'b2bTable2Loading',
       wrapperId: 'b2bTable2Wrapper',
-      labelKey: json.headers[0],   // MITRA
-      valueKey: json.headers[1]    // TOTAL ACH
+      labelKey: json.headers[0],
+      valueKey: json.headers[1],
+      showPhoto: false // ❌ jangan tampilkan foto MITRA
     });
 
   } catch (err) {
