@@ -11,3 +11,31 @@
     padding: 0.5rem 0.25rem;
 }
 
+#dashboard-b2b-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.85); /* tema putih */
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #333333;
+  font-size: 14px;
+}
+
+#dashboard-b2b-loading.d-none {
+  display: none;
+}
+
+#dashboard-b2b-loading .spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid rgba(0,0,0,.1);
+  border-top-color: #00BCD4; /* accent cyan */
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin-bottom: 8px;
+}
+
+
