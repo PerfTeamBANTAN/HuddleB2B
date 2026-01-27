@@ -56,3 +56,17 @@
   display: block;
 }
 
+/* ===== GLOBAL MODAL OVERRIDE ===== */
+#global-modal .modal-content {
+  background-color: #1a2a6c;
+  color: #ffffff;
+}
+
+#global-modal .modal-header {
+  border-bottom: 1px solid rgba(255,255,255,.2);
+}
+
+#global-modal table th {
+  background: #FFFFFF;
+  color: #333333;
+}
