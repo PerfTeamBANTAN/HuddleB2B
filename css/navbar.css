@@ -1,1 +1,18 @@
+/* ===========================
+   NAVBAR / SIDEBAR
+   =========================== */
+
+.navbar, .sidebar {
+    background: linear-gradient(to bottom, #1a2a6c, #b21f1f); /* Gradien gelap */
+    color: #FFFFFF; /* teks di atas gradien */
+}
+
+.navbar a, .sidebar a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.navbar a:hover, .sidebar a:hover {
+    color: #00BCD4; /* Aksen cerah */
+}
 
