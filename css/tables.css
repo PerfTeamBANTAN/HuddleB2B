@@ -151,3 +151,13 @@ table tr:hover td {
   color: #adb5bd;
   padding: 12px;
 }
+
+.link-tiket-hi {
+  color: #00BCD4;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.link-tiket-hi:hover {
+  text-decoration: underline;
+}
