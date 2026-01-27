@@ -1,8 +1,8 @@
 /* =====================================================
-   FREEZE HEADER (COMPATIBLE WITH table-responsive)
+   SCROLL CONTAINER & STICKY HEADER
 ===================================================== */
 .table-responsive {
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 300px);
   overflow: auto;
   position: relative;
 }
@@ -10,24 +10,101 @@
 #ttr-table thead th {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: linear-gradient(
-    180deg,
-    #0b1f23 0%,
-    #07191c 100%
-  );
-  border-bottom: 2px solid rgba(0,255,255,0.65);
+  z-index: 20;
+  background: linear-gradient(180deg, #0b1f23, #07191c);
+  border-bottom: 2px solid rgba(0,255,255,0.8);
 }
 
-/* kalau header 2 baris (group + subheader) */
-#ttr-table thead tr:nth-child(2) th {
-  top: 36px;
-  z-index: 11;
+#ttr-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 15;
 }
-
 
 /* =====================================================
-   CYAN GROUP COLUMN DIVIDER
+   TABLE LAYOUT
+===================================================== */
+#ttr-table {
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
+}
+
+#ttr-table th,
+#ttr-table td {
+  padding: 8px 12px;
+  font-size: 13px;
+  min-width: 70px;
+}
+
+/* =====================================================
+   BODY STYLE
+===================================================== */
+#ttr-table-body td {
+  text-align: center;
+  vertical-align: middle;
+  background-color: #061c20;
+  color: #d9fefe;
+  white-space: nowrap;
+}
+
+#ttr-table-body tr:nth-child(even) td {
+  background-color: #072227;
+}
+
+#ttr-table-body tr:hover td {
+  background-color: rgba(0,255,255,0.12) !important;
+  transition: background 0.15s ease;
+}
+
+/* =====================================================
+   IDENTITAS & STATUS
+===================================================== */
+td.col-sto,
+td.col-witel {
+  text-align: left;
+  font-weight: 600;
+  color: #eaffff;
+}
+
+.text-danger {
+  color: #ff5c5c !important;
+  font-weight: 700;
+}
+
+#ttr-table-body span.text-primary {
+  color: #33ffff !important;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* =====================================================
+   COLUMN WIDTH CONTROL
+===================================================== */
+.col-sto,
+.freeze-col {
+  min-width: 70px;
+  max-width: 80px;
+}
+
+.col-witel,
+.freeze-col-2 {
+  min-width: 110px;
+}
+
+.col-percent {
+  min-width: 85px;
+}
+
+#ttr-table th:last-child,
+#ttr-table td:last-child {
+  min-width: 240px;
+  text-align: left;
+}
+
+/* =====================================================
+   GROUP DIVIDER
 ===================================================== */
 .grp-start {
   border-left: 3px solid rgba(0,255,255,0.9) !important;
@@ -37,7 +114,6 @@
   border-right: 3px solid rgba(0,255,255,0.9) !important;
 }
 
-/* efek glow lembut */
 .grp-start,
 .grp-end {
   box-shadow:
@@ -46,61 +122,9 @@
 }
 
 /* =====================================================
-   TABLE BODY POLISH
+   GROUP HEADER
 ===================================================== */
-#ttr-table-body td {
-  font-size: 13px;
-  padding: 7px 10px;
-  text-align: center;
-  vertical-align: middle;
-  background-color: #061c20;
-  color: #d9fefe;
-  white-space: nowrap;
-}
-
-/* zebra */
-#ttr-table-body tr:nth-child(even) td {
-  background-color: #072227;
-}
-
-/* hover */
-#ttr-table-body tr:hover td {
-  background-color: rgba(0,255,255,0.10) !important;
-  transition: background 0.15s ease;
-}
-
-/* kolom identitas */
-td.col-sto,
-td.col-witel {
-  text-align: left;
-  font-weight: 600;
-  color: #eaffff;
-}
-
-/* angka link */
-#ttr-table-body span.text-primary {
-  color: #33ffff !important;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* nilai gagal */
-#ttr-table-body .text-danger {
-  color: #ff5c5c !important;
-  font-weight: 700;
-}
-
-
-/* =====================================================
-   GROUP HEADER STYLE
-===================================================== */
-th.grp-indibiz-4h,
-th.grp-indibiz-24h,
-th.grp-reseller-6h,
-th.grp-reseller-36h,
-th.grp-datin-k2,
-th.grp-datin-k3 {
+th[class^="grp-"] {
   background: linear-gradient(
     180deg,
     rgba(0,255,255,0.20),
@@ -112,7 +136,13 @@ th.grp-datin-k3 {
   white-space: nowrap;
 }
 
+/* =====================================================
+   BORDER & SHADOW
+===================================================== */
 .table-dark.table-bordered > :not(caption) > * > * {
-  border-color: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.10);
 }
 
+.table-responsive {
+  box-shadow: inset 0 1px 0 rgba(0,255,255,0.3);
+}
