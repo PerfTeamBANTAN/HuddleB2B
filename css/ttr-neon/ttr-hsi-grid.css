@@ -34,27 +34,6 @@ table tbody tr:hover td {
 }
 
 /* =====================================================
-   FREEZE COL (STO + WITEL) 
-===================================================== */
-.freeze-col,
-.freeze-col-2 {
-  position: sticky;
-  left: 0;
-  background: #1d1f22; /* dark */
-  z-index: 4;
-}
-
-.freeze-col-2 {
-  left: 80px; /* adjust sesuai STO width */
-  z-index: 5;
-}
-
-table tbody tr:hover .freeze-col,
-table tbody tr:hover .freeze-col-2 {
-  background: #272a2e;
-}
-
-/* =====================================================
    BASE TABLE ADJUSTMENT
 ===================================================== */
 #ttr-table-head th {
