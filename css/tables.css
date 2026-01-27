@@ -59,3 +59,61 @@ table tr:hover td {
   text-decoration: underline;
 }
 
+/* =========================
+   ASGAR HSI TABLE
+========================= */
+
+#asgar-hsi-table-head th {
+  background: linear-gradient(180deg, var(--grad-start), var(--grad-end));
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+}
+
+#asgar-hsi-table-body td {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+#asgar-hsi-table-body tr:hover {
+  background-color: #f5f9fb;
+}
+
+/* pragnosa bad row */
+.tr-pragnosa-bad {
+  background-color: rgba(239,83,80,0.12);
+}
+
+/* clickable links */
+#asgar-hsi-table-body a {
+  text-decoration: none;
+  font-weight: 700;
+}
+
+#asgar-hsi-table-body a.text-danger {
+  color: var(--danger);
+}
+
+#asgar-hsi-table-body a.text-info {
+  color: var(--accent);
+}
+
+#asgar-hsi-table-body a.text-primary {
+  color: var(--accent);
+}
+
+/* =========================
+   MODAL DETAIL TABLE (ASGAR)
+========================= */
+
+#tiket-hi-head th {
+  background: linear-gradient(180deg, var(--grad-start), var(--grad-end));
+  color: #fff;
+  font-size: 12px;
+}
+
+#tiket-hi-body td {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
