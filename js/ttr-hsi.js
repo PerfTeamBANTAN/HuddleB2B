@@ -282,39 +282,120 @@ function renderTTRTable() {
   thead.innerHTML = '';
   body.innerHTML = '';
 
+  // buat group map & boundaries
   const groupMap = {};
   ttrHeaders.forEach(h => groupMap[h] = getGroupClass(h));
 
   const groupBounds = {};
   ttrHeaders.forEach((h,i)=>{
-    const grp = groupMap[h]; if(!grp) return;
+    const grp = groupMap[h]; 
+    if(!grp) return;
     if(!groupBounds[grp]) groupBounds[grp] = {start:i,end:i};
     else groupBounds[grp].end = i;
   });
 
-  // HEADER
+  // HEADER_MAP sesuai currentType
+  let HEADER_MAP = [];
+
+  if (currentType === 'ttr_datin_table') {
+    HEADER_MAP = [
+      { label: 'STO',   cols: ['STO'] },
+      { label: 'WITEL', cols: ['WITEL'] },
+      {
+        label: 'TTR DATIN K2',
+        grp: 'grp-datin-k2',
+        cols: [
+          '% TTR Datin K2',
+          'Tot Tiket K2',
+          'Tiket Not Ach K2',
+          'Tiket K2 HI'
+        ]
+      },
+      {
+        label: 'TTR DATIN K3',
+        grp: 'grp-datin-k3',
+        cols: [
+          '% TTR Datin K3',
+          'Tot Tiket K3',
+          'Tiket Not Ach K3',
+          'Tiket K3 HI'
+        ]
+      },
+      { label: 'PIC', cols: ['PIC'] }
+    ];
+  } else {
+    HEADER_MAP = [
+      { label: 'STO',   cols: ['STO'] },
+      { label: 'WITEL', cols: ['WITEL'] },
+      {
+        label: 'TTR INDIBIZ 4H',
+        grp: 'grp-indibiz-4h',
+        cols: [
+          '% TTR INDIBIZ 4H',
+          'Tot Tiket INDIBIZ 4H',
+          'Tiket Not Ach INDIBIZ 4H',
+          'Tiket INDIBIZ 4H HI'
+        ]
+      },
+      {
+        label: 'TTR INDIBIZ 24H',
+        grp: 'grp-indibiz-24h',
+        cols: [
+          '% TTR INDIBIZ 24H',
+          'Tot Tiket INDIBIZ 24H',
+          'Tiket Not Ach INDIBIZ 24H',
+          'Tiket INDIBIZ 24H HI'
+        ]
+      },
+      {
+        label: 'TTR RESELLER 6H',
+        grp: 'grp-reseller-6h',
+        cols: [
+          '% TTR RESELLER 6H',
+          'Tot Tiket RESELLER 6H',
+          'Tiket Not Ach RESELLER 6H',
+          'Tiket RESELLER 6H HI'
+        ]
+      },
+      {
+        label: 'TTR RESELLER 36H',
+        grp: 'grp-reseller-36h',
+        cols: [
+          '% TTR RESELLER 36H',
+          'Tot Tiket RESELLER 36H',
+          'Tiket Not Ach RESELLER 36H',
+          'Tiket RESELLER 36H HI'
+        ]
+      },
+      { label: 'PIC', cols: ['PIC'] }
+    ];
+  }
+
+  // CREATE HEADER ROWS
   const trGroup = document.createElement('tr'); trGroup.className='ttr-group-row';
   const trSub   = document.createElement('tr'); trSub.className='ttr-sub-row';
 
-  HEADER_MAP.forEach(block=>{
-    if(block.cols.length===1){
+  HEADER_MAP.forEach(block => {
+    if(block.cols.length === 1){
       const th = document.createElement('th');
-      th.textContent=block.label; th.rowSpan=2;
+      th.textContent = block.label;
+      th.rowSpan = 2;
       th.className = block.label==='STO'?'col-sto grp-start':block.label==='WITEL'?'col-witel grp-end':'grp-start grp-end';
-      trGroup.appendChild(th); return;
+      trGroup.appendChild(th);
+      return;
     }
+
     const thGroup = document.createElement('th');
-    thGroup.colSpan=block.cols.length; thGroup.textContent=block.label;
-    const grpClass = getGroupClass(block.label);
-    thGroup.className=`${grpClass} grp-start grp-end`;
+    thGroup.colSpan = block.cols.length;
+    thGroup.textContent = block.label;
+    const grpClass = block.grp || '';
+    thGroup.className = grpClass ? `${grpClass} grp-start grp-end` : '';
     trGroup.appendChild(thGroup);
 
-    block.cols.forEach((h,idx)=>{
+    block.cols.forEach((h, idx) => {
       const thSub = document.createElement('th');
-      if(h.includes('%')) thSub.textContent='%';
-      else if(h.toLowerCase().includes('not ach')) thSub.innerHTML='Not<br>Ach';
-      else thSub.textContent='Ticket';
-      thSub.classList.add(grpClass);
+      thSub.innerHTML = formatHeaderLabel(h);
+      if(grpClass) thSub.classList.add(grpClass);
       if(idx===0) thSub.classList.add('grp-start');
       if(idx===block.cols.length-1) thSub.classList.add('grp-end');
       trSub.appendChild(thSub);
@@ -325,34 +406,39 @@ function renderTTRTable() {
   thead.appendChild(trSub);
 
   // BODY
-  ttrRawData.filter(r=>(!fw||r.WITEL===fw)&&(!fs||r.STO===fs)&&(!fp||r.PIC===fp))
-    .forEach(r=>{
+  ttrRawData
+    .filter(r => (!fw || r.WITEL===fw) && (!fs || r.STO===fs) && (!fp || r.PIC===fp))
+    .forEach(r => {
       const tr = document.createElement('tr');
-      ttrHeaders.forEach((h,idx)=>{
+      ttrHeaders.forEach((h, idx) => {
         const td = document.createElement('td');
+
         if(h.includes('%')) td.classList.add('col-percent');
         if(h.toLowerCase().includes('tiket')) td.classList.add('col-ticket');
 
         const grp = groupMap[h];
-        if(grp){ td.classList.add(grp); if(groupBounds[grp]?.start===idx) td.classList.add('grp-start'); if(groupBounds[grp]?.end===idx) td.classList.add('grp-end'); }
+        if(grp){
+          td.classList.add(grp);
+          if(groupBounds[grp]?.start === idx) td.classList.add('grp-start');
+          if(groupBounds[grp]?.end === idx) td.classList.add('grp-end');
+        }
         if(h==='STO') td.classList.add('col-sto');
         if(h==='WITEL') td.classList.add('col-witel');
 
-        const value = h.includes('%')?fmtPercent(r[h]):h.toLowerCase().includes('tiket')?fmtInt(r[h]):fmt(r[h]);
-        const endpoint = getDetailEndpoint(currentType,h);
+        const value = h.includes('%') ? fmtPercent(r[h]) : h.toLowerCase().includes('tiket') ? fmtInt(r[h]) : fmt(r[h]);
+        const endpoint = getDetailEndpoint(currentType, h);
 
         if(endpoint && Number(r[h])>0){
-          td.innerHTML=`<span class="text-primary fw-bold" onclick="openTTRDetail('${endpoint}','${r.STO}','${h}')" style="cursor:pointer">${value}</span>`;
-        }else if(isAlertCell(currentType,h,r)){
-          td.innerHTML=`<span class="text-danger fw-bold">${value}</span>`;
-        }else td.textContent=value;
+          td.innerHTML = `<span class="text-primary fw-bold" onclick="openTTRDetail('${endpoint}','${r.STO}','${h}')" style="cursor:pointer">${value}</span>`;
+        } else if(isAlertCell(currentType, h, r)){
+          td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
+        } else td.textContent = value;
 
         tr.appendChild(td);
       });
       body.appendChild(tr);
     });
 }
-
 
 /* =====================================================
    OPEN DETAIL TTR MODAL (GLOBAL MODAL)
