@@ -247,13 +247,43 @@ function initTTRFilter() {
   pic.onchange   = renderTTRTable;
 }
 
+function buildGroupBoundaries(headers) {
+  const map = {};
+  headers.forEach((h, i) => {
+    const grp = getGroupClass(h);
+    if (!grp) return;
+
+    if (!map[grp]) {
+      map[grp] = { start: i, end: i };
+    } else {
+      map[grp].end = i;
+    }
+  });
+  return map;
+}
+
 /* =====================================================
    RENDER TABLE (CLICK ENABLED)
 ===================================================== */
 function renderTTRTable() {
 
+  /* ===============================
+     PREPARE GROUP MAP & BOUNDARY
+  =============================== */
   const groupMap = {};
   ttrHeaders.forEach(h => groupMap[h] = getGroupClass(h));
+
+  const groupBounds = {};
+  ttrHeaders.forEach((h, i) => {
+    const grp = groupMap[h];
+    if (!grp) return;
+    if (!groupBounds[grp]) {
+      groupBounds[grp] = { start: i, end: i };
+    } else {
+      groupBounds[grp].end = i;
+    }
+  });
+
   const head = document.getElementById('ttr-table-head');
   const body = document.getElementById('ttr-table-body');
 
@@ -261,41 +291,60 @@ function renderTTRTable() {
   const fs = document.getElementById('ttr-filter-sto').value;
   const fp = document.getElementById('ttr-filter-pic').value;
 
+  /* ===============================
+     RENDER HEADER
+  =============================== */
   head.innerHTML = '';
-ttrHeaders.forEach((h, idx) => {
 
-  const th = document.createElement('th');
-  th.innerHTML = formatHeaderLabel(h);
-  th.style.textAlign = 'center';
+  ttrHeaders.forEach((h, idx) => {
 
-  const grp = groupMap[h];
-  if (grp) th.classList.add(grp);
+    const th = document.createElement('th');
+    th.innerHTML = formatHeaderLabel(h);
+    th.style.textAlign = 'center';
 
-  // FREEZE: STO + WITEL
-  if (h === 'STO')   th.classList.add('freeze-col');
-  if (h === 'WITEL') th.classList.add('freeze-col-2');
+    const grp = groupMap[h];
+    if (grp) {
+      th.classList.add(grp);
+      if (groupBounds[grp]?.start === idx) th.classList.add('grp-start');
+      if (groupBounds[grp]?.end === idx)   th.classList.add('grp-end');
+    }
 
-  head.appendChild(th);
-});
+    // FREEZE COL
+    if (h === 'STO')   th.classList.add('freeze-col');
+    if (h === 'WITEL') th.classList.add('freeze-col-2');
 
+    head.appendChild(th);
+  });
 
+  /* ===============================
+     RENDER BODY
+  =============================== */
   body.innerHTML = '';
 
   ttrRawData
-    .filter(r => (!fw || r.WITEL === fw) && (!fs || r.STO === fs) && (!fp || r.PIC === fp))
+    .filter(r =>
+      (!fw || r.WITEL === fw) &&
+      (!fs || r.STO === fs) &&
+      (!fp || r.PIC === fp)
+    )
     .forEach(r => {
 
       const tr = document.createElement('tr');
 
-      ttrHeaders.forEach(h => {
+      ttrHeaders.forEach((h, idx) => {
 
         const td = document.createElement('td');
-         const grp = groupMap[h];
-         if (grp) td.classList.add(grp);
 
-         // FREEZE: STO + WITEL
-         if (h === 'STO')   td.classList.add('freeze-col');
-         if (h === 'WITEL') td.classList.add('freeze-col-2');
+        const grp = groupMap[h];
+        if (grp) {
+          td.classList.add(grp);
+          if (groupBounds[grp]?.start === idx) td.classList.add('grp-start');
+          if (groupBounds[grp]?.end === idx)   td.classList.add('grp-end');
+        }
+
+        // FREEZE COL
+        if (h === 'STO')   td.classList.add('freeze-col', 'col-sto');
+        if (h === 'WITEL') td.classList.add('freeze-col-2', 'col-witel');
 
         const value =
           h.includes('%') ? fmtPercent(r[h]) :
@@ -306,13 +355,16 @@ ttrHeaders.forEach((h, idx) => {
 
         if (endpoint && Number(r[h]) > 0) {
           td.innerHTML = `
-            <span class="text-primary fw-bold" style="cursor:pointer"
-              onclick="openTTRDetail('${endpoint}','${r.STO}','${h}')">
+            <span class="text-primary fw-bold"
+              onclick="openTTRDetail('${endpoint}','${r.STO}','${h}')"
+              style="cursor:pointer">
               ${value}
             </span>`;
-        } else if (isAlertCell(currentType, h, r)) {
+        }
+        else if (isAlertCell(currentType, h, r)) {
           td.innerHTML = `<span class="text-danger fw-bold">${value}</span>`;
-        } else {
+        }
+        else {
           td.textContent = value;
         }
 
