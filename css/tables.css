@@ -125,3 +125,16 @@ table tr:hover td {
   color: #fff;
 }
 
+.kpi-th {
+  background: #f8f9fa;
+}
+
+.kpi-td {
+  font-size: 13px;
+}
+
+.kpi-not-ach {
+  background: rgba(239,83,80,.15);
+  color: #EF5350;
+  font-weight: 700;
+}
