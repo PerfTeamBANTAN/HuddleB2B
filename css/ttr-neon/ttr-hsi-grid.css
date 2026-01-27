@@ -84,8 +84,10 @@
 
 /* ROW 2 – SUB HEADER */
 #ttr-table thead tr.ttr-sub-row th {
-  top: var(--ttr-offset, 42px);
+  position: sticky;
+  top: 42px;
   z-index: 999;
+}
 
   height: 36px;
   padding: 8px 6px;
@@ -255,3 +257,23 @@ td.col-witel {
   background: linear-gradient(180deg, #00ffff, #007777);
   border-radius: 10px;
 }
+
+#ttr-wrapper,
+.district-wrapper,
+.card,
+.card-body {
+  overflow: visible !important;
+}
+
+.ttr-table-wrapper {
+  height: 500px; /* pakai height dulu untuk test */
+  overflow: auto;
+  position: relative;
+}
+
+#ttr-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
