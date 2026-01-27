@@ -1,1 +1,20 @@
+/* ===========================
+   SUMMARY CARDS
+   =========================== */
+
+.summary-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 1rem;
+    color: #333333;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.summary-card .value {
+    color: #00BCD4; /* aksen cerah */
+}
+
+.summary-card .progress-bar {
+    background: linear-gradient(to right, #1a2a6c, #b21f1f); /* gradien gelap */
+}
 
