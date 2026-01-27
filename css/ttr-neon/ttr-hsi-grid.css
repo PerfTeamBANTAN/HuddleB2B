@@ -1,0 +1,129 @@
+/* ===============================================
+   WRAPPER UNTUK SCROLL
+================================================== */
+#ttr-wrapper .table-responsive {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: calc(100vh - 260px);
+  border: 1px solid rgba(56,189,248,.15);
+  border-radius: 4px;
+}
+
+
+/* ===============================================
+   TABLE BASE (NEON DARK)
+================================================== */
+#ttr-table {
+  background: #06090f;
+  color: #e2e8f0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  width: max-content; /* biar horizontal scroll jalan */
+  table-layout: fixed;
+}
+
+
+/* ===============================================
+   HEADER FREEZE + BLUR
+================================================== */
+#ttr-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgba(10,15,24,.95);
+  backdrop-filter: blur(6px);
+  color: #7dd3fc !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(56,189,248,.8);
+  padding: 6px 8px;
+
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+
+/* ===============================================
+   FREEZE FIRST COLUMNS — STO & WITEL
+================================================== */
+#ttr-table td.freeze-col,
+#ttr-table th.freeze-col {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  background: rgba(6,9,15,.95);
+  backdrop-filter: blur(4px);
+  border-right: 1px solid rgba(56,189,248,.15);
+}
+
+#ttr-table td.freeze-col-2,
+#ttr-table th.freeze-col-2 {
+  left: 90px; /* adjust sesuai width STO */
+  z-index: 4;
+}
+
+
+/* ===============================================
+   BODY CELL + GRID NEON
+================================================== */
+#ttr-table tbody td {
+  padding: 5px 8px;
+  background: #06090f;
+  border-right: 1px solid rgba(120,150,180,.12);
+  border-bottom: 1px solid rgba(120,150,180,.12);
+}
+
+
+/* ===============================================
+   GROUP SEPARATOR (NEON)
+================================================== */
+#ttr-table .grp-indibiz-4h {
+  border-left: 2px solid rgba(244,114,182,.7);
+  box-shadow: inset 6px 0 12px -6px rgba(244,114,182,.45);
+}
+
+#ttr-table .grp-indibiz-24h {
+  border-left: 2px solid rgba(251,191,36,.7);
+  box-shadow: inset 6px 0 12px -6px rgba(251,191,36,.45);
+}
+
+#ttr-table .grp-reseller-6h {
+  border-left: 2px solid rgba(45,212,191,.7);
+  box-shadow: inset 6px 0 12px -6px rgba(45,212,191,.45);
+}
+
+#ttr-table .grp-reseller-36h {
+  border-left: 2px solid rgba(167,139,250,.7);
+  box-shadow: inset 6px 0 12px -6px rgba(167,139,250,.45);
+}
+
+
+/* ===============================================
+   HOVER EFFECT
+================================================== */
+#ttr-table tbody tr:hover {
+  background: rgba(34,211,238,.07);
+  box-shadow: inset 0 0 10px rgba(34,211,238,.3);
+  transition: background .15s ease;
+}
+
+
+/* ===============================================
+   VALUE COLOR
+================================================== */
+#ttr-table .text-danger {
+  color: #fb7185 !important;
+  font-weight: 600;
+}
+
+#ttr-table .text-primary {
+  color: #38bdf8 !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#ttr-table .text-primary:hover {
+  color: #7dd3fc !important;
+  text-decoration: underline;
+}
