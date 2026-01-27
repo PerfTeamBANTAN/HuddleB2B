@@ -1,27 +1,16 @@
 <div id="dashboard-b2c-wrapper" class="dashboard-dark container-fluid px-3 px-lg-4 pb-4">
 
   <!-- ================= HEADER ================= -->
-  <div class="dashboard-header mb-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h4 class="fw-bold mb-0">DASHBOARD B2C DISTRICT BANTEN</h4>
-      <div class="last-update small text-muted" id="b2cLastUpdate">Loading...</div>
-    </div>
+  <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
+    <h4 class="fw-bold mb-0">DASHBOARD B2C DISTRICT BANTEN</h4>
+    <div class="last-update small text-muted" id="b2cLastUpdate">Loading...</div>
   </div>
 
   <div id="content-area" class="safe-scroll-wrapper">
 
     <!-- ================= SUMMARY KPI ================= -->
     <div class="row g-3 mb-4" id="b2cSummary">
-      <div class="col-12">
-        <div class="panel-card">
-          <div class="panel-body text-center py-4">
-            <div class="summary-loading loading-card">
-              <div class="spinner-border text-info mb-2"></div>
-              <div class="small text-muted">Loading summary data...</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Summary cards akan di-render di sini -->
     </div>
 
     <!-- ================= MAIN CONTENT ================= -->
@@ -44,22 +33,20 @@
         </div>
       </div>
 
-      <!-- ========== RIGHT : TABLES + RANKING ========== -->
+      <!-- ========== RIGHT : KPI NOT ACH + RANKING ========== -->
       <div class="col-lg-4 col-xl-4">
 
-        <!-- ================= TANGERANG ================= -->
+        <!-- ================= KPI NOT ACH - TANGERANG ================= -->
         <div class="panel-card mb-4">
-          <div class="panel-header">
+          <div class="panel-header d-flex justify-content-between align-items-center">
             <span class="text-warning">KPI NOT ACH - TANGERANG</span>
             <span class="badge bg-danger">Not Ach</span>
           </div>
-
           <div class="panel-body p-0">
             <div id="b2cTableLoadingTgr" class="table-loading text-center py-4">
               <div class="spinner-border spinner-border-sm text-warning mb-2"></div>
               <div class="small text-muted">Loading table...</div>
             </div>
-
             <div class="table-responsive d-none" id="b2cTableWrapperTgr">
               <table class="table table-dark table-sm align-middle kpi-table mb-0">
                 <thead>
@@ -79,19 +66,17 @@
           </div>
         </div>
 
-        <!-- ================= BANTEN ================= -->
+        <!-- ================= KPI NOT ACH - BANTEN ================= -->
         <div class="panel-card mb-4">
-          <div class="panel-header">
+          <div class="panel-header d-flex justify-content-between align-items-center">
             <span class="text-info">KPI NOT ACH - BANTEN</span>
             <span class="badge bg-danger">Not Ach</span>
           </div>
-
           <div class="panel-body p-0">
             <div id="b2cTableLoadingBtn" class="table-loading text-center py-4">
               <div class="spinner-border spinner-border-sm text-info mb-2"></div>
               <div class="small text-muted">Loading table...</div>
             </div>
-
             <div class="table-responsive d-none" id="b2cTableWrapperBtn">
               <table class="table table-dark table-sm align-middle kpi-table mb-0">
                 <thead>
@@ -111,82 +96,44 @@
           </div>
         </div>
 
-        <!-- ================= B2C RANKING HSA & MITRA (PINDAH KE KANAN) ================= -->
+        <!-- ================= RANKING HSA & MITRA ================= -->
         <div class="panel-card">
           <div class="panel-header">
             <span class="text-success fw-bold">B2C PERFORMANCE HSA & MITRA</span>
           </div>
-
           <div class="panel-body">
-            <div class="row g-3">
 
-              <!-- ===== RANKING HSA ===== -->
-              <div class="col-12">
-                <div class="panel-card h-100">
-                  <div class="panel-header py-2">
-                    <span class="small text-success">RANKING B2C HSA</span>
-                  </div>
-
-                  <div class="panel-body p-0">
-                    <div id="b2bTable1Loading" class="table-loading text-center py-4">
-                      <div class="spinner-border spinner-border-sm text-success mb-2"></div>
-                      <div class="small text-muted">Loading table...</div>
-                    </div>
-
-                    <div class="table-responsive d-none" id="b2bTable1Wrapper">
-                      <table class="table table-dark table-sm align-middle kpi-table mb-0">
-                        <thead>
-                          <tr>
-                            <th>HSA</th>
-                            <th>TOTAL ACH</th>
-                          </tr>
-                        </thead>
-                        <tbody id="b2bTable1Body"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+            <!-- ===== RANKING HSA ===== -->
+            <div class="mb-3">
+              <span class="small text-success">RANKING B2C HSA</span>
+              <div id="b2bTable1Body" class="ranking-wrapper mt-2">
+                <!-- JS akan render ranking cards di sini -->
               </div>
-
-              <!-- ===== RANKING MITRA ===== -->
-              <div class="col-12">
-                <div class="panel-card h-100">
-                  <div class="panel-header py-2">
-                    <span class="small text-success">RANKING B2C MITRA</span>
-                  </div>
-
-                  <div class="panel-body p-0">
-                    <div id="b2bTable2Loading" class="table-loading text-center py-4">
-                      <div class="spinner-border spinner-border-sm text-success mb-2"></div>
-                      <div class="small text-muted">Loading table...</div>
-                    </div>
-
-                    <div class="table-responsive d-none" id="b2bTable2Wrapper">
-                      <table class="table table-dark table-sm align-middle kpi-table mb-0">
-                        <thead>
-                          <tr>
-                            <th>MITRA</th>
-                            <th>TOTAL ACH</th>
-                          </tr>
-                        </thead>
-                        <tbody id="b2bTable2Body"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+              <div id="b2bTable1Loading" class="text-center py-2">
+                <div class="spinner-border spinner-border-sm text-success"></div>
+                <div class="small text-muted">Loading...</div>
               </div>
-
             </div>
+
+            <!-- ===== RANKING MITRA ===== -->
+            <div>
+              <span class="small text-success">RANKING B2C MITRA</span>
+              <div id="b2bTable2Body" class="ranking-wrapper mt-2">
+                <!-- JS akan render ranking cards di sini -->
+              </div>
+              <div id="b2bTable2Loading" class="text-center py-2">
+                <div class="spinner-border spinner-border-sm text-success"></div>
+                <div class="small text-muted">Loading...</div>
+              </div>
+            </div>
+
           </div>
         </div>
 
       </div>
     </div>
 
-    
-
-    <!-- ================= KPI GRID DETAIL TABLES (UNCHANGED) ================= -->
-    <!-- TANGERANG -->
+    <!-- ================= KPI GRID DETAIL TABLES ================= -->
     <div class="row g-3 mt-4">
       <div class="col-12">
         <div id="b2cKpiGridTableWrapper" class="d-none">
@@ -194,13 +141,11 @@
             <div class="panel-header">
               <span>KPI B2C TANGERANG</span>
             </div>
-
             <div class="panel-body p-0">
               <div id="b2cKpiGridTableLoading" class="text-center py-4">
                 <div class="spinner-border spinner-border-sm text-info mb-2"></div>
                 <div class="small text-muted">Loading table...</div>
               </div>
-
               <div class="table-responsive d-none" id="b2cKpiGridTableContent">
                 <table class="table table-dark table-sm align-middle kpi-table mb-0">
                   <thead id="b2cKpiGridTableHead"></thead>
@@ -208,32 +153,26 @@
                 </table>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ================= KPI GRID DETAIL TABLE - BANTEN ================= -->
     <div id="b2cKpiGridTableBtnWrapper" class="mt-4 d-none">
       <div class="panel-card">
         <div class="panel-header">
           <span>KPI B2C BANTEN</span>
         </div>
-
         <div class="panel-body p-0">
           <div id="b2cKpiGridTableBtnLoading" class="text-center py-4">
             <div class="spinner-border spinner-border-sm text-info mb-2"></div>
             <div class="small text-muted">Loading table...</div>
           </div>
-
-          <div class="kpi-table-scroll">
-            <div class="table-responsive d-none" id="b2cKpiGridTableBtnContent">
-              <table class="table table-dark table-sm align-middle kpi-table mb-0">
-                <thead id="b2cKpiGridTableBtnHead"></thead>
-                <tbody id="b2cKpiGridTableBtnBody"></tbody>
-              </table>
-            </div>
+          <div class="table-responsive d-none" id="b2cKpiGridTableBtnContent">
+            <table class="table table-dark table-sm align-middle kpi-table mb-0">
+              <thead id="b2cKpiGridTableBtnHead"></thead>
+              <tbody id="b2cKpiGridTableBtnBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -241,3 +180,5 @@
 
   </div>
 </div>
+
+<
