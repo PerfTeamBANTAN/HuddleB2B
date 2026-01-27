@@ -117,3 +117,11 @@ table tr:hover td {
   color: var(--text-main);
 }
 
+/* =========================
+   dashboard-b2b
+========================= */
+.table-danger {
+  background-color: #EF5350 !important;
+  color: #fff;
+}
+
