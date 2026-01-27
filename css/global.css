@@ -29,3 +29,14 @@ p, span, label, small {
     border-radius: 4px;
 }
 
+:root {
+  --bg-main: #FFFFFF;
+  --text-main: #333333;
+  --text-muted: #adb5bd;
+  --grad-start: #1a2a6c;
+  --grad-end: #b21f1f;
+  --accent: #00BCD4;
+  --danger: #EF5350;
+}
+
+
