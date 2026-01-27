@@ -525,9 +525,6 @@ function renderTTRTable() {
   setTimeout(fixTTRStickyOffset, 50);
 }
 
-
-}
-
 function fixTTRStickyOffset() {
   const groupRow = document.querySelector('#ttr-table thead tr.ttr-group-row');
   const subRow   = document.querySelector('#ttr-table thead tr.ttr-sub-row');
