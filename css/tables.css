@@ -138,3 +138,16 @@ table tr:hover td {
   color: #EF5350;
   font-weight: 700;
 }
+
+/* ===== DISTRICT BANTEN TABLE ===== */
+.tr-pragnosa-bad {
+  background-color: rgba(239,83,80,.15) !important;
+  color: #333333;
+  font-weight: 600;
+}
+
+.table-empty {
+  text-align: center;
+  color: #adb5bd;
+  padding: 12px;
+}
