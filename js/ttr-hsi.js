@@ -98,6 +98,16 @@ function getGroupClass(header) {
   return '';
 }
 
+function getGroupTitle(grp) {
+  if (grp.includes('indibiz-4h')) return 'TTR INDIBIZ 4H';
+  if (grp.includes('indibiz-24h')) return 'TTR INDIBIZ 24H';
+  if (grp.includes('reseller-6h')) return 'TTR RESELLER 6H';
+  if (grp.includes('reseller-36h')) return 'TTR RESELLER 36H';
+  if (grp.includes('datin-k2')) return 'TTR DATIN K2';
+  if (grp.includes('datin-k3')) return 'TTR DATIN K3';
+  return '';
+}
+
 /* =====================================================
    DETAIL ENDPOINT MAPPER (FIXED & COMPLETE)
 ===================================================== */
@@ -292,35 +302,94 @@ function renderTTRTable() {
   const fp = document.getElementById('ttr-filter-pic').value;
 
   /* ===============================
-     RENDER HEADER
-  =============================== */
-  const thead = document.getElementById('ttr-thead');
+   RENDER HEADER (2 ROW STICKY)
+=============================== */
+const thead = document.getElementById('ttr-thead');
 thead.innerHTML = '';
 
-const tr = document.createElement('tr');
+const trGroup = document.createElement('tr');
+trGroup.className = 'ttr-group-row';
 
-ttrHeaders.forEach((h, idx) => {
-  const th = document.createElement('th');
-  th.innerHTML = formatHeaderLabel(h);
-  th.classList.add('ttr-th');
+const trSub = document.createElement('tr');
+trSub.className = 'ttr-sub-row';
 
-  if (h.includes('%')) th.classList.add('col-percent');
-  if (h.toLowerCase().includes('tiket')) th.classList.add('col-ticket');
+let i = 0;
+while (i < ttrHeaders.length) {
+  const h = ttrHeaders[i];
+  const grp = getGroupClass(h);
 
-  const grp = groupMap[h];
-  if (grp) {
-    th.classList.add(grp);
-    if (groupBounds[grp]?.start === idx) th.classList.add('grp-start');
-    if (groupBounds[grp]?.end === idx)   th.classList.add('grp-end');
+  // STO & WITEL
+  if (h === 'STO' || h === 'WITEL') {
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.rowSpan = 2;
+    th.className = h === 'STO'
+      ? 'col-sto grp-start freeze-col'
+      : 'col-witel grp-end freeze-col-2';
+
+    trGroup.appendChild(th);
+    i++;
+    continue;
   }
 
-  if (h === 'STO')   th.classList.add('freeze-col');
-  if (h === 'WITEL') th.classList.add('freeze-col-2');
+  // GROUPED COLUMNS
+  if (grp) {
+    const bounds = groupBounds[grp];
+    const span = bounds.end - bounds.start + 1;
 
-  tr.appendChild(th);
-});
+    // GROUP HEADER CELL
+    const thGroup = document.createElement('th');
+    thGroup.colSpan = span;
+    thGroup.textContent = getGroupTitle(grp);
+    thGroup.className = `${grp} grp-start grp-end`;
 
-thead.appendChild(tr);
+    trGroup.appendChild(thGroup);
+
+    // SUB HEADERS
+    for (let j = bounds.start; j <= bounds.end; j++) {
+      const subH = ttrHeaders[j];
+      const thSub = document.createElement('th');
+
+      if (subH.includes('%')) {
+        thSub.textContent = '%';
+        thSub.classList.add('col-percent');
+      }
+      else if (subH.toLowerCase().includes('tiket')) {
+        thSub.textContent = 'Ticket';
+        thSub.classList.add('col-ticket');
+      }
+      else if (subH.toLowerCase().includes('not ach')) {
+        thSub.innerHTML = 'Not<br>Ach';
+      }
+      else {
+        thSub.textContent = 'HI';
+      }
+
+      thSub.classList.add(grp);
+
+      if (j === bounds.start) thSub.classList.add('grp-start');
+      if (j === bounds.end)   thSub.classList.add('grp-end');
+
+      trSub.appendChild(thSub);
+    }
+
+    i = bounds.end + 1;
+    continue;
+  }
+
+  // FALLBACK
+  i++;
+}
+
+// PIC
+const thPic = document.createElement('th');
+thPic.textContent = 'PIC';
+thPic.rowSpan = 2;
+thPic.className = 'grp-start';
+trGroup.appendChild(thPic);
+
+thead.appendChild(trGroup);
+thead.appendChild(trSub);
 
 
   /* ===============================
