@@ -245,3 +245,36 @@ td.col-witel {
   background: linear-gradient(180deg, #00ffff, #007777);
   border-radius: 10px;
 }
+
+/* WRAPPER SCROLL */
+.ttr-table-wrapper {
+  max-height: 70vh;
+  overflow: auto;
+  position: relative;
+}
+
+/* HEADER STICKY */
+#ttr-table thead th {
+  position: sticky;
+  z-index: 5;
+  background: #1f2933;
+}
+
+/* GROUP ROW (BARIS ATAS) */
+#ttr-table thead tr.ttr-group-row th {
+  top: 0;
+  z-index: 6;
+}
+
+/* SUB ROW (BARIS KEDUA) */
+#ttr-table thead tr.ttr-sub-row th {
+  z-index: 5;
+}
+
+/* BORDER GROUP */
+.grp-start {
+  border-left: 2px solid #444 !important;
+}
+.grp-end {
+  border-right: 2px solid #444 !important;
+}
