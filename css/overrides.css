@@ -1,1 +1,13 @@
+/* ===========================
+   OVERRIDES / FIXES
+   =========================== */
+
+/* Example fix for tables inside cards */
+.card table {
+    border: none;
+}
+
+.card table th, .card table td {
+    padding: 0.5rem 0.25rem;
+}
 
