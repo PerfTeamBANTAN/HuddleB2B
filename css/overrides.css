@@ -38,4 +38,21 @@
   margin-bottom: 8px;
 }
 
+.kpi-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 0;
+  background: #333;
+  color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  width: 220px;
+  display: none;
+  z-index: 20;
+}
+
+.kpi-card:hover .kpi-tooltip {
+  display: block;
+}
 
