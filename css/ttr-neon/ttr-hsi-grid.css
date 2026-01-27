@@ -1,136 +1,85 @@
-/* =====================================================
-   TTR HSI — Premium Dark Table
-===================================================== */
+/* ===========================
+   TTR HSI TABLE – FULL STYLE
+   =========================== */
 
-#ttr-wrapper {
-  color: #e5e7eb;
-  font-family: "Inter", sans-serif;
-}
-
-/* ===== Scroll wrapper ===== */
+/* Container scroll (Bootstrap .table-responsive override) */
 #ttr-wrapper .table-responsive {
-  overflow: auto;
-  max-height: calc(100vh - 260px);
-  border: 1px solid rgba(148,163,184,.15);
-  border-radius: 6px;
-  background: rgba(15,23,42,.75);
-  backdrop-filter: blur(10px);
+  max-height: 570px; /* adjust as needed */
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #222;
 }
 
-/* ===== Base table ===== */
-#ttr-table {
-  width: 100%;
-  table-layout: auto;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 13px;
-}
-
-/* ===== Header ===== */
+/* Sticky Header */
 #ttr-table thead th {
   position: sticky;
   top: 0;
-  z-index: 5;
-  background: rgba(2,6,23,.92);
-  backdrop-filter: blur(6px);
-  color: #d1d5db !important;
+  z-index: 20;
+  background-color: #1d1e1f; /* darker than table-dark */
+  border-bottom: 2px solid #444;
+  text-align: center;
   font-weight: 600;
-  letter-spacing: .2px;
-  text-transform: uppercase;
-  padding: 6px 10px;
-  border-bottom: 2px solid rgba(148,163,184,.3);
-}
-
-/* ===== Freeze first columns ===== */
-#ttr-table th.freeze-col,
-#ttr-table td.freeze-col {
-  position: sticky;
-  left: 0;
-  z-index: 4;
-  background: rgba(15,23,42,.92);
-  backdrop-filter: blur(4px);
-}
-
-#ttr-table th.freeze-col-2,
-#ttr-table td.freeze-col-2 {
-  left: 100px;
-}
-
-/* ===== Cell ===== */
-#ttr-table tbody td {
-  padding: 6px 10px;
-  background: rgba(17,24,39,.85);
-  border-right: 1px solid rgba(148,163,184,.08);
-  border-bottom: 1px solid rgba(148,163,184,.08);
   white-space: nowrap;
 }
 
-/* ===== Group separator (soft luxury) ===== */
-#ttr-table .grp-indibiz-4h {
-  border-left: 2px solid rgba(244,114,182,.55);
+/* Body cells */
+#ttr-table tbody td {
+  white-space: nowrap;
+  vertical-align: middle;
+  font-size: 13px;
+  padding: 4px 6px;
 }
 
-#ttr-table .grp-indibiz-24h {
-  border-left: 2px solid rgba(251,191,36,.55);
+/* First/Key Columns highlight (OPTIONAL) */
+#ttr-table tbody td:first-child,
+#ttr-table thead th:first-child {
+  background-color: #262729;
+  font-weight: 600;
 }
 
-#ttr-table .grp-reseller-6h {
-  border-left: 2px solid rgba(45,212,191,.55);
+#ttr-table tbody td:nth-child(2),
+#ttr-table thead th:nth-child(2) {
+  background-color: #262729;
+  font-weight: 600;
 }
 
-#ttr-table .grp-reseller-36h {
-  border-left: 2px solid rgba(167,139,250,.55);
-}
-
-/* ===== Hover ===== */
+/* Hover row */
 #ttr-table tbody tr:hover {
-  background: rgba(148,163,184,.08);
-  transition: background .18s ease;
+  background-color: rgba(255,255,255,0.05);
 }
 
-/* ===== Value colors ===== */
-#ttr-table .text-danger {
-  color: #f87171 !important;
+/* Coloring for NOT_COMPLY (merah) – activated via JS class */
+#ttr-table td.not-comply {
+  background-color: rgba(226, 65, 65, 0.5);
+  color: #fff;
   font-weight: 600;
 }
 
-#ttr-table .text-primary {
-  color: #38bdf8 !important;
-  cursor: pointer;
-  font-weight: 600;
+/* Alignment helpers */
+#ttr-table .text-right { text-align: right; }
+#ttr-table .text-center { text-align: center; }
+
+/* Scrollbar styling for Chromium/Edge */
+#ttr-wrapper .table-responsive::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+#ttr-wrapper .table-responsive::-webkit-scrollbar-track {
+  background: #222;
+}
+#ttr-wrapper .table-responsive::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
 }
 
-#ttr-table .text-primary:hover {
-  color: #7dd3fc !important;
-  text-decoration: underline;
-}
-
-/* ===== Last update ===== */
+/* Last update small styling */
 #ttr-last-update {
-  color: #9ca3af;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Modal detail tweaks */
+#global-modal .modal-body table {
   font-size: 12px;
 }
-
-/* ===== Loading overlay ===== */
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(4px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-  z-index: 10;
-}
-
-.loading-text {
-  color: #e5e7eb;
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-position: sticky; top: 0; z-index: 50;
-background: rgba(...); backdrop-filter: blur();
-
