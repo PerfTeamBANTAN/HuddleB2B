@@ -1,40 +1,17 @@
-.navbar {
-  background: linear-gradient(90deg, var(--grad-dark-1), var(--grad-dark-2));
-  box-shadow:
-    0 4px 20px rgba(0,0,0,0.4),
-    inset 0 0 1px rgba(255,255,255,0.1);
+/* =========================
+   NAVBAR / SIDEBAR
+   =========================*/
+
+.navbar, .sidebar {
+    background: linear-gradient(to bottom, #1a2a6c, #b21f1f); /* Gradien gelap */
+    color: #FFFFFF; /* teks di atas gradien */
 }
 
-.navbar-brand {
-  font-weight: 600;
-  letter-spacing: .5px;
-  color: #fff !important;
+.navbar a, .sidebar a {
+    color: #FFFFFF;
+    text-decoration: none;
 }
 
-.navbar-nav .nav-link {
-  color: rgba(255,255,255,0.85) !important;
-  margin-right: 12px;
-  transition: 0.3s;
-}
-
-.navbar-nav .nav-link:hover {
-  color: var(--accent-cyan) !important;
-}
-
-/* dropdown */
-.dropdown-menu {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  border: 1px solid rgba(139,92,246,0.25);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-.dropdown-item {
-  color: var(--text-main);
-  border-radius: 8px;
-}
-
-.dropdown-item:hover {
-  background: linear-gradient(90deg, #e0f2fe, #ede9fe);
+.navbar a:hover, .sidebar a:hover {
+    color: #00BCD4; /* Aksen cerah */
 }
