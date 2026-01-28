@@ -80,11 +80,6 @@ table tr:hover td {
   background-color: #f5f9fb;
 }
 
-/* pragnosa bad row */
-.tr-pragnosa-bad {
-  background-color: rgba(239,83,80,0.12);
-}
-
 /* clickable links */
 #asgar-hsi-table-body a {
   text-decoration: none;
