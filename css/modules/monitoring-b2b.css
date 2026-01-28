@@ -1,0 +1,26 @@
+/* =========================
+   MONITORING B2B MODULE ONLY
+========================= */
+
+#monitoring-b2b-update {
+  opacity: .85;
+  transition: opacity .15s ease;
+}
+
+#monitoring-b2b-update:hover {
+  opacity: 1;
+}
+
+/* total row */
+#monitoring-b2b-body tr.total-row td {
+  background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+  color: #fff;
+  font-weight: 800;
+  border-top: 2px solid var(--accent-color);
+}
+
+/* highlight Q HSI buruk */
+#monitoring-b2b-body td.qhsi-bad {
+  color: var(--danger-color);
+  font-weight: 800;
+}
