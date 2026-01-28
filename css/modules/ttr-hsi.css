@@ -1,0 +1,32 @@
+/* =========================
+   TTR HSI MODULE ONLY
+========================= */
+
+#ttr-loading-overlay {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(2px);
+}
+
+.grp-indibiz-4h { background-color: rgba(26,42,108,0.05); }
+.grp-indibiz-24h { background-color: rgba(178,31,31,0.05); }
+.grp-reseller-6h { background-color: rgba(0,188,212,0.05); }
+.grp-reseller-36h { background-color: rgba(239,83,80,0.05); }
+.grp-datin-k2 { background-color: rgba(26,42,108,0.08); }
+.grp-datin-k3 { background-color: rgba(178,31,31,0.08); }
+
+/* clickable KPI */
+#ttr-table-body span.text-primary {
+  cursor: pointer;
+  transition: transform .1s ease, opacity .1s ease;
+}
+
+#ttr-table-body span.text-primary:hover {
+  transform: scale(1.05);
+  opacity: .85;
+}
+
+/* modal detail override */
+#global-modal table {
+  background: #fff;
+  color: #333;
+}
