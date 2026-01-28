@@ -10,10 +10,10 @@ body, html {
     color: #333333; /* Teks utama */
 }
 
-/* Teks sekunder / netral */
-p, span, label, small {
-    color: #adb5bd;
+.text-muted {
+  color: var(--text-muted);
 }
+
 
 /* Scrollbar custom */
 ::-webkit-scrollbar {
