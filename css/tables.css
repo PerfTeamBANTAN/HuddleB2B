@@ -116,7 +116,7 @@ table tr:hover td {
 /* =========================
    dashboard-b2b
 ========================= */
-.table-danger {
+.ttr-table .table-danger {
   background-color: #EF5350 !important;
   color: #fff;
 }
