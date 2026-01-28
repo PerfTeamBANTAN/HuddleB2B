@@ -90,37 +90,4 @@
   width: 90px;
 }
 
-/* =========================
-   TTR SUMMARY CARDS
-========================= */
 
-.badge-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.08);
-  padding: 12px;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.badge-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
-}
-
-.badge-card-header {
-  font-weight: 700;
-  color: #1a2a6c;
-  margin-bottom: 6px;
-}
-
-.badge-card-body .row-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  border-bottom: 1px dashed #eee;
-  padding: 3px 0;
-}
-
-.badge-card-body .row-item:last-child {
-  border-bottom: none;
-}
