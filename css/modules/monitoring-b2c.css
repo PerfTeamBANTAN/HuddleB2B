@@ -1,0 +1,20 @@
+/* =========================
+   MONITORING B2C MODULE ONLY
+========================= */
+
+#monitoring-b2c-update {
+  opacity: .85;
+  transition: opacity .15s ease;
+}
+
+#monitoring-b2c-update:hover {
+  opacity: 1;
+}
+
+/* total row */
+#monitoring-b2c-body tr.total-row td {
+  background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+  color: #fff;
+  font-weight: 800;
+  border-top: 2px solid var(--accent-color);
+}
