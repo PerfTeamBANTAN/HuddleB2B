@@ -203,3 +203,49 @@ td.zero {
   background: rgba(0,0,0,.03);
 }
 
+/* =========================
+   TTR TABLE BASE
+========================= */
+
+.ttr-group-row th {
+  background: linear-gradient(90deg, #1a2a6c, #b21f1f);
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+}
+
+.ttr-sub-row th {
+  background: #f8f9fa;
+  color: #333;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.grp-start {
+  border-left: 2px solid #1a2a6c !important;
+}
+
+.grp-end {
+  border-right: 2px solid #b21f1f !important;
+}
+
+.col-percent {
+  text-align: center;
+  font-weight: 600;
+}
+
+.col-ticket {
+  text-align: center;
+}
+
+.col-sto,
+.col-witel {
+  font-weight: 700;
+  background: #fff;
+}
+
+/* hover row */
+#ttr-table-body tr:hover td {
+  background: rgba(0,0,0,0.03);
+}
+
